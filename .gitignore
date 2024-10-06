@@ -1,0 +1,7 @@
+__pycache__
+/data*
+/data*/
+/upstream
+/upstream/
+.venv/
+.idea/workspace.xml
