@@ -60,14 +60,18 @@ Optional extension of relation sets with the addition of inverse relations (if i
 **Suppliers**:  YAML/XML/pickle
 
 - [fromyaml](wordnet_fromyaml) : Supply model from YAML
+- [fromxml](wordnet_fromxml) : Supply model from (one-file) XML
 
 **Consumers**: YAML/XML/pickle
 
 - [toyaml](wordnet_toyaml) : Consume model to YAML
+- [toxml](wordnet_toxml) : Consume model to (one-file) XML
 
 **Supplier-consumer chains**: YAML2YAML, YAML2XML, XML2YAML
 
 - [yaml_to_yaml](wml_to_yaml.py) : Chain from YAML supplier to YAML consumer (side effect is normalization)
+- [yaml_to_xml](yaml_to_xml.py)  : Chain from YAML supplier to XML consumer (conversion from XML)
+- [xml_to_yaml](xml_to_yaml.py)  : Chain from XML supplier to YAML consumer (conversion to YAML)
 
 ## Authorship ##
 
