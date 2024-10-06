@@ -4,10 +4,7 @@
 
 # Open English Wordnet core Python toolkit
 
-This project's purpose is to provide basic load/save utilities in Python for Open English Wordnet models. 
-
-The starting point is a number of Python scripts written by JohnMcCrae that used to come with OEWN source.
-These have been reworked.
+This project will group all toolkit repos that will provide suppliers and consumers of Open English Wordnet models.
 
 ## Dataflow
 
@@ -20,14 +17,13 @@ Unused code has been trimmed.
 One-field classes have been replaced with this field.
 
 No processing nor editing of model is performed: it's up to other tools to do it.
-
 No validation of model is performed: it's up to other tools to do it.
 
 If something goes wrong, the language and libraries will raise their own exceptions. 
 However, some exceptions are raised when a requested operation can't carry on.
 
 It is not considered inherent to the model to be exported to XML. 
-So the model is XML-agnostic. XML legacy has been ditched except when it comes to XML exporting / importing in the dedicated reader and writer.
+So the model is XML-agnostic.
 
 ## Modular
 
@@ -44,12 +40,11 @@ No deps but YAML (pip install PyYAML)
 
 ## Late resolution
 
-Internal cross-dependencies are resolved at a later stage. If resolution is not necessary, this stage may be ignored. This involves 
-- the resolution of synsetids in senses to synsets
-- the resolution of members in synsets to entries
-- the resolution of targets in relations to senses or synsets
-
-The resolved entities are stored as **resolved_*** class members in the object.
+Internal dependencies are resolved at a later stage. If resolution is not necessary, this stage may be ignored. Tthis involves 
+- the resolution of sense synsetid to synset
+- the resolution of synset members to entries
+- the resolution of relation targets to senses or synsets
+The resolved entity is stored as a resolved_* class field
 
 ## Late extension
 
@@ -64,28 +59,23 @@ Optional extension of relation sets with the addition of inverse relations (if i
 
 **Suppliers**:  YAML/XML/pickle
 
-- [fromyaml](wordnet_fromyaml.py) : Supply model from YAML
+- [fromyaml](wordnet_fromyaml) : Supply model from YAML
+- [fromxml](wordnet_fromxml) : Supply model from (one-file) XML
 
 **Consumers**: YAML/XML/pickle
 
-- [toyaml](wordnet_toyaml.py) : Consume model to YAML
+- [toyaml](wordnet_toyaml) : Consume model to YAML
+- [toxml](wordnet_toxml) : Consume model to (one-file) XML
 
-**Supplier-consumer chains**: YAML2YAML
+**Supplier-consumer chains**: YAML2YAML, YAML2XML, XML2YAML
 
-- [yaml_to_yaml](yaml_to_yaml.py) : Chain from YAML supplier to YAML consumer (side effect is normalization)
+- [yaml_to_yaml](wml_to_yaml.py) : Chain from YAML supplier to YAML consumer (side effect is normalization)
+- [yaml_to_xml](yaml_to_xml.py)  : Chain from YAML supplier to XML consumer (conversion from XML)
+- [xml_to_yaml](xml_to_yaml.py)  : Chain from XML supplier to YAML consumer (conversion to YAML)
 
 ## Authorship ##
 
-Original code was written by John McCrae <john@mccr.ae>
-Bernard Bou revised, trimmed, revamped it <1313ou@gmail>.
-
-## Licence ##
-
+Original code was written by John McCrae.
+Bernard Bou revised, trimmed, revamped it.
 Licence is CC-4 for original code.
-
 License is GPL-3 for revisions.
-
-## Related ##
-
-The [oewntk project](https://github.com/oewntk/project) is a tool suite written in Kotlin for JVM, 
-that has similar design principles. Most notably, it exports to SQL, WNDB and JSON formats.
