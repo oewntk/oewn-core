@@ -45,9 +45,9 @@ No deps but YAML (pip install PyYAML)
 ## Late resolution
 
 Internal cross-dependencies are resolved at a later stage. If resolution is not necessary, this stage may be ignored. This involves 
-- the resolution of senses' synsetids to synsets
-- the resolution of synsets' members to entries
-- the resolution of relation's targets to senses or synsets
+- the resolution of synsetids in senses to synsets
+- the resolution of members in synsets to entries
+- the resolution of targets in relations to senses or synsets
 
 The resolved entities are stored as **resolved_*** class members in the object.
 
@@ -64,15 +64,15 @@ Optional extension of relation sets with the addition of inverse relations (if i
 
 **Suppliers**:  YAML/XML/pickle
 
-- [fromyaml](wordnet_fromyaml) : Supply model from YAML
+- [fromyaml](wordnet_fromyaml.py) : Supply model from YAML
 
 **Consumers**: YAML/XML/pickle
 
-- [toyaml](wordnet_toyaml) : Consume model to YAML
+- [toyaml](wordnet_toyaml.py) : Consume model to YAML
 
 **Supplier-consumer chains**: YAML2YAML
 
-- [yaml_to_yaml](wml_to_yaml.py) : Chain from YAML supplier to YAML consumer (side effect is normalization)
+- [yaml_to_yaml](yaml_to_yaml.py) : Chain from YAML supplier to YAML consumer (side effect is normalization)
 
 ## Authorship ##
 
