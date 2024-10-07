@@ -16,7 +16,12 @@ import argparse
 import wordnet_fromyaml as loader
 import wordnet_toyaml as saver
 
+
 def main():
+    """
+    WordNet load-save
+    Will have a normalizing effect, after which it's idempotent
+    """
     arg_parser = argparse.ArgumentParser(description="load from yaml and save")
     arg_parser.add_argument('in_dir', type=str, help='from-dir')
     arg_parser.add_argument('out_dir', type=str, help='to-dir')
@@ -30,11 +35,12 @@ def main():
     wn.resolve()
     print(f'resolved cross-references')
     print(f'extending relations')
-    wn.resolve()
+    wn.extend()
     print(f'extended relations')
 
     print(wn)
     print(wn.info())
+    print(wn.info_relations())
 
     print(f'saving to YAML {args.out_dir}')
     saver.save(wn, args.out_dir)
