@@ -59,8 +59,11 @@ ignored_symmetric_sense_relations: Set[Sense.Relation.Type] = {
     Sense.Relation.Type.IS_EXEMPLIFIED_BY
 }
 
+check_resolved = False
+""" Whether resolved_* members' resolution is checked, a no-op because these are not saved """
 
-def entry_to_yaml(entry, sense_resolver=None):
+
+def entry_to_yaml(entry, sense_resolver=None) -> Dict[str, str]:
     """
     Build dictionary for lexical entry YAML
     :param entry: lexical entry
@@ -80,9 +83,8 @@ def entry_to_yaml(entry, sense_resolver=None):
     e['sense'] = [sense_to_yaml(s, sense_resolver) for s in entry.senses]
     return e
 
-check_resolved = False
 
-def sense_to_yaml(sense, sense_resolver=None):
+def sense_to_yaml(sense, sense_resolver=None) -> Dict[str, str]:
     """
     Build dictionary for sense YAML
     :param sense: sense
@@ -101,7 +103,8 @@ def sense_to_yaml(sense, sense_resolver=None):
             t = r.relation_type
             if sense_resolver and (r.target not in sense_resolver):
                 raise ValueError(f'Unresolved sense relation target {r.target} of type {t} in {sense.id}')
-            if check_resolved and sense_resolver and (r.target not in sense_resolver or sense_resolver[r.target] != r.resolved_target):
+            if check_resolved and sense_resolver and (
+                    r.target not in sense_resolver or sense_resolver[r.target] != r.resolved_target):
                 raise ValueError(f'Invalid sense relation resolved target {r.target} of type {t} in {sense.id}')
             if t not in y:
                 y[t] = []
@@ -109,7 +112,7 @@ def sense_to_yaml(sense, sense_resolver=None):
     return y
 
 
-def synset_to_yaml(synset, synset_resolver=None, member_resolver=None):
+def synset_to_yaml(synset, synset_resolver=None, member_resolver=None) -> Dict[str, str]:
     """
     Build dictionary for synset YAML
     :param synset: synset
@@ -139,7 +142,8 @@ def synset_to_yaml(synset, synset_resolver=None, member_resolver=None):
             t = r.relation_type
             if synset_resolver and r.target not in synset_resolver:
                 raise ValueError(f'Unresolved synset relation target {r.target} of type {t} in {synset.id}')
-            if check_resolved and synset_resolver and (r.target not in synset_resolver or synset_resolver[r.target] != r.resolved_target):
+            if check_resolved and synset_resolver and (
+                    r.target not in synset_resolver or synset_resolver[r.target] != r.resolved_target):
                 raise ValueError(f'Invalid synset relation resolved target {r.target} of type {t} in {synset.id}')
             if t not in y:
                 y[t] = []
@@ -147,7 +151,7 @@ def synset_to_yaml(synset, synset_resolver=None, member_resolver=None):
     return y
 
 
-def example_to_yaml(example: Union[str, Example]):
+def example_to_yaml(example: str | Example) -> Dict[str, str] | str:
     """
     Build dictionary for sourced example or text for unsourced example YAML
     :param example: example
@@ -158,7 +162,7 @@ def example_to_yaml(example: Union[str, Example]):
     return example
 
 
-def save_entries(wn, home):
+def save_entries(wn: WordnetModel, home: str) -> None:
     """
     Persist entries to YAML (entries-(0|a|...|z).yaml
     :param wn: model
@@ -196,12 +200,11 @@ def save_entries(wn, home):
         outp.write(yaml.dump(entry_yaml['0'], allow_unicode=True))
 
 
-def save_synsets(wn, home):
+def save_synsets(wn: WordnetModel, home: str) -> None:
     """
     Persist synsets to YAML (noun|verb|adj|adv)*.yaml
     :param wn: model
     :param home: home dir for persist files
-    :return: None
     """
     synset_yaml = {}
     for synset in wn.synsets:
@@ -223,24 +226,22 @@ def save_synsets(wn, home):
             out.write(yaml.dump(synsets, allow_unicode=True))
 
 
-def save_verbframes(wn, home):
+def save_verbframes(wn: WordnetModel, home: str) -> None:
     """
     Persist verbframes to YAML frame.yaml
     :param wn: model
     :param home: home dir for persist file
-    :return: None
-    """
+     """
     frame_yaml = {b.id: b.verbframe for b in wn.frames}
     with open(f'{home}/frames.yaml', 'w', encoding='utf-8') as out:
         out.write(yaml.dump(frame_yaml, allow_unicode=True))
 
 
-def save(wn, home):
+def save(wn: WordnetModel, home: str) -> None:
     """
     Persist model to YAML *.yaml
     :param wn: model
     :param home: home dir for persist files
-    :return: None
     """
     save_entries(wn, home)
     save_synsets(wn, home)
