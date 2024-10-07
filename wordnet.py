@@ -40,6 +40,16 @@ class Sense:
         self.sent: Optional[str] = None
         self.relations: List[Sense.Relation] = []
 
+    def __getstate__(self):
+        state = self.__dict__.copy()
+        if 'resolved_synset' in state:
+            del state['resolved_synset']  # exclude from being pickled
+        return state
+
+    def __setstate__(self, state):
+        self.__dict__.update(state)
+        self.resolved_synset = None  # restore o a default or None value
+
     class Relation:
         """ Lexical relation (sense to sense)"""
 
@@ -93,6 +103,16 @@ class Sense:
             self.relation_type: str = relation_type
             self.other_type: bool = other_type
 
+        def __getstate__(self):
+            state = self.__dict__.copy()
+            if 'resolved_target' in state:
+                del state['resolved_target']  # exclude from being pickled
+            return state
+
+        def __setstate__(self, state):
+            self.__dict__.update(state)
+            self.resolved_target = None  # restore o a default or None value
+
 
 class Synset:
     """ Synset, a collection of members that share a common meaning """
@@ -111,6 +131,16 @@ class Synset:
         self.source: Optional[str] = None
         self.wikidata: Optional[str] = None
         self.ili: Optional[str] = None
+
+    def __getstate__(self):
+        state = self.__dict__.copy()
+        if 'resolved_members' in state:
+            del state['resolved_members']  # exclude from being pickled
+        return state
+
+    def __setstate__(self, state):
+        self.__dict__.update(state)
+        self.resolved_members = None  # restore o a default or None value
 
     class Relation:
         """ Semantic relation (synset to synset)"""
@@ -265,6 +295,16 @@ class Synset:
             self.target: str = target
             self.resolved_target: Optional[Synset] = None
             self.relation_type: str = relation_type
+
+        def __getstate__(self):
+            state = self.__dict__.copy()
+            if 'resolved_target' in state:
+                del state['resolved_target']  # exclude from being pickled
+            return state
+
+        def __setstate__(self, state):
+            self.__dict__.update(state)
+            self.resolved_target = None  # restore o a default or None value
 
 
 class Pronunciation:

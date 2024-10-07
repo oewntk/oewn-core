@@ -11,42 +11,16 @@ Author: Bernard Bou <1313ou@gmail.com> for rewrite and revamp
 #  GPL3 for rewrite
 
 import argparse
-import copyreg
 import pickle
 
 import wordnet_fromyaml as loader
 from wordnet import WordnetModel, Sense, Synset
 
 
-def pickle_sense(sense: Sense):
-    """
-    # Return a tuple containing the class and a reduced state without 'resolved_synset'
-    """
-    state = sense.__dict__.copy()
-    state.pop('resolved_synset', None)  # attribute not to pickle
-    return Sense, (state,)
-
-
-def pickle_synset(sense: Synset):
-    """
-    # Return a tuple containing the class and a reduced state without 'resolved_members'
-    """
-    state = sense.__dict__.copy()
-    state.pop('resolved_members', None)  # attribute not to pickle
-    return Synset, (state,)
-
-
-def pickle_relation(relation: Synset.Relation | Sense.Relation):
-    """
-    # Return a tuple containing the class and a reduced state without 'resolved_target'
-    """
-    state = relation.__dict__.copy()
-    state.pop('resolved_target', None)  # attribute not to pickle
-    return type(relation), (state,)
-
-
 def load_pickle(path: str, file='wn.pickle'):
-    """ Load model from pickle file in path """
+    """
+    Load model from pickle file in path
+    """
     with open(f"{path}/{file}", "rb") as out:
         return pickle.load(out)
 
@@ -56,11 +30,6 @@ def save_pickle(wn: WordnetModel, path: str, file: str = 'wn.pickle'):
     Save model to pickle file in path
     Cross-references don't have to be staled.
     """
-    copyreg.pickle(Sense, pickle_sense)
-    copyreg.pickle(Synset, pickle_synset)
-    copyreg.pickle(Synset.Relation, pickle_relation)
-    copyreg.pickle(Sense.Relation, pickle_relation)
-
     with open(f'{path}/{file}', 'wb') as out:
         pickle.dump(wn, out)
 
@@ -88,9 +57,9 @@ def main():
     print(wn.info())
     print(wn.info_relations())
 
-    print(f'saving to pickle {args.out_dir}')
+    print(f'saving to pickle in {args.out_dir}/wn.pickle')
     save_pickle(wn, args.out_dir)
-    print(f'saved to pickle {args.out_dir}')
+    print(f'saved to pickle in {args.out_dir}/wn.pickle')
 
     print(f'loading from pickle in {args.out_dir}')
     wn2 = load_pickle(args.out_dir)
