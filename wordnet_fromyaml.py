@@ -13,18 +13,29 @@ from glob import glob
 from pathlib import Path
 from typing import Any
 
+import argparse
 import yaml
 
 from wordnet import *
 
 
-def load_verbframes(home: str):
+def load_verbframes(home: str) -> List[VerbFrame]:
+    """
+    Load verb frames from YAML
+    :param home: home dir for YAML frame.yaml file
+    :return: list of verb frames
+    """
     with open(f'{home}/frames.yaml', encoding='utf-8') as inp:
         frames = yaml.load(inp, Loader=yaml.CLoader)
         return [VerbFrame(k, v) for k, v in frames.items()]
 
 
 def load_entries(home: str) -> Tuple[List[Entry], Dict[str, Sense], Dict[Tuple[str, str], Entry]]:
+    """
+    Load entries from YAML
+    :param home: home dir for YAML entries-*.yaml file
+    :return: list of entries, sense resolver, member resolver
+    """
     sense_resolver: Dict[str, Sense] = {}
     member_resolver: Dict[Tuple[str, str], Entry] = {}
     entries: List[Entry] = []
@@ -51,6 +62,11 @@ def load_entries(home: str) -> Tuple[List[Entry], Dict[str, Sense], Dict[Tuple[s
 
 
 def load_synsets(home: str) -> Tuple[List[Synset], Dict[str, Synset]]:
+    """
+    Load synsets from YAML
+    :param home: home dir for YAML (noun|verb|adj|adv))-*.yaml file
+    :return: list of synsets, synset resolver
+    """
     resolver: Dict[str, Synset] = {}
     synsets: List[Synset] = []
     noun_files = glob(f'{home}/noun*.yaml')
@@ -68,7 +84,14 @@ def load_synsets(home: str) -> Tuple[List[Synset], Dict[str, Synset]]:
     return synsets, resolver
 
 
-def load_sense(props: Dict[str, Any], entry: Entry, n: int):
+def load_sense(props: Dict[str, Any], entry: Entry, n: int) -> Sense:
+    """
+    Load sense from YAML
+    :param props: properties provided by PyYAML
+    :param entry: wrapping entry
+    :param n: sense number
+    :return: sense
+    """
     s = Sense(props['id'], entry, props['synset'], n, props.get('adjposition'))
     if 'sent' in props:
         s.sent = props['sent']
@@ -87,7 +110,14 @@ def load_sense(props: Dict[str, Any], entry: Entry, n: int):
     return s
 
 
-def load_synset(props: Dict[str, Any], synsetid: str, lex_name: str):
+def load_synset(props: Dict[str, Any], synsetid: str, lex_name: str) -> Synset:
+    """
+    Load synset from YAML
+    :param props: properties provided by PyYAML
+    :param synsetid: synset ID
+    :param lex_name: lexical name, provided by file name's stem
+    :return: synset
+    """
     pos = PartOfSpeech(props['partOfSpeech']).value
     ss = Synset(synsetid, pos, props['members'], lex_name)
     for defn in props['definition']:
@@ -112,6 +142,11 @@ def load_synset(props: Dict[str, Any], synsetid: str, lex_name: str):
 
 
 def load(home: str):
+    """
+    Load synset from YAML
+    :param home: home dir for YAML *.yaml file
+    :return: unresolved, unextended model
+    """
     wn = WordnetModel('oewn', 'Open English Wordnet', 'en',
                       'english-wordnet@googlegroups.com',
                       'https://creativecommons.org/licenses/by/4.0',
@@ -129,10 +164,27 @@ def load(home: str):
 
 
 def main():
-    wn = load('src/yaml')
+    arg_parser = argparse.ArgumentParser(description="load from yaml and save")
+    arg_parser.add_argument('in_dir', type=str, help='from-dir')
+    arg_parser.add_argument('out_dir', type=str, help='to-dir')
+    args = arg_parser.parse_args()
+
+    print(f'loading from YAML in {args.in_dir}')
+    wn = load(args.in_dir)
+    print(f'loaded {wn} from YAML in {args.in_dir}')
+
+    print(f'resolving cross-references')
     wn.resolve()
+    print(f'resolved cross-references')
+    print(f'extending relations')
+    print(wn.info_relations())
+    wn.extend()
+    print(wn.info_relations())
+    print(f'extended relations')
+
     print(wn)
-    print(wn.info)
+    print(wn.info())
+    print(wn.info_relations())
 
 
 if __name__ == '__main__':
