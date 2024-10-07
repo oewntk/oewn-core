@@ -78,5 +78,14 @@ Optional extension of relation sets with the addition of inverse relations (if i
 
 Original code was written by John McCrae <john@mccr.ae>
 Bernard Bou revised, trimmed, revamped it <1313ou@gmail>.
+
+## Licence ##
+
 Licence is CC-4 for original code.
+
 License is GPL-3 for revisions.
+
+## Related ##
+
+The [oewntk project](https://github.com/oewntk/project) is a tool suite written in Kotlin for JVM, 
+that has similar design principles. Most notably, it exports to SQL, WNDB and JSON formats.
