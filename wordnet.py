@@ -10,7 +10,7 @@ Author: Bernard Bou <1313ou@gmail.com> for rewrite and revamp
 #  GPL3 for rewrite
 
 from enum import Enum
-from typing import List, Dict, Tuple, Optional, Union
+from typing import List, Dict, Tuple, Optional
 
 
 class Entry:
@@ -104,7 +104,7 @@ class Synset:
         self.resolved_members: Optional[List, Entry] = None
         self.lex_name: str = lex_name
         self.definitions: List[str] = []
-        self.examples: List[Union[str, Example]] = []
+        self.examples: List[str | Example] = []
         self.usages: List[str] = []
         self.relations: List[Synset.Relation] = []
         self.ili_definition: Optional[str] = None
@@ -256,7 +256,7 @@ class Synset:
             Type.ANTONYM: Type.ANTONYM,
             Type.EQ_SYNONYM: Type.EQ_SYNONYM,
             Type.SIMILAR: Type.SIMILAR,
-            # Type.ALSO: Type.ALSO,
+            Type.ALSO: Type.ALSO,
             Type.ATTRIBUTE: Type.ATTRIBUTE,
             Type.CO_ROLE: Type.CO_ROLE
         }
@@ -293,6 +293,7 @@ class VerbFrame:
 
 class PartOfSpeech(Enum):
     """ Parts of speech """
+
     NOUN = 'n'
     VERB = 'v'
     ADJECTIVE = 'a'
@@ -333,9 +334,26 @@ class WordnetModel:
         """ Counts """
         return f'{self} has {len(self.entries)} entries, {len(self.synsets)} synsets and {sum(1 for _ in self.senses)} senses'
 
+    def info_relations(self):
+        """ Counts of relations """
+        return f'{self} has {sum(1 for _ in self.sense_relations)} sense relations and {sum(1 for _ in self.synset_relations)} synset relations'
+
     @property
     def senses(self):
-        """ Sense generator """
+        """ Senses generator """
+        for e in self.entries:
+            for s in e.senses:
+                yield s
+
+    @property
+    def sense_relations(self):
+        """ Sense relations generator """
+        for s in self.senses:
+            yield s
+
+    @property
+    def synset_relations(self):
+        """ Synset relations generator """
         for e in self.entries:
             for s in e.senses:
                 yield s
@@ -348,7 +366,6 @@ class WordnetModel:
     def extend(self):
         """
         Extend to include inverse relations can be added here
-        :return: None
         """
         # raise NotImplementedError(f'Extending {wn} not implemented')
         for ss in self.synsets:
@@ -359,6 +376,7 @@ class WordnetModel:
     def extend_sense_relations(self, sense: Sense):
         """
         Add inverse sense relations as needed
+        :param sense: sense to extend
         """
         for rel in sense.relations:
             t = rel.relation_type
@@ -374,6 +392,7 @@ class WordnetModel:
     def extend_synset_relations(self, synset: Synset):
         """
         Add inverse synset relations as needed
+        :param synset: synset to extend
         """
         for r in synset.relations:
             t = r.relation_type
@@ -390,7 +409,6 @@ class WordnetModel:
         """
         Resolve model internal cross-references.
         Side effect is computation of resolved_* fields.
-        :return: None
         :raises: ValueError when the resolvers are not available
         :raises: KeyError when the resolvers can't resolve the keys
         """
