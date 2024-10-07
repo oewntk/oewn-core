@@ -61,7 +61,7 @@ def save_pickle(wn: WordnetModel, path: str, file: str = 'wn.pickle'):
     copyreg.pickle(Synset.Relation, pickle_relation)
     copyreg.pickle(Sense.Relation, pickle_relation)
 
-    with open(f'{path}/{file}', 'wb') as out:  # type: SupportsWrite[bytes]
+    with open(f'{path}/{file}', 'wb') as out:
         pickle.dump(wn, out)
 
 
