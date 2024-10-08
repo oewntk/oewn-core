@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<module type="PYTHON_MODULE" version="4">
+  <component name="NewModuleRootManager">
+    <content url="file://$MODULE_DIR$">
+      <excludeFolder url="file://$MODULE_DIR$/.venv" />
+      <excludeFolder url="file://$MODULE_DIR$/data-in" />
+      <excludeFolder url="file://$MODULE_DIR$/data-out" />
+      <excludeFolder url="file://$MODULE_DIR$/data-yaml-out" />
+      <excludeFolder url="file://$MODULE_DIR$/data1-xml-in" />
+      <excludeFolder url="file://$MODULE_DIR$/data1-xml-out" />
+      <excludeFolder url="file://$MODULE_DIR$/upstream" />
+    </content>
+    <orderEntry type="inheritedJdk" />
+    <orderEntry type="sourceFolder" forTests="false" />
+  </component>
+  <component name="PyDocumentationSettings">
+    <option name="format" value="PLAIN" />
+    <option name="myDocStringFormat" value="Plain" />
+  </component>
+</module>
