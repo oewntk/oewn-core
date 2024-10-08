@@ -15,17 +15,35 @@ key_prefix = 'oewn-'
 key_prefix_len = len(key_prefix)
 
 # Regular expressions for valid NameStartChar and NameChar based on the XML 1.0 specification.
-name_start_char_re = re.compile(
-    r'^[A-Z_a-z\xC0-\xD6\xD8-\xF6\xF8-\u02FF\u0370-\u037D\u037F-\u1FFF'
-    r'\u200C-\u200D\u2070-\u218F\u2C00-\u2FEF\u3001-\uD7FF'
-    r'\uF900-\uFDCF\uFDF0-\uFFFD]$')
+# based on the XML 1.0 specification.
+# We don't check for 1st character extra restrictions
+# because it's always prefixed with 'oewn-'
+xml_id_az = r'A-Za-z'
+xml_id_num = r'0-9'
+xml_id_extend = (
+    r'\xC0-\xD6'  # ÀÁÂÃÄÅÆÇÈÉÊËÌÍÎÏÐÑÒÓÔÕÖ
+    r'\xD8-\xF6'  # ØÙÚÛÜÝÞßàáâãäåæçèéêëìíîïðñòóôõö
+    r'\xF8-\u02FF'
+    r'\u0370-\u037D'
+    r'\u037F-\u1FFF'
+    r'\u200C-\u200D'
+    r'\u2070-\u218F'
+    r'\u2C00-\u2FEF'
+    r'\u3001-\uD7FF'
+    r'\uF900-\uFDCF'
+    r'\uFDF0-\uFFFD'
+)
+xml_id_not_first = (
+    r'\u0300-\u036F'
+    r'\u203F-\u2040'
+)
+xml_id_start_char = fr'[_{xml_id_az}{xml_id_extend}]' # not used if oewn- prefix
+xml_id_start_char1 = fr'^{xml_id_start_char}$'
+xml_id_start_char1_re = re.compile(xml_id_start_char)
 
-name_char_re = re.compile(
-    r'^[A-Z_a-z0-9\x2D\x2E\xB7\xC0-\xD6\xD8-\xF6\xF8-\u02FF'
-    r'\u0300-\u036F\u203F-\u2040\u0370-\u037D\u037F-\u1FFF'
-    r'\u200C-\u200D\u2070-\u218F\u2C00-\u2FEF\u3001-\uD7FF'
-    r'\uF900-\uFDCF\uFDF0-\uFFFD]$')
-
+xml_id_char = fr'[_\-\.·{xml_id_az}{xml_id_num}{xml_id_extend}{xml_id_not_first}]' # + hyphen, stop, midpoint, digits, extras
+xml_id_char1 = fr'^{xml_id_char}$'
+xml_id_char1_re = re.compile(xml_id_char1)
 
 def escape_xml_lit(lit):
     return (lit
@@ -37,7 +55,7 @@ def escape_xml_lit(lit):
 
 
 def escape_lemma(lemma):
-    """Escape the lemma so that it contains valid characters for XML ID"""
+    """Escape the lemma so that it contains valid characters for inclusion in XML ID"""
 
     def escape_char(c):
         if ('A' <= c <= 'Z') or ('a' <= c <= 'z') or ('0' <= c <= '9') or c == '.':
@@ -60,7 +78,7 @@ def escape_lemma(lemma):
             return '-ex-'
         elif c == '+':
             return '-pl-'
-        elif name_char_re.match(c) or name_char_re.match(c):
+        elif xml_id_char1_re.match(c): # or xml_id_start_char1_re.match(c):
             return c
         raise ValueError(f'Illegal character {c}')
 
