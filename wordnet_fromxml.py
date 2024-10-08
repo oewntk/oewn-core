@@ -80,7 +80,9 @@ class SAXParser(ContentHandler):
             senseid = make_sense_id(attrs["id"])
             synsetid = make_synset_id(attrs["synset"])
             n = int(attrs["n"]) if "n" in attrs else -1
+            subcat = attrs["subcat"].split(' ') if "subcat" in attrs else None
             self.sense = Sense(senseid, self.entry, synsetid, n, attrs.get("adjposition"))
+            self.sense.subcat = subcat
         elif name == "Synset":
             synsetid = make_synset_id(attrs["id"])
             members = make_members(attrs.get("members", ''), self.entry_resolver)
@@ -105,11 +107,14 @@ class SAXParser(ContentHandler):
             self.example = ""
         elif name == "SynsetRelation":
             target = make_synset_id(attrs["target"])
-            self.synset.relations.append(Synset.Relation(target, Synset.Relation.Type(attrs["relType"]).value))
+            rtype = attrs["relType"]
+            self.synset.relations.append(Synset.Relation(target, Synset.Relation.Type(rtype).value))
         elif name == "SenseRelation":
             target = make_sense_id(attrs["target"])
-            self.sense.relations.append(
-                Sense.Relation(target, Sense.Relation.Type(attrs["relType"]).value, attrs.get("dc:type")))
+            rtype = attrs["relType"]
+            is_other = rtype == Sense.Relation.Type.OTHER.value
+            rtype2 = Sense.Relation.OtherType(attrs["dc:type"]).value if is_other else Sense.Relation.Type(rtype).value
+            self.sense.relations.append(Sense.Relation(target, rtype2, is_other))
         elif name == "SyntacticBehaviour":
             self.verbframes.append(VerbFrame(attrs["id"], attrs["subcategorizationFrame"]))
         elif name == "Pronunciation":

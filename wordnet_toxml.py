@@ -84,7 +84,7 @@ def synset_to_xml(synset: Synset, member_resolver: Dict[Tuple[str, str], Entry],
     m = ' '.join([make_entry_id_from_member(m, synset.id, member_resolver) for m in synset.members])
     l = synset.lex_name
     i = synset.ili
-    s = ' dc:source="{synset.source}"' if synset.source else ''
+    s = f' dc:source="{synset.source}"' if synset.source else ''
     out.write(f'{I * 2}<Synset id="{ssid}" ili="{i}" members="{m}" partOfSpeech="{p}" lexfile="{l}"{s}>\n')
 
     for definition in synset.definitions:
