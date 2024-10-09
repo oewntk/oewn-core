@@ -191,7 +191,7 @@ class SAXParser(ContentHandler):
         wn = self.lexicon
         wn.entries = self.entries
         wn.synsets = self.synsets
-        wn.frames = self.verbframes
+        wn.verbframes = self.verbframes
         wn.sense_resolver = self.sense_resolver
         wn.synset_resolver = self.synset_resolver
         wn.member_resolver = self.member_resolver

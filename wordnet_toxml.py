@@ -44,8 +44,8 @@ def lexicon_to_xml(wn: WordnetModel, out, comments=None):
         entry_to_xml(entry, out, comments)
     for synset in sorted(wn.synsets, key=lambda ss: ss.id):
         synset_to_xml(synset, wn.member_resolver, out, comments)
-    for syntactic_behaviour in sorted(wn.frames, key=lambda f: f.id):
-        syntactic_behaviour_to_xml(syntactic_behaviour, out)
+    for verbframe in sorted(wn.verbframes, key=lambda f: f.id):
+        verbframe_to_xml(verbframe, out)
     out.write(f'{I * 1}</Lexicon>')
     out.write('</LexicalResource>\n')
 
@@ -163,9 +163,9 @@ def sense_relation_to_xml(sense_relation: Sense.Relation, out, comments):
     out.write('\n')
 
 
-def syntactic_behaviour_to_xml(syntactic_behaviour: VerbFrame, out):
-    fid = syntactic_behaviour.id
-    f = wnxml.escape_xml_lit(syntactic_behaviour.verbframe)
+def verbframe_to_xml(verbframe: VerbFrame, out):
+    fid = verbframe.id
+    f = wnxml.escape_xml_lit(verbframe.verbframe)
     out.write(f'{I * 2}<SyntacticBehaviour id="{fid}" subcategorizationFrame="{f}"/>\n')
 
 

@@ -36,7 +36,6 @@ class Sense:
         self.n: int = n
         self.adjposition: Optional[str] = adjposition
         self.subcat: Optional[str] = None
-        self.frames: Optional[List[VerbFrame]] = None
         self.sent: Optional[str] = None
         self.relations: List[Sense.Relation] = []
 
@@ -324,7 +323,7 @@ class Example:
 
 
 class VerbFrame:
-    """ Verb frame (syntactic behaviour) """
+    """ Verb frame """
 
     def __init__(self, fid, verbframe):
         self.id: str = fid
@@ -360,7 +359,7 @@ class WordnetModel:
         # data
         self.entries: List[Entry] = []
         self.synsets: List[Synset] = []
-        self.frames: List[VerbFrame] = []
+        self.verbframes: List[VerbFrame] = []
 
         # resolvers
         self.synset_resolver: Dict[str, Synset] = {}
@@ -401,7 +400,7 @@ class WordnetModel:
     @property
     def verbframe_resolver(self) -> Dict[str, str]:
         """ Verb frame resolver factory from id """
-        return {f.id: f.verbframe for f in self.frames}
+        return {f.id: f.verbframe for f in self.verbframes}
 
     def extend(self):
         """

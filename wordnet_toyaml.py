@@ -228,11 +228,11 @@ def save_synsets(wn: WordnetModel, home: str) -> None:
 
 def save_verbframes(wn: WordnetModel, home: str) -> None:
     """
-    Persist verbframes to YAML frame.yaml
+    Persist verb frames to YAML frame.yaml
     :param wn: model
     :param home: home dir for persist file
      """
-    frame_yaml = {b.id: b.verbframe for b in wn.frames}
+    frame_yaml = {b.id: b.verbframe for b in wn.verbframes}
     with open(f'{home}/frames.yaml', 'w', encoding='utf-8') as out:
         out.write(yaml.dump(frame_yaml, allow_unicode=True))
 

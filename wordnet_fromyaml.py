@@ -26,8 +26,8 @@ def load_verbframes(home: str) -> List[VerbFrame]:
     :return: list of verb frames
     """
     with open(f'{home}/frames.yaml', encoding='utf-8') as inp:
-        frames = yaml.load(inp, Loader=yaml.CLoader)
-        return [VerbFrame(k, v) for k, v in frames.items()]
+        verbframes = yaml.load(inp, Loader=yaml.CLoader)
+        return [VerbFrame(k, v) for k, v in verbframes.items()]
 
 
 def load_entries(home: str) -> Tuple[List[Entry], Dict[str, Sense], Dict[Tuple[str, str], Entry]]:
@@ -153,7 +153,7 @@ def load(home: str):
                       '2024',
                       'https://github.com/globalwordnet/english-wordnet')
     # frames
-    wn.frames = load_verbframes(home)
+    wn.verbframes = load_verbframes(home)
 
     # lex entries
     wn.entries, wn.sense_resolver, wn.member_resolver = load_entries(home)
