@@ -1,6 +1,6 @@
 #!/usr/bin/python3
 """
-WordNet persistence
+WordNet serialize
 
 Author: John McCrae <john@mccr.ae> for original code
 Author: Bernard Bou <1313ou@gmail.com> for rewrite and revamp
@@ -41,7 +41,7 @@ def main():
     """
     arg_parser = argparse.ArgumentParser(description="load from yaml and save")
     arg_parser.add_argument('in_dir', type=str, help='from-dir')
-    arg_parser.add_argument('out_dir', type=str, help='out_dir')
+    arg_parser.add_argument('out_dir', type=str, help='out_dir for pickle')
     arg_parser.add_argument('pickle', type=str, nargs='?', default='oewn.pickle', help='to-pickle')
     args = arg_parser.parse_args()
 
