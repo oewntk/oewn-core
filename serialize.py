@@ -14,7 +14,7 @@ import argparse
 import pickle
 
 import wordnet_fromyaml as loader
-from wordnet import WordnetModel, Sense, Synset
+from wordnet import WordnetModel
 
 
 def load_pickle(path: str, file='wn.pickle'):
