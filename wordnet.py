@@ -10,6 +10,7 @@ Author: Bernard Bou <1313ou@gmail.com> for rewrite and revamp
 #  GPL3 for rewrite
 
 from enum import Enum
+from types import NoneType
 from typing import List, Dict, Tuple, Optional
 
 
@@ -19,7 +20,7 @@ class Entry:
     def __init__(self, lemma, pos, discriminant):
         self.lemma: str = lemma
         self.pos: str = pos
-        self.discriminant: str = discriminant
+        self.discriminant: str | NoneType = discriminant
         self.forms: List[str] = []
         self.pronunciations: List[Pronunciation] = []
         self.senses: List[Sense] = []
