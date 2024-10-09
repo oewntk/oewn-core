@@ -73,7 +73,7 @@ class SAXParser(ContentHandler):
         if name == 'LexicalEntry':
             entryid = attrs.get('id')
             match = re.search(self.discriminant_pattern, entryid)
-            d = match.group() if match else None
+            d = match.group()[1:] if match else None
             self.entry = Entry(None, None, d)
             if entryid in self.entry_resolver:
                 raise ValueError(f'Duplicate entry ID while parsing: {entryid}')
@@ -91,8 +91,6 @@ class SAXParser(ContentHandler):
             self.synset = Synset(synsetid, pos, members, attrs.get('lexfile'))
             self.synset.ili = attrs['ili']
             self.synset.wikidata = attrs.get('dc:subject')
-            if self.synset.wikidata:
-                print(self.synset.wikidata)
             self.synset.source = attrs.get('dc:source')
         elif name == 'Lemma':
             self.entry.lemma = attrs['writtenForm']

@@ -45,7 +45,7 @@ def load_entries(home: str) -> Tuple[List[Entry], Dict[str, Sense], Dict[Tuple[s
             for lemma, poses_discriminants in y.items():
                 for pos_discriminant, entry_y in poses_discriminants.items():
                     pos = PartOfSpeech(pos_discriminant[:1]).value
-                    discriminant = pos_discriminant[1:]
+                    discriminant = pos_discriminant[2:] if len(pos_discriminant) > 2 else None
                     entry = Entry(lemma, pos, discriminant)
                     if 'form' in entry_y:
                         entry.forms = entry_y['form']

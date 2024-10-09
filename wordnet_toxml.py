@@ -64,7 +64,7 @@ def entry_to_xml(entry: Entry, out, comments):
 def sense_to_xml(sense: Sense, out, comments):
     a = f' adjposition="{sense.adjposition}"' if sense.adjposition else ''
     c = f' subcat="{' '.join(sense.verbframeids)}"' if sense.verbframeids else ''
-    n = '' # f' n="sense.n"'
+    n = ''  # f' n="sense.n"'
     sid = make_sense_id(sense.id)
     ssid = make_synset_id(sense.synsetid)
     if len(sense.relations) > 0 or len(sense.examples) > 0:
@@ -132,7 +132,7 @@ def definition_to_xml(definition: str, out, is_ili=False):
     out.write(xml)
 
 
-def example_to_xml(example: Union[str, Example], indent: int,  out):
+def example_to_xml(example: Union[str, Example], indent: int, out):
     e = wnxml.escape_xml_lit(example.text if isinstance(example, Example) else example)
     s = example.source if isinstance(example, Example) and example.source else None
     xml = f'{I * indent}<Example dc:source="{wnxml.escape_xml_lit(s)}">{e}</Example>\n' if s else f'{I * indent}<Example>{e}</Example>\n'
@@ -188,7 +188,7 @@ def make_entry_id_from_member(lemma: str, synsetid: str, member_resolver: Dict[T
 
 def _make_entry_id(lemma: str, pos: str, discriminant: str):
     p = pos
-    d = discriminant if discriminant else ''
+    d = f'-{discriminant}' if discriminant else ''
     return f'{wnxml.key_prefix}{wnxml.escape_lemma(lemma)}-{p}{d}'
 
 
