@@ -35,7 +35,7 @@ class Sense:
         self.resolved_synset: Optional[Synset] = None
         self.n: int = n
         self.adjposition: Optional[str] = adjposition
-        self.subcat: Optional[str] = None
+        self.verbframeids: Optional[List[str]] = None
         self.sent: Optional[str] = None
         self.relations: List[Sense.Relation] = []
 

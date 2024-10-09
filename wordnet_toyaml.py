@@ -94,8 +94,8 @@ def sense_to_yaml(sense, sense_resolver=None) -> Dict[str, str]:
     y = {'id': sense.id, 'synset': sense.synsetid, }
     if sense.adjposition:
         y['adjposition'] = sense.adjposition
-    if sense.subcat:
-        y['subcat'] = sense.subcat
+    if sense.verbframeids:
+        y['subcat'] = sense.verbframeids
     if sense.sent:
         y['sent'] = sense.sent
     for r in sense.relations:

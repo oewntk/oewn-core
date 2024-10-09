@@ -96,7 +96,7 @@ def load_sense(props: Dict[str, Any], entry: Entry, n: int) -> Sense:
     if 'sent' in props:
         s.sent = props['sent']
     if 'subcat' in props:
-        s.subcat = props['subcat']
+        s.verbframeids = props['subcat']
     # relations
     sense_rel_types = [t.value for t in Sense.Relation.Type]
     other_rel_types = [t.value for t in Sense.Relation.OtherType]
