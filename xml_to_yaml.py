@@ -40,7 +40,7 @@ def xml1_to_yaml(in_file, out_dir):
     print(wn.info())
     scan_entries(wn)
 
-    print(f'saving to YAMl in {out_dir}')
+    print(f'saving to YAML in {out_dir}')
     saver.save(wn, out_dir)
     print(f'saved to YAML in {out_dir}')
 
