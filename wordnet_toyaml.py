@@ -96,8 +96,8 @@ def sense_to_yaml(sense, sense_resolver=None) -> Dict[str, str]:
         y['adjposition'] = sense.adjposition
     if sense.verbframeids:
         y['subcat'] = sense.verbframeids
-    if sense.sent:
-        y['sent'] = sense.sent
+    if sense.examples:
+        y['sent'] = sense.examples
     for r in sense.relations:
         if r.relation_type not in ignored_symmetric_sense_relations:
             t = r.relation_type

@@ -93,7 +93,7 @@ def load_sense(y: Dict[str, Any], entry: Entry, n: int) -> Sense:
     """
     s = Sense(y['id'], entry, y['synset'], n, y.get('adjposition'))
     if 'sent' in y:
-        s.sent = y['sent']
+        s.examples = y['sent']
     if 'subcat' in y:
         s.verbframeids = y['subcat']
     # relations
