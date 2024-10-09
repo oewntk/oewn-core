@@ -35,8 +35,8 @@ class Sense:
         self.resolved_synset: Optional[Synset] = None
         self.n: int = n
         self.adjposition: Optional[str] = adjposition
+        self.examples: List[str] = []
         self.verbframeids: Optional[List[str]] = None
-        self.sent: Optional[str] = None
         self.relations: List[Sense.Relation] = []
 
     def __getstate__(self):
@@ -125,11 +125,11 @@ class Synset:
         self.definitions: List[str] = []
         self.examples: List[str | Example] = []
         self.usages: List[str] = []
-        self.relations: List[Synset.Relation] = []
         self.ili_definition: Optional[str] = None
         self.source: Optional[str] = None
         self.wikidata: Optional[str] = None
         self.ili: Optional[str] = None
+        self.relations: List[Synset.Relation] = []
 
     def __getstate__(self):
         state = self.__dict__.copy()
