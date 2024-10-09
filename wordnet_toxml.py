@@ -64,13 +64,15 @@ def entry_to_xml(entry: Entry, out, comments):
 def sense_to_xml(sense: Sense, out, comments):
     a = f' adjposition="{sense.adjposition}"' if sense.adjposition else ''
     c = f' subcat="{' '.join(sense.verbframeids)}"' if sense.verbframeids else ''
-    n = f' n="sense.n"'
+    n = '' # f' n="sense.n"'
     sid = make_sense_id(sense.id)
     ssid = make_synset_id(sense.synsetid)
-    if len(sense.relations) > 0:
+    if len(sense.relations) > 0 or len(sense.examples) > 0:
         out.write(f'{I * 3}<Sense id="{sid}"{n}{a}{c} synset="{ssid}">\n')
         for rel in sense.relations:
             sense_relation_to_xml(rel, out, comments)
+        for ex in sense.examples:
+            example_to_xml(ex, 4, out)
         out.write(f'{I * 3}</Sense>\n')
     else:
         out.write(f'{I * 3}<Sense id="{sid}"{n}{a}{c} synset="{ssid}"/>\n')
@@ -94,7 +96,7 @@ def synset_to_xml(synset: Synset, member_resolver: Dict[Tuple[str, str], Entry],
     for rel in synset.relations:
         synset_relation_to_xml(rel, out, comments)
     for ex in synset.examples:
-        example_to_xml(ex, out)
+        example_to_xml(ex, 3, out)
     for us in synset.usages:
         usage_to_xml(us, out)
     out.write(f'{I * 2}</Synset>\n')
@@ -129,10 +131,10 @@ def definition_to_xml(definition: str, out, is_ili=False):
     out.write(xml)
 
 
-def example_to_xml(example: Union[str, Example], out):
+def example_to_xml(example: Union[str, Example], indent: int,  out):
     e = wnxml.escape_xml_lit(example.text if isinstance(example, Example) else example)
     s = example.source if isinstance(example, Example) and example.source else None
-    xml = f'{I * 3}<Example dc:source="{wnxml.escape_xml_lit(s)}">{e}</Example>\n' if s else f'{I * 3}<Example>{e}</Example>\n'
+    xml = f'{I * indent}<Example dc:source="{wnxml.escape_xml_lit(s)}">{e}</Example>\n' if s else f'{I * indent}<Example>{e}</Example>\n'
     out.write(xml)
 
 
