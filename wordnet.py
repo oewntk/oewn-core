@@ -28,12 +28,11 @@ class Entry:
 class Sense:
     """ The sense links an entry to a synset """
 
-    def __init__(self, senseid, entry, synsetid, n=None, adjposition=None):
+    def __init__(self, senseid, entry, synsetid, adjposition=None):
         self.id: str = senseid
         self.entry: Entry = entry
         self.synsetid: str = synsetid
         self.resolved_synset: Optional[Synset] = None
-        self.n: int = n
         self.adjposition: Optional[str] = adjposition
         self.examples: List[str] = []
         self.verbframeids: Optional[List[str]] = None

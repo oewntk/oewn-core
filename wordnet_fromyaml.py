@@ -88,10 +88,9 @@ def load_sense(y: Dict[str, Any], entry: Entry, n: int) -> Sense:
     Load sense from YAML
     :param y: properties provided by PyYAML
     :param entry: wrapping entry
-    :param n: sense number
     :return: sense
     """
-    s = Sense(y['id'], entry, y['synset'], n, y.get('adjposition'))
+    s = Sense(y['id'], entry, y['synset'], y.get('adjposition'))
     if 'sent' in y:
         s.examples = y['sent']
     if 'subcat' in y:

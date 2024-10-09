@@ -81,9 +81,8 @@ class SAXParser(ContentHandler):
         elif name == 'Sense':
             senseid = make_sense_id(attrs['id'])
             synsetid = make_synset_id(attrs['synset'])
-            n = int(attrs['n']) if 'n' in attrs else -1
             verbframes = attrs['subcat'].split(' ') if 'subcat' in attrs else None
-            self.sense = Sense(senseid, self.entry, synsetid, n, attrs.get('adjposition'))
+            self.sense = Sense(senseid, self.entry, synsetid, attrs.get('adjposition'))
             self.sense.verbframeids = verbframes
         elif name == 'Synset':
             synsetid = make_synset_id(attrs['id'])
