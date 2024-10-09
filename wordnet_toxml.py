@@ -64,7 +64,7 @@ def entry_to_xml(entry: Entry, out, comments):
 def sense_to_xml(sense: Sense, out, comments):
     a = f' adjposition="{sense.adjposition}"' if sense.adjposition else ''
     c = f' subcat="{' '.join(sense.subcat)}"' if sense.subcat else ''
-    n = '' #f' n="sense.n"'
+    n = f' n="sense.n"'
     sid = make_sense_id(sense.id)
     ssid = make_synset_id(sense.synsetid)
     if len(sense.relations) > 0:
