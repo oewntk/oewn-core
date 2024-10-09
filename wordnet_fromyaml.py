@@ -52,7 +52,7 @@ def load_entries(home: str) -> Tuple[List[Entry], Dict[str, Sense], Dict[Tuple[s
                     if 'pronunciation' in entry_y:
                         entry.pronunciations = [Pronunciation(p['value'], p.get('variety')) for p in entry_y['pronunciation']]
                     for n, sense_y in enumerate(entry_y['sense']):
-                        sense = load_sense(sense_y, entry, n)
+                        sense = load_sense(sense_y, entry)
                         entry.senses.append(sense)
                         sense_resolver[sense.id] = sense
                         member_resolver[(lemma, sense.synsetid)] = entry
@@ -83,7 +83,7 @@ def load_synsets(home: str) -> Tuple[List[Synset], Dict[str, Synset]]:
     return synsets, resolver
 
 
-def load_sense(y: Dict[str, Any], entry: Entry, n: int) -> Sense:
+def load_sense(y: Dict[str, Any], entry: Entry) -> Sense:
     """
     Load sense from YAML
     :param y: properties provided by PyYAML
