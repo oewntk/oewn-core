@@ -17,6 +17,15 @@ These have been reworked.
 
 Unused code has been trimmed.
 
+IN the model, IDs are not transformed — there is no mangling to make them valid XML IDs: 
+sense IDs are the **sensekey**s, 
+synset IDs are the **synsetid**s, 
+entries have no ID — they use **(lemma, pos, discriminant)** for resolution 
+where _discriminant_ is the possible _indexing_ appended to the part-of-speech, for example:
+* (bass,a,None)
+* (bass,n,1)
+* (bass,n,2)
+
 One-field classes have been replaced with this field.
 
 No processing nor editing of model is performed: it's up to other tools to do it.
@@ -77,6 +86,25 @@ Optional extension of relation sets with the addition of inverse relations (if i
 - [yaml_to_yaml](yaml_to_yaml.py) : Chain from YAML supplier to YAML consumer (side effect is normalization)
 - [yaml_to_xml](yaml_to_xml.py)  : Chain from YAML supplier to XML consumer (conversion from XML)
 - [xml_to_yaml](xml_to_yaml.py)  : Chain from XML supplier to YAML consumer (conversion to YAML)
+
+## XML extensions ##
+
+While still conforming to [WN-LMF-1.1.dtd](https://github.com/globalwordnet/schemas/blob/master/WN-LMF-1.3.dtd),
+
+* **wikidata** in synsets is exported in the _dc:subject_ attribute
+* **sent** in synsets is exported as \<Example>
+* **dc:date** in \<Lexicon> receives the date of XML generation
+* **dc:identifier** in \<Lexicon> receives a UID (and is this unique)
+
+## Testing ##
+
+* yaml → model → yaml
+* yaml → model → xml → model → yaml 
+* yaml → pickle → yaml
+
+must produce identical input and output at the ends of the chains
+
+XML single output file must validate against [WN-LMF-1.1.dtd](https://github.com/globalwordnet/schemas/blob/master/WN-LMF-1.3.dtd)
 
 ## Authorship ##
 
