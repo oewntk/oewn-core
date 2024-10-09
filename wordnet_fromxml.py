@@ -43,22 +43,24 @@ class SAXParser(ContentHandler):
 
     def __init__(self):
         ContentHandler.__init__(self)
-        self.lexicon = None
-        self.entry = None
-        self.sense = None
-        self.defn = None
-        self.ili_defn = None
-        self.example = None
-        self.example_source = None
-        self.usage = None
-        self.synset = None
-        self.pronunciation = None
-        self.pronunciation_variety = None
+
+        # local data
+        self.lexicon: Optional[WordnetModel] = None
+        self.entry: Optional[Entry] = None
+        self.sense: Optional[Sense] = None
+        self.synset: Optional[Synset] = None
+        self.defn: Optional[str] = None
+        self.ili_defn: Optional[str] = None
+        self.example: Optional[str] = None
+        self.example_source: Optional[str] = None
+        self.usage: Optional[str] = None
+        self.pronunciation: Optional[str] = None
+        self.pronunciation_variety: Optional[str] = None
 
         # top accumulators
-        self.entries = []
-        self.synsets = []
-        self.verbframes = []
+        self.entries: List[Entry] = []
+        self.synsets: List[Synset] = []
+        self.verbframes: List[VerbFrame] = []
         # resolvers
         self.sense_resolver: Dict[str, Sense] = {}
         self.synset_resolver: Dict[str, Synset] = {}
@@ -89,7 +91,9 @@ class SAXParser(ContentHandler):
             pos = PartOfSpeech(attrs['partOfSpeech']).value
             self.synset = Synset(synsetid, pos, members, attrs.get('lexfile'))
             self.synset.ili = attrs['ili']
-            self.synset.wikidata = attrs.get('wikidata')
+            self.synset.wikidata = attrs.get('dc:subject')
+            if self.synset.wikidata:
+                print(self.synset.wikidata)
             self.synset.source = attrs.get('dc:source')
         elif name == 'Lemma':
             self.entry.lemma = attrs['writtenForm']
@@ -161,7 +165,11 @@ class SAXParser(ContentHandler):
             self.synset.ili_definitions(self.ili_defn)
             self.ili_defn = None
         elif name == 'Example':
-            self.synset.examples.append(Example(self.example, self.example_source))
+            if self.synset:
+                e = Example(self.example, self.example_source) if self.example_source else self.example
+                self.synset.examples.append(e)
+            elif self.sense:
+                self.sense.examples.append(self.example)
             self.example = None
         elif name == 'Usage':
             self.synset.usages.append(self.usage)
@@ -184,8 +192,7 @@ class SAXParser(ContentHandler):
         elif content.strip() == '':
             pass
         else:
-            print(content)
-            raise ValueError('Text content not expected')
+            raise ValueError(f'Text content not expected: "{content}"')
 
     def get_parsed(self):
         wn = self.lexicon

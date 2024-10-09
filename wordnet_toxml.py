@@ -87,7 +87,8 @@ def synset_to_xml(synset: Synset, member_resolver: Dict[Tuple[str, str], Entry],
     l = synset.lex_name
     i = synset.ili
     s = f' dc:source="{synset.source}"' if synset.source else ''
-    out.write(f'{I * 2}<Synset id="{ssid}" ili="{i}" members="{m}" partOfSpeech="{p}" lexfile="{l}"{s}>\n')
+    w = f' dc:subject="{synset.wikidata}"' if synset.wikidata else ''
+    out.write(f'{I * 2}<Synset id="{ssid}" ili="{i}" members="{m}" partOfSpeech="{p}" lexfile="{l}"{s}{w}>\n')
 
     for definition in synset.definitions:
         definition_to_xml(definition, out)
