@@ -68,77 +68,77 @@ class SAXParser(ContentHandler):
     discriminant_pattern = r'\-\d+$'
 
     def startElement(self, name, attrs):
-        if name == "LexicalEntry":
+        if name == 'LexicalEntry':
             entryid = attrs.get('id')
             match = re.search(self.discriminant_pattern, entryid)
             d = match.group() if match else None
             self.entry = Entry(None, None, d)
             if entryid in self.entry_resolver:
-                raise ValueError(f"Duplicate entry ID while parsing: {entryid}")
+                raise ValueError(f'Duplicate entry ID while parsing: {entryid}')
             self.entry_resolver[entryid] = self.entry
-        elif name == "Sense":
-            senseid = make_sense_id(attrs["id"])
-            synsetid = make_synset_id(attrs["synset"])
-            n = int(attrs["n"]) if "n" in attrs else -1
-            subcat = attrs["subcat"].split(' ') if "subcat" in attrs else None
-            self.sense = Sense(senseid, self.entry, synsetid, n, attrs.get("adjposition"))
+        elif name == 'Sense':
+            senseid = make_sense_id(attrs['id'])
+            synsetid = make_synset_id(attrs['synset'])
+            n = int(attrs['n']) if 'n' in attrs else -1
+            subcat = attrs['subcat'].split(' ') if 'subcat' in attrs else None
+            self.sense = Sense(senseid, self.entry, synsetid, n, attrs.get('adjposition'))
             self.sense.subcat = subcat
-        elif name == "Synset":
-            synsetid = make_synset_id(attrs["id"])
-            members = make_members(attrs.get("members", ''), self.entry_resolver)
-            pos = PartOfSpeech(attrs["partOfSpeech"]).value
-            self.synset = Synset(synsetid, pos, members, attrs.get("lexfile"))
-            self.synset.ili = attrs["ili"]
-            self.synset.wikidata = attrs.get("wikidata")
-            self.synset.source = attrs.get("dc:source")
-        elif name == "Lemma":
-            self.entry.lemma = attrs["writtenForm"]
-            self.entry.pos = attrs["partOfSpeech"]
-        elif name == "Form":
-            self.entry.forms.append(attrs["writtenForm"])
-        elif name == "Definition":
-            self.defn = ""
-        elif name == "ILIDefinition":
-            self.ili_defn = ""
-        elif name == "Example":
-            self.example = ""
-            self.example_source = attrs.get("dc:source")
-        elif name == "Usage":
-            self.example = ""
-        elif name == "SynsetRelation":
-            target = make_synset_id(attrs["target"])
-            rtype = attrs["relType"]
+        elif name == 'Synset':
+            synsetid = make_synset_id(attrs['id'])
+            members = make_members(attrs.get('members', ''), self.entry_resolver)
+            pos = PartOfSpeech(attrs['partOfSpeech']).value
+            self.synset = Synset(synsetid, pos, members, attrs.get('lexfile'))
+            self.synset.ili = attrs['ili']
+            self.synset.wikidata = attrs.get('wikidata')
+            self.synset.source = attrs.get('dc:source')
+        elif name == 'Lemma':
+            self.entry.lemma = attrs['writtenForm']
+            self.entry.pos = attrs['partOfSpeech']
+        elif name == 'Form':
+            self.entry.forms.append(attrs['writtenForm'])
+        elif name == 'Definition':
+            self.defn = ''
+        elif name == 'ILIDefinition':
+            self.ili_defn = ''
+        elif name == 'Example':
+            self.example = ''
+            self.example_source = attrs.get('dc:source')
+        elif name == 'Usage':
+            self.example = ''
+        elif name == 'SynsetRelation':
+            target = make_synset_id(attrs['target'])
+            rtype = attrs['relType']
             self.synset.relations.append(Synset.Relation(target, Synset.Relation.Type(rtype).value))
-        elif name == "SenseRelation":
-            target = make_sense_id(attrs["target"])
-            rtype = attrs["relType"]
+        elif name == 'SenseRelation':
+            target = make_sense_id(attrs['target'])
+            rtype = attrs['relType']
             is_other = rtype == Sense.Relation.Type.OTHER.value
-            rtype2 = Sense.Relation.OtherType(attrs["dc:type"]).value if is_other else Sense.Relation.Type(rtype).value
+            rtype2 = Sense.Relation.OtherType(attrs['dc:type']).value if is_other else Sense.Relation.Type(rtype).value
             self.sense.relations.append(Sense.Relation(target, rtype2, is_other))
-        elif name == "SyntacticBehaviour":
-            self.verbframes.append(VerbFrame(attrs["id"], attrs["subcategorizationFrame"]))
-        elif name == "Pronunciation":
-            self.pronunciation = ""
-            self.pronunciation_variety = attrs.get("variety")
-        elif name == "Lexicon":
+        elif name == 'SyntacticBehaviour':
+            self.verbframes.append(VerbFrame(attrs['id'], attrs['subcategorizationFrame']))
+        elif name == 'Pronunciation':
+            self.pronunciation = ''
+            self.pronunciation_variety = attrs.get('variety')
+        elif name == 'Lexicon':
             self.lexicon = WordnetModel(
-                attrs["id"],
-                attrs["label"],
-                attrs["language"],
-                attrs["email"],
-                attrs["license"],
-                attrs["version"],
-                attrs["url"])
-        elif name == "LexicalResource":
+                attrs['id'],
+                attrs['label'],
+                attrs['language'],
+                attrs['email'],
+                attrs['license'],
+                attrs['version'],
+                attrs['url'])
+        elif name == 'LexicalResource':
             pass
         else:
-            raise ValueError(f"Unexpected Tag: {name}")
+            raise ValueError(f'Unexpected Tag: {name}')
 
     def endElement(self, name):
-        if name == "LexicalEntry":
+        if name == 'LexicalEntry':
             self.entries.append(self.entry)
             self.entry = None
-        elif name == "Sense":
+        elif name == 'Sense':
             self.entry.senses.append(self.sense)
             if self.sense.id in self.sense_resolver:
                 raise ValueError(f'Duplicate sense ID while parsing: {self.sense.id}')
@@ -148,25 +148,25 @@ class SAXParser(ContentHandler):
                 raise ValueError(f'Duplicate member ID while parsing: {mk}')
             self.member_resolver[mk] = self.entry
             self.sense = None
-        elif name == "Synset":
+        elif name == 'Synset':
             self.synsets.append(self.synset)
             if self.synset.id in self.member_resolver:
                 raise ValueError(f'Duplicate synset ID while parsing: {self.synset.id}')
             self.synset_resolver[self.synset.id] = self.synset
             self.synset = None
-        elif name == "Definition":
+        elif name == 'Definition':
             self.synset.definitions.append(self.defn)
             self.defn = None
-        elif name == "ILIDefinition":
+        elif name == 'ILIDefinition':
             self.synset.ili_definitions(self.ili_defn)
             self.ili_defn = None
-        elif name == "Example":
+        elif name == 'Example':
             self.synset.examples.append(Example(self.example, self.example_source))
             self.example = None
-        elif name == "Usage":
+        elif name == 'Usage':
             self.synset.usages.append(self.usage)
             self.usage = None
-        elif name == "Pronunciation":
+        elif name == 'Pronunciation':
             self.entry.pronunciations.append(Pronunciation(self.pronunciation, self.pronunciation_variety))
             self.pronunciation = None
 
@@ -185,7 +185,7 @@ class SAXParser(ContentHandler):
             pass
         else:
             print(content)
-            raise ValueError("Text content not expected")
+            raise ValueError('Text content not expected')
 
     def get_parsed(self):
         wn = self.lexicon
@@ -199,14 +199,14 @@ class SAXParser(ContentHandler):
 
 
 def load(wordnet_file):
-    with codecs.open(wordnet_file, encoding="utf-8") as source:
+    with codecs.open(wordnet_file, encoding='utf-8') as source:
         sax_parser = SAXParser()
         parse(source, sax_parser)
         return sax_parser.get_parsed()
 
 
 def main():
-    arg_parser = argparse.ArgumentParser(description="load from xml")
+    arg_parser = argparse.ArgumentParser(description='load from xml')
     arg_parser.add_argument('in_file', type=str, help='from-file')
     args = arg_parser.parse_args()
     wn = load(args.in_file)
@@ -214,5 +214,5 @@ def main():
     print(wn)
 
 
-if __name__ == "__main__":
+if __name__ == '__main__':
     main()
