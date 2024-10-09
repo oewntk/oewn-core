@@ -26,8 +26,8 @@ def load_verbframes(home: str) -> List[VerbFrame]:
     :return: list of verb frames
     """
     with open(f'{home}/frames.yaml', encoding='utf-8') as inp:
-        verbframes = yaml.load(inp, Loader=yaml.CLoader)
-        return [VerbFrame(k, v) for k, v in verbframes.items()]
+        y: Dict[str, Any] = yaml.load(inp, Loader=yaml.CLoader)
+        return [VerbFrame(k, v) for k, v in y.items()]
 
 
 def load_entries(home: str) -> Tuple[List[Entry], Dict[str, Sense], Dict[Tuple[str, str], Entry]]:
@@ -41,19 +41,18 @@ def load_entries(home: str) -> Tuple[List[Entry], Dict[str, Sense], Dict[Tuple[s
     entries: List[Entry] = []
     for f in glob(f'{home}/entries-*.yaml'):
         with open(f, encoding='utf-8') as inp:
-            y = yaml.load(inp, Loader=yaml.CLoader)
+            y: Dict[str, Any] = yaml.load(inp, Loader=yaml.CLoader)
             for lemma, poses_discriminants in y.items():
-                for pos_discriminant, props in poses_discriminants.items():
+                for pos_discriminant, entry_y in poses_discriminants.items():
                     pos = PartOfSpeech(pos_discriminant[:1]).value
                     discriminant = pos_discriminant[1:]
                     entry = Entry(lemma, pos, discriminant)
-                    if 'form' in props:
-                        entry.forms = props['form']
-                    if 'pronunciation' in props:
-                        entry.pronunciations = [Pronunciation(p['value'], p.get('variety')) for p in
-                                                props['pronunciation']]
-                    for n, sense_props in enumerate(props['sense']):
-                        sense = load_sense(sense_props, entry, n)
+                    if 'form' in entry_y:
+                        entry.forms = entry_y['form']
+                    if 'pronunciation' in entry_y:
+                        entry.pronunciations = [Pronunciation(p['value'], p.get('variety')) for p in entry_y['pronunciation']]
+                    for n, sense_y in enumerate(entry_y['sense']):
+                        sense = load_sense(sense_y, entry, n)
                         entry.senses.append(sense)
                         sense_resolver[sense.id] = sense
                         member_resolver[(lemma, sense.synsetid)] = entry
@@ -77,30 +76,30 @@ def load_synsets(home: str) -> Tuple[List[Synset], Dict[str, Synset]]:
         lex_name = Path(f).stem
         with open(f, encoding='utf-8') as inp:
             y: Dict[str, Any] = yaml.load(inp, Loader=yaml.CLoader)
-            for synsetid, props in y.items():
-                synset = load_synset(props, synsetid, lex_name)
+            for synsetid, synset_y in y.items():
+                synset = load_synset(synset_y, synsetid, lex_name)
                 synsets.append(synset)
                 resolver[synsetid] = synset
     return synsets, resolver
 
 
-def load_sense(props: Dict[str, Any], entry: Entry, n: int) -> Sense:
+def load_sense(y: Dict[str, Any], entry: Entry, n: int) -> Sense:
     """
     Load sense from YAML
-    :param props: properties provided by PyYAML
+    :param y: properties provided by PyYAML
     :param entry: wrapping entry
     :param n: sense number
     :return: sense
     """
-    s = Sense(props['id'], entry, props['synset'], n, props.get('adjposition'))
-    if 'sent' in props:
-        s.sent = props['sent']
-    if 'subcat' in props:
-        s.verbframeids = props['subcat']
+    s = Sense(y['id'], entry, y['synset'], n, y.get('adjposition'))
+    if 'sent' in y:
+        s.sent = y['sent']
+    if 'subcat' in y:
+        s.verbframeids = y['subcat']
     # relations
     sense_rel_types = [t.value for t in Sense.Relation.Type]
     other_rel_types = [t.value for t in Sense.Relation.OtherType]
-    for rel, targets in props.items():
+    for rel, targets in y.items():
         if rel in sense_rel_types:
             for target in targets:
                 s.relations.append(Sense.Relation(target, Sense.Relation.Type(rel).value))
@@ -110,31 +109,31 @@ def load_sense(props: Dict[str, Any], entry: Entry, n: int) -> Sense:
     return s
 
 
-def load_synset(props: Dict[str, Any], synsetid: str, lex_name: str) -> Synset:
+def load_synset(y: Dict[str, Any], synsetid: str, lex_name: str) -> Synset:
     """
     Load synset from YAML
-    :param props: properties provided by PyYAML
+    :param y: properties provided by PyYAML
     :param synsetid: synset ID
     :param lex_name: lexical name, provided by file name's stem
     :return: synset
     """
-    pos = PartOfSpeech(props['partOfSpeech']).value
-    ss = Synset(synsetid, pos, props['members'], lex_name)
-    for defn in props['definition']:
+    pos = PartOfSpeech(y['partOfSpeech']).value
+    ss = Synset(synsetid, pos, y['members'], lex_name)
+    for defn in y['definition']:
         ss.definitions.append(defn)
-    for example in props.get('example', []):
+    for example in y.get('example', []):
         if isinstance(example, str):
             ss.examples.append(example)
         else:
             ss.examples.append(Example(example['text'], example['source']))
-    for usage in props.get('usage', []):
+    for usage in y.get('usage', []):
         ss.usages.append(usage)
-    ss.source = props.get('source')
-    ss.wikidata = props.get('wikidata')
-    ss.ili = props.get('ili', 'in')
+    ss.source = y.get('source')
+    ss.wikidata = y.get('wikidata')
+    ss.ili = y.get('ili', 'in')
     # relations
     synset_rel_types = [t.value for t in Synset.Relation.Type]
-    for rel, targets in props.items():
+    for rel, targets in y.items():
         if rel in synset_rel_types:
             for target in targets:
                 ss.relations.append(Synset.Relation(target, Synset.Relation.Type(rel).value))
