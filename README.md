@@ -119,5 +119,5 @@ License is GPL-3 for revisions.
 
 ## Related ##
 
-The [oewntk project](https://github.com/oewntk/project) is a tool suite written in Kotlin for JVM, 
+The [oewntk project](https://github.com/oewntk/oewntk) is a tool suite written in Kotlin for JVM, 
 that has similar design principles. Most notably, it exports to SQL, WNDB and JSON formats.
