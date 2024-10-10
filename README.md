@@ -94,7 +94,7 @@ While still conforming to [WN-LMF-1.1.dtd](https://github.com/globalwordnet/sche
 * **wikidata** in synsets is exported in the _dc:subject_ attribute
 * **sent** in synsets is exported as \<Example>
 * **dc:date** in \<Lexicon> receives the date of XML generation
-* **dc:identifier** in \<Lexicon> receives a UID (and is this unique)
+* **dc:identifier** in \<Lexicon> receives a UID (and is thus unique)
 
 ## Testing ##
 
