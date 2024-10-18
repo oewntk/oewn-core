@@ -14,36 +14,155 @@ key_prefix = 'oewn-'
 
 key_prefix_len = len(key_prefix)
 
-# Regular expressions for valid NameStartChar and NameChar based on the XML 1.0 specification.
+# Regular expressions for valid NameChar
 # based on the XML 1.0 specification.
 # We don't check for 1st character extra restrictions
 # because it's always prefixed with 'oewn-'
+xml_id_punct = r':_'  # colon, underscore
+xml_id_punct_not_first = r'\-\.·'  # hyphen-minus, period, middle dot
 xml_id_az = r'A-Za-z'
 xml_id_num = r'0-9'
 xml_id_extend = (
-    r'\xC0-\xD6'  # ÀÁÂÃÄÅÆÇÈÉÊËÌÍÎÏÐÑÒÓÔÕÖ
-    r'\xD8-\xF6'  # ØÙÚÛÜÝÞßàáâãäåæçèéêëìíîïðñòóôõö
-    r'\xF8-\u02FF'
-    r'\u0370-\u037D'
-    r'\u037F-\u1FFF'
-    r'\u200C-\u200D'
-    r'\u2070-\u218F'
-    r'\u2C00-\u2FEF'
-    r'\u3001-\uD7FF'
-    r'\uF900-\uFDCF'
-    r'\uFDF0-\uFFFD'
+    r'\xC0-\xD6'  # Latin letters with diacritics
+    r'\xD8-\xF6'  # Additional latin letters with diacritics
+    r'\xF8-\u02FF'  # Extended Latin letters and characters from the Latin Extended-A, Greek, and other blocks
+    r'\u0370-\u037D'  # Greek letters and many characters from scripts such as Coptic, Armenian, Hebrew, Arabic, and more
+    r'\u037F-\u1FFF'  # Greek letters and many characters from scripts such as Coptic, Armenian, Hebrew, Arabic, and more
+    r'\u200C-\u200D'  # Zero Width Non-Joiner (ZWNJ) and Zero Width Joiner (ZWJ), used in scripts like Arabic and Indic.
+    r'\u2070-\u218F'  # Superscripts, subscripts, and various other symbols.
+    r'\u2C00-\u2FEF'  # Characters from the Glagolitic and other historical scripts.
+    r'\u3001-\uD7FF'  # Characters from many Asian scripts, including Chinese, Japanese, and Korean ideographs
+    r'\uF900-\uFDCF'  # Compatibility ideographs and Arabic presentation forms
+    r'\uFDF0-\uFFFD'  # Compatibility ideographs and Arabic presentation forms
+    r'\U00010000-\U000EFFFF'
+    # Supplementary characters from Unicode planes outside the Basic Multilingual Plane, including rare historical scripts, musical symbols, emoji, and more.
 )
-xml_id_not_first = (
-    r'\u0300-\u036F'
-    r'\u203F-\u2040'
+xml_id_extend_not_first = (
+    r'\u0300-\u036F'  # Combining diacritical marks that can modify the preceding character.
+    r'\u203F-\u2040'  # Characters like the "undertie" (‿) and "character tie" (⁀), used in specialized phonetic notations.
 )
-xml_id_start_char = fr'[_{xml_id_az}{xml_id_extend}]' # not used if oewn- prefix
-xml_id_start_char1 = fr'^{xml_id_start_char}$'
-xml_id_start_char1_re = re.compile(xml_id_start_char)
+xml_id_start_char = fr'[{xml_id_punct}{xml_id_az}{xml_id_extend}]'  # not used if oewn- prefix
+xml_id_char = fr'[{xml_id_punct}{xml_id_punct_not_first}{xml_id_az}{xml_id_num}{xml_id_extend}{xml_id_extend_not_first}]'
 
-xml_id_char = fr'[_\-\.·{xml_id_az}{xml_id_num}{xml_id_extend}{xml_id_not_first}]' # + hyphen, stop, midpoint, digits, extras
+xml_id_start_char1 = fr'^{xml_id_start_char}$'
 xml_id_char1 = fr'^{xml_id_char}$'
+
+xml_id_start_char_re = re.compile(xml_id_start_char1)
 xml_id_char1_re = re.compile(xml_id_char1)
+
+xml_id = fr'^{xml_id_start_char}{xml_id_char}*$'
+xml_id_re = re.compile(xml_id_char1)
+
+def is_valid_xml_id(s):
+    return xml_id_re.match(s) is not None
+
+custom_char_escapes = {
+    # HTML entities
+    # https://en.wikipedia.org/wiki/List_of_XML_and_HTML_character_entity_references
+    '-': '--',  # custom
+    ' ': '_',  # custom
+    # '.': '-period-', # valid xml id char
+    #'_': '-lowbar-', # valid xml id char
+    "'": '-apos-',
+    '`': '-grave-',
+    '´': '-acute-',
+    '(': '-lpar-',
+    ')': '-rpar-',
+    '[': '-lsqb-',
+    ']': '-rsqb-',
+    '{': '-lbrace-',
+    '}': '-rbrace-',
+    ',': '-comma-',
+    # ':': '-colon-', # valid xml id char
+    ';': '-semi-',
+    '=': '-equals-',
+    '+': '-plus-',
+    '!': '-excl-',
+    '?': '-quest-',
+    '@': '-commat-',
+    '#': '-num-',
+    '$': '-dollar-',
+    '%': '-percnt-',
+    '/': '-sol-',
+    '\\': '-bsol-',
+    '|': '-vert-',
+    '^': '-Hat-',
+    '*': '-ast-',
+    '‘': '-lsquo-',
+    '’': '-rsquo-',
+}
+custom_char_escapes_reverse = {custom_char_escapes[k]: k for k in custom_char_escapes}
+
+def escape_lemma(lemma):
+    """Format the lemma so it is valid XML ID sequence"""
+
+    def elc(c):
+        if ('A' <= c <= 'Z') or ('a' <= c <= 'z') or ('0' <= c <= '9'):
+            return c
+        elif c in custom_char_escapes:
+            return custom_char_escapes[c]
+        elif xml_id_char1_re.match(c):
+            return c
+        raise ValueError(f'{c!r} [x{ord(c):04X}] is illegal character in XML ID and no escape sequence is defined')
+
+    return ''.join(elc(c) for c in lemma)
+
+
+def unescape_lemma(lemma):
+    """Format the valid XML ID sequence so it is the original lemma"""
+
+    def uelc(c):
+        if ('A' <= c <= 'Z') or ('a' <= c <= 'z') or ('0' <= c <= '9'):
+            return c
+        elif xml_id_char1_re.match(c):
+            return c
+        raise ValueError(f'{c!r} [x{ord(c):04X}] is illegal character in XML ID and no escape sequence is defined')
+
+    s = lemma
+    for seq in custom_char_escapes_reverse:
+        s = s.replace(seq, custom_char_escapes_reverse[seq])
+    s = "".join(uelc(c) for c in s)
+    return s
+
+
+middledot = '·'
+xml_percent_sep = middledot
+xml_colon_sep = ':'
+
+
+def escape_sensekey(sensekey):
+    """Escape the sensekey so that it contains valid characters for XML ID, prefix added"""
+    if '%' in sensekey:
+        e = sensekey.split('%')
+        lemma = escape_lemma(e[0].replace('_',' '))
+        lex_sense = e[1]
+        lex_sense_fields = lex_sense.split(':')
+        n = len(lex_sense_fields)
+        assert n == 5, f'Parsing error: length {n} of lex_sense_fields in lex_sense {lex_sense} should be 5'
+        head = lex_sense_fields[3]
+        if head:
+            lex_sense_fields[3] = escape_lemma(head)
+        return f"oewn-{lemma}{xml_percent_sep}{xml_colon_sep.join(lex_sense_fields)}"
+    raise ValueError(f'Ill-formed OEWN sense key (no %): {sensekey}')
+
+
+def unescape_sensekey(escaped_sensekey):
+    """
+    Maps an OEWN sense key to a WN sense key
+    """
+    if xml_percent_sep in escaped_sensekey:
+        e = escaped_sensekey.split(xml_percent_sep)
+        lemma = unescape_lemma(e[0][key_prefix_len:])
+        lex_sense = e[1]
+        lex_sense_fields = lex_sense.split(xml_colon_sep)
+        n = len(lex_sense_fields)
+        assert n == 5, f'Parsing error: length {n} of lex_sense_fields in lex_sense {lex_sense} should be 5'
+        head = lex_sense_fields[3]
+        if head:
+            lex_sense_fields[3] = unescape_lemma(head)
+        return f'{lemma}%{':'.join(lex_sense_fields)}'
+    raise ValueError(f'Ill-formed OEWN sense key (no {xml_percent_sep}): {escaped_sensekey}')
+
 
 def escape_xml_lit(lit):
     return (lit
@@ -52,104 +171,3 @@ def escape_xml_lit(lit):
             .replace("\"", "&quot;")
             .replace("<", "&lt;")
             .replace(">", "&gt;"))
-
-
-def escape_lemma(lemma):
-    """Escape the lemma so that it contains valid characters for inclusion in XML ID"""
-
-    def escape_char(c):
-        if ('A' <= c <= 'Z') or ('a' <= c <= 'z') or ('0' <= c <= '9') or c == '.':
-            return c
-        elif c == ' ':
-            return '_'
-        elif c == '(':
-            return '-lb-'
-        elif c == ')':
-            return '-rb-'
-        elif c == '\'':
-            return '-ap-'
-        elif c == '/':
-            return '-sl-'
-        elif c == ':':
-            return '-cn-'
-        elif c == ',':
-            return '-cm-'
-        elif c == '!':
-            return '-ex-'
-        elif c == '+':
-            return '-pl-'
-        elif xml_id_char1_re.match(c): # or xml_id_start_char1_re.match(c):
-            return c
-        raise ValueError(f'Illegal character {c}')
-
-    return "".join(escape_char(c) for c in lemma)
-
-
-def unescape_lemma(escaped):
-    """Reverse escaping the lemma back to the WN lemma"""
-    return (escaped
-            .replace('-pl-', '+')
-            .replace('-ex-', '!')
-            .replace('-cm-', ',')
-            .replace('-cn-', ':')
-            .replace('-sl-', '/')
-            .replace('-ap-', "'")
-            .replace('-rb-', ')')
-            .replace('-lb-', '(')
-            .replace('_', ' '))
-
-
-def escape_sensekey(sensekey):
-    """Escape the sensekey so that it contains valid characters for XML ID, prefix added"""
-    if "%" in sensekey:
-        e = sensekey.split("%")
-        return (key_prefix +
-                e[0]
-                .replace("'", "-ap-")
-                .replace("/", "-sl-")
-                .replace("!", "-ex-")
-                .replace(",", "-cm-")
-                .replace(":", "-cn-")
-                .replace("+", "-pl-") +
-                "__" +
-                e[1]
-                .replace("_", "-sp-")
-                .replace(":", "."))
-    else:
-        return (key_prefix +
-                sensekey
-                .replace("%", "__")
-                .replace("'", "-ap-")
-                .replace("/", "-sl-")
-                .replace("!", "-ex-")
-                .replace(",", "-cm-")
-                .replace(":", "-cn-")
-                .replace("+", "-pl-"))
-
-
-def unescape_sensekey(escaped):
-    """Reverse the escaping of a sensekey to a WN sensekey, prefix stripped"""
-    if "__" in escaped:
-        e = escaped.split("__")
-        l = e[0][key_prefix_len:]
-        r = "__".join(e[1:])
-        return (l
-                .replace("-ap-", "'")
-                .replace("-sl-", "/")
-                .replace("-ex-", "!")
-                .replace("-cm-", ",")
-                .replace("-cn-", ":")
-                .replace("-pl-", "+") +
-                "%" +
-                r
-                .replace(".", ":")
-                .replace("-sp-", "_"))
-    else:
-        return (escaped[key_prefix_len:]
-                .replace("__", "%")
-                .replace("-ap-", "'")
-                .replace("-sl-", "/")
-                .replace("-ex-", "!")
-                .replace("-cm-", ",")
-                .replace("-cn-", ":")
-                .replace("-pl-", "+"))
