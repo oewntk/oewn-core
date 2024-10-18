@@ -31,7 +31,6 @@ def main():
     """
     arg_parser = argparse.ArgumentParser(description="load from yaml and save")
     arg_parser.add_argument('in_dir', type=str, help='from-dir for pickle')
-    arg_parser.add_argument('out_dir', type=str, help='out_dir')
     arg_parser.add_argument('pickle', type=str, nargs='?', default='oewn.pickle', help='from-pickle')
     args = arg_parser.parse_args()
 
@@ -42,10 +41,13 @@ def main():
     print(wn)
     print(wn.info())
     print(wn.info_relations())
+    return wn
 
-    print(f'saving to YAML {args.out_dir}')
-    saver.save(wn, args.out_dir)
-    print(f'saved to YAML {args.out_dir}')
+
+def test(wn, out_dir):
+    print(f'saving to YAML {out_dir}')
+    saver.save(wn, out_dir)
+    print(f'saved to YAML {out_dir}')
 
 
 if __name__ == '__main__':
