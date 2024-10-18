@@ -25,6 +25,10 @@ class Entry:
         self.pronunciations: List[Pronunciation] = []
         self.senses: List[Sense] = []
 
+    @property
+    def key(self) -> Tuple[str, str, str]:
+        return self.lemma, self.pos, self.discriminant
+
 
 class Sense:
     """ The sense links an entry to a synset """
