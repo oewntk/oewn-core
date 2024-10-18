@@ -162,9 +162,8 @@ def load(home: str):
 
 
 def main():
-    arg_parser = argparse.ArgumentParser(description="load from yaml and save")
+    arg_parser = argparse.ArgumentParser(description="load from yaml")
     arg_parser.add_argument('in_dir', type=str, help='from-dir')
-    arg_parser.add_argument('out_dir', type=str, help='to-dir')
     args = arg_parser.parse_args()
 
     print(f'loading from YAML in {args.in_dir}')
@@ -183,6 +182,7 @@ def main():
     print(wn)
     print(wn.info())
     print(wn.info_relations())
+    return wn
 
 
 if __name__ == '__main__':

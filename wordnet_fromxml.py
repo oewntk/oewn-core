@@ -216,6 +216,7 @@ def main():
     wn = load(args.in_file)
     wn.resolve()
     print(wn)
+    return wn
 
 
 if __name__ == '__main__':
