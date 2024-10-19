@@ -9,7 +9,7 @@ import wordnet_xml
 from wordnet_xml import is_valid_xml_id, is_valid_xml_id_char, custom_base_char_escapes
 
 
-class XMLTestCase(unittest.TestCase):
+class WordnetXMLTestCase(unittest.TestCase):
     def test_valid_char(self):
         for c in ('.', '·', ':', '_', '-'):
             self.assertTrue(is_valid_xml_id_char(c), f'Valid {c} {c!r} x{ord(c):X}')
