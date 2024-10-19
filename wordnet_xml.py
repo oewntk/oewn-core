@@ -34,7 +34,8 @@ xml_id_extend = (
     r'\u3001-\uD7FF'  # Characters from many Asian scripts, including Chinese, Japanese, and Korean ideographs
     r'\uF900-\uFDCF'  # Compatibility ideographs and Arabic presentation forms
     r'\uFDF0-\uFFFD'  # Compatibility ideographs and Arabic presentation forms
-    r'\U00010000-\U000EFFFF' # Supplementary chars from planes outside the Basic Multilingual Plane, including rare historical scripts, musical symbols, emoji, and more.
+    r'\U00010000-\U000EFFFF'
+    # Supplementary chars from planes outside the Basic Multilingual Plane, including rare historical scripts, musical symbols, emoji, and more.
 )
 xml_id_extend_not_first = (
     r'\u0300-\u036F'  # Combining diacritical marks that can modify the preceding character.
@@ -52,22 +53,26 @@ xml_id_char1_re = re.compile(xml_id_char1)
 xml_id = fr'^{xml_id_start_char}{xml_id_char}*$'
 xml_id_re = re.compile(xml_id)
 
+
 def is_valid_xml_id_char(c):
     return xml_id_char1_re.match(c) is not None
+
 
 def is_valid_xml_id(s):
     return xml_id_re.match(s) is not None
 
-custom_char_escapes = {
+
+custom_esc_char_escapes = {
+    '-': '--',  # custom
+}
+custom_base_char_escapes = {
     # HTML entities
     # https://en.wikipedia.org/wiki/List_of_XML_and_HTML_character_entity_references
-    '-': '--',  # custom
-    ' ': '_',  # custom
-    # '.': '-period-', # valid xml id char
-    '_': '-lowbar-', # valid xml id char
     "'": '-apos-',
     '`': '-grave-',
     '´': '-acute-',
+    '‘': '-lsquo-',
+    '’': '-rsquo-',
     '(': '-lpar-',
     ')': '-rpar-',
     '[': '-lsqb-',
@@ -75,7 +80,6 @@ custom_char_escapes = {
     '{': '-lbrace-',
     '}': '-rbrace-',
     ',': '-comma-',
-    # ':': '-colon-', # valid xml id char
     ';': '-semi-',
     '=': '-equals-',
     '+': '-plus-',
@@ -90,46 +94,22 @@ custom_char_escapes = {
     '|': '-vert-',
     '^': '-Hat-',
     '*': '-ast-',
-    '‘': '-lsquo-',
-    '’': '-rsquo-',
 }
+
+custom_extras_char_escapes = {
+    '_': '-lowbar-',
+    ' ': '_',
+}
+custom_sk_char_escapes = {
+    '-': '--',  # custom
+}
+
+custom_char_escapes = custom_esc_char_escapes | custom_base_char_escapes | custom_extras_char_escapes
 custom_char_escapes_reverse = {custom_char_escapes[k]: k for k in custom_char_escapes}
 
-custom_char_escapes_for_sk = {
-    # HTML entities
-    # https://en.wikipedia.org/wiki/List_of_XML_and_HTML_character_entity_references
-    '-': '--',  # custom
-    # '.': '-period-', # valid xml id char
-    #'_': '-lowbar-', # valid xml id char
-    "'": '-apos-',
-    '`': '-grave-',
-    '´': '-acute-',
-    '(': '-lpar-',
-    ')': '-rpar-',
-    '[': '-lsqb-',
-    ']': '-rsqb-',
-    '{': '-lbrace-',
-    '}': '-rbrace-',
-    ',': '-comma-',
-    # ':': '-colon-', # valid xml id char
-    ';': '-semi-',
-    '=': '-equals-',
-    '+': '-plus-',
-    '!': '-excl-',
-    '?': '-quest-',
-    '@': '-commat-',
-    '#': '-num-',
-    '$': '-dollar-',
-    '%': '-percnt-',
-    '/': '-sol-',
-    '\\': '-bsol-',
-    '|': '-vert-',
-    '^': '-Hat-',
-    '*': '-ast-',
-    '‘': '-lsquo-',
-    '’': '-rsquo-',
-}
+custom_char_escapes_for_sk = custom_base_char_escapes | custom_sk_char_escapes
 custom_char_escapes_for_sk_reverse = {custom_char_escapes_for_sk[k]: k for k in custom_char_escapes_for_sk}
+
 
 def escape_lemma(lemma):
     """Format the lemma so it is valid XML ID sequence"""
@@ -147,20 +127,16 @@ def escape_lemma(lemma):
 
 
 def unescape_lemma(lemma):
-    """Format the valid XML ID sequence so it is the original lemma"""
-
-    #def uelc(c):
-    #    if ('A' <= c <= 'Z') or ('a' <= c <= 'z') or ('0' <= c <= '9'):
-    #        return c
-    #    elif xml_id_char1_re.match(c):
-    #        return c
-    #    raise ValueError(f'{c!r} [x{ord(c):04X}] is illegal character in XML ID and no escape sequence is defined')
+    """
+    Unformat the valid XML ID sequence so it is the original lemma
+    Reversing the keys matters.
+    """
 
     s = lemma
-    for seq in custom_char_escapes_reverse:
+    for seq in reversed(custom_char_escapes_reverse):
         s = s.replace(seq, custom_char_escapes_reverse[seq])
-    # s = "".join(uelc(c) for c in s)
     return s
+
 
 def escape_lemma_for_sk(lemma):
     """Format the lemma so it is valid XML ID sequence"""
@@ -179,19 +155,11 @@ def escape_lemma_for_sk(lemma):
 
 def unescape_lemma_for_sk(lemma):
     """Format the valid XML ID sequence so it is the original lemma"""
-
-    #def uelc(c):
-    #    if ('A' <= c <= 'Z') or ('a' <= c <= 'z') or ('0' <= c <= '9'):
-    #        return c
-    #    elif xml_id_char1_re.match(c):
-    #        return c
-    #    raise ValueError(f'{c!r} [x{ord(c):04X}] is illegal character in XML ID and no escape sequence is defined')
-
     s = lemma
     for seq in custom_char_escapes_for_sk_reverse:
         s = s.replace(seq, custom_char_escapes_for_sk_reverse[seq])
-    # s = "".join(uelc(c) for c in s)
     return s
+
 
 middledot = '·'
 xml_percent_sep = middledot
