@@ -34,8 +34,7 @@ xml_id_extend = (
     r'\u3001-\uD7FF'  # Characters from many Asian scripts, including Chinese, Japanese, and Korean ideographs
     r'\uF900-\uFDCF'  # Compatibility ideographs and Arabic presentation forms
     r'\uFDF0-\uFFFD'  # Compatibility ideographs and Arabic presentation forms
-    r'\U00010000-\U000EFFFF'
-    # Supplementary characters from Unicode planes outside the Basic Multilingual Plane, including rare historical scripts, musical symbols, emoji, and more.
+    r'\U00010000-\U000EFFFF' # Supplementary chars from planes outside the Basic Multilingual Plane, including rare historical scripts, musical symbols, emoji, and more.
 )
 xml_id_extend_not_first = (
     r'\u0300-\u036F'  # Combining diacritical marks that can modify the preceding character.
@@ -51,7 +50,10 @@ xml_id_start_char_re = re.compile(xml_id_start_char1)
 xml_id_char1_re = re.compile(xml_id_char1)
 
 xml_id = fr'^{xml_id_start_char}{xml_id_char}*$'
-xml_id_re = re.compile(xml_id_char1)
+xml_id_re = re.compile(xml_id)
+
+def is_valid_xml_id_char(c):
+    return xml_id_char1_re.match(c) is not None
 
 def is_valid_xml_id(s):
     return xml_id_re.match(s) is not None
