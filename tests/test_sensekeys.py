@@ -2,17 +2,11 @@
 #  Creative Commons 4 for original code
 #  GPL3 for rewrite
 
-import os
 import sys
 import unittest
 
-import deserialize
+import model
 import wordnet_xml
-
-data_home = os.environ['OEWN_HOME']
-print(f'data={data_home}', file=sys.stderr)
-wn = deserialize.load_pickle(data_home)
-senses = sorted(list(wn.senses), key=lambda s: s.id)
 
 
 def is_parsable_sensekey(sk):
@@ -40,7 +34,7 @@ def is_parsable_xml_sensekey(sk):
 class SensekeysTestCase(unittest.TestCase):
 
     def test_sensekeys(self):
-        for s in senses:
+        for s in model.senses:
             try:
                 self.assertTrue(is_parsable_sensekey(s.id))
                 xml_sk = wordnet_xml.escape_sensekey(s.id)
