@@ -12,6 +12,8 @@ Author: Bernard Bou <1313ou@gmail.com> for rewrite and revamp
 
 import argparse
 import pickle
+import sys
+import time
 
 import wordnet_fromyaml as loader
 from wordnet import WordnetModel
@@ -41,6 +43,7 @@ def main():
     """
     arg_parser = argparse.ArgumentParser(description="load from yaml and save")
     arg_parser.add_argument('in_dir', type=str, help='from-dir')
+    arg_parser.add_argument('out_dir', type=str, help='to-dir')
     arg_parser.add_argument('pickle', type=str, nargs='?', default='oewn.pickle', help='to-pickle')
     args = arg_parser.parse_args()
 
@@ -73,4 +76,8 @@ def test(out_dir):
 
 
 if __name__ == '__main__':
+    start_time = time.time()
     main()
+    end_time = time.time()
+    duration = end_time - start_time
+    print(f"Saving took {duration:.6f} seconds", file=sys.stderr)

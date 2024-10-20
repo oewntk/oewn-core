@@ -13,6 +13,9 @@ Author: Bernard Bou <1313ou@gmail.com> for rewrite and revamp
 #  GPL3 for rewrite
 
 import argparse
+import sys
+import time
+
 import wordnet_fromyaml as loader
 import wordnet_toyaml as saver
 
@@ -48,4 +51,8 @@ def main():
 
 
 if __name__ == '__main__':
+    start_time = time.time()
     main()
+    end_time = time.time()
+    duration = end_time - start_time
+    print(f"Identity conversion took {duration:.6f} seconds", file=sys.stderr)

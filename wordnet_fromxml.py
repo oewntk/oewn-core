@@ -13,6 +13,8 @@ Author: Bernard Bou <1313ou@gmail.com> for rewrite and revamp
 import argparse
 import codecs
 import re
+import sys
+import time
 from xml.sax import ContentHandler, parse
 
 from wordnet import *
@@ -220,4 +222,8 @@ def main():
 
 
 if __name__ == '__main__':
+    start_time = time.time()
     main()
+    end_time = time.time()
+    duration = end_time - start_time
+    print(f"Loading took {duration:.6f} seconds", file=sys.stderr)
