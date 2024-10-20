@@ -14,7 +14,7 @@ key_prefix = 'oewn-'
 
 key_prefix_len = len(key_prefix)
 
-# Regular expressions for valid NameStartChar and NameChar based on the XML 1.0 specification.
+# Regular expressions for valid NameStartChar and NameChar based on the XML 1.1 specification.
 # based on the XML 1.0 specification.
 # We don't check for 1st character extra restrictions
 # because it's always prefixed with 'oewn-'
