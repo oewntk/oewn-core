@@ -12,6 +12,8 @@ Author: Bernard Bou <1313ou@gmail.com> for rewrite and revamp
 
 import argparse
 import pickle
+import sys
+import time
 
 import wordnet_fromyaml as loader
 from wordnet import WordnetModel
@@ -74,4 +76,8 @@ def test(out_dir):
 
 
 if __name__ == '__main__':
+    start_time = time.time()
     main()
+    end_time = time.time()
+    duration = end_time - start_time
+    print(f"Saving took {duration:.6f} seconds", file=sys.stderr)

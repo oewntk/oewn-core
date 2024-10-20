@@ -4,7 +4,8 @@ WordNet from-YAML utilities
 Author: John McCrae <john@mccr.ae> for original code
 Author: Bernard Bou <1313ou@gmail.com> for rewrite and revamp
 """
-
+import sys
+import time
 #  Copyright (c) 2024.
 #  Creative Commons 4 for original code
 #  GPL3 for rewrite
@@ -186,4 +187,8 @@ def main():
 
 
 if __name__ == '__main__':
+    start_time = time.time()
     main()
+    end_time = time.time()
+    duration = end_time - start_time
+    print(f"Loading took {duration:.6f} seconds", file=sys.stderr)
