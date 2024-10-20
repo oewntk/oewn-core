@@ -1,12 +1,9 @@
 <component name="ProjectRunConfigurationManager">
-  <configuration default="false" name="tests.test_sensekeys.SensekeysTestCase" type="tests" factoryName="Unittests">
+  <configuration default="false" name="tests.test_xml_ids.XMLIDTestCase" type="tests" factoryName="Unittests">
     <module name="oewn-core" />
     <option name="ENV_FILES" value="" />
     <option name="INTERPRETER_OPTIONS" value="" />
     <option name="PARENT_ENVS" value="true" />
-    <envs>
-      <env name="OEWN_HOME" value="data-in" />
-    </envs>
     <option name="SDK_HOME" value="" />
     <option name="WORKING_DIRECTORY" value="." />
     <option name="IS_MODULE_SDK" value="true" />
@@ -14,7 +11,7 @@
     <option name="ADD_SOURCE_ROOTS" value="true" />
     <option name="_new_pattern" value="&quot;&quot;" />
     <option name="_new_additionalArguments" value="&quot;&quot;" />
-    <option name="_new_target" value="&quot;tests.test_sensekeys.SensekeysTestCase&quot;" />
+    <option name="_new_target" value="&quot;test_xml_ids.XMLIDTestCase&quot;" />
     <option name="_new_targetType" value="&quot;PYTHON&quot;" />
     <method v="2" />
   </configuration>
