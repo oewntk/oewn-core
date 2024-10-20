@@ -146,7 +146,7 @@ def usage_to_xml(usage: str, out):
 
 def synset_relation_to_xml(synset_relation: Synset.Relation, out, comments):
     r = synset_relation.relation_type
-    t = make_sense_id(synset_relation.target)
+    t = make_synset_id(synset_relation.target)
     out.write(f'{I * 3}<SynsetRelation relType="{r}" target="{t}"/>')
     if comments and synset_relation.target in comments:
         out.write(f' <!-- {comments[synset_relation.target]} -->')
