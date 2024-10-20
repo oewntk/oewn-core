@@ -110,7 +110,7 @@ def unescape_sensekey(sk):
     raise ValueError(f'Ill-formed OEWN sense key (no {xml_percent_sep}): {sk}')
 
 
-def make_xml_sensekey(sk):
+def make_xml_sensekeys(sk):
     esc_sk = escape_sensekey(sk)
     unesc_sk = unescape_sensekey(esc_sk)
     if sk != unesc_sk:
