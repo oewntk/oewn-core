@@ -47,7 +47,7 @@ xml_id_char = fr'[{xml_id_punct}{xml_id_punct_not_first}{xml_id_az}{xml_id_num}{
 xml_id_start_char1 = fr'^{xml_id_start_char}$'
 xml_id_char1 = fr'^{xml_id_char}$'
 
-xml_id_start_char_re = re.compile(xml_id_start_char1)
+xml_id_start_char1_re = re.compile(xml_id_start_char1)
 xml_id_char1_re = re.compile(xml_id_char1)
 
 xml_id = fr'^{xml_id_start_char}{xml_id_char}*$'
@@ -87,15 +87,35 @@ custom_base_char_escapes = {
     '?': '-quest-',
     '@': '-commat-',
     '#': '-num-',
-    '$': '-dollar-',
     '%': '-percnt-',
+    '&': '-amp-',
+    '§': '-sect-',
+    '¶': '-para-',
     '/': '-sol-',
     '\\': '-bsol-',
     '|': '-vert-',
     '^': '-Hat-',
     '*': '-ast-',
+    '$': '-dollar-',
+    '¢': '-cent-',
+    '£': '-pound-',
+    '©': '-copy-',
+    '®': '-reg-',
+    'º': '-ordm-',
+    '°': '-deg-',
+    '~': '-tilde-',
+    '': '--',
+    '': '--',
+    '': '--',
+    '': '--',
+    '': '--',
+    '': '--',
+    '': '--',
+    '': '--',
+    '': '--',
+    '': '--',
+    '': '--',
 }
-
 custom_extras_char_escapes = {
     '_': '-lowbar-',
     ' ': '_',
