@@ -42,8 +42,7 @@ def print_as_dictionary(r, limit=5):
     print('}')
 
 
-def check_sense(s):
-    sk = s.id
+def process_sensekey(sk):
     esc_sk = wordnet_xml.escape_sensekey(sk)
     unesc_sk = wordnet_xml.unescape_sensekey(esc_sk)
     if sk != unesc_sk:
@@ -63,6 +62,6 @@ class EscapablesTestCase(unittest.TestCase):
                 print(f'{k}')
                 for i, e in enumerate(r[k]):
                     for s in e.senses:
-                        sk, esc_sk, unesc_sk = check_sense(s)
+                        sk, esc_sk, unesc_sk = process_sensekey(s.id)
                         if i < self.limit:
                             print(f'\t{sk} --xml-->  {esc_sk} --reverse-->  {unesc_sk}')
