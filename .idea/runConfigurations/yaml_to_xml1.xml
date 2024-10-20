@@ -1,5 +1,5 @@
 <component name="ProjectRunConfigurationManager">
-  <configuration default="false" name="yaml_to_xml1" type="PythonConfigurationType" factoryName="Python">
+  <configuration default="false" name="yaml_to_xml1" type="PythonConfigurationType" factoryName="Python" folderName="convert">
     <module name="oewn-core" />
     <option name="ENV_FILES" value="" />
     <option name="INTERPRETER_OPTIONS" value="" />
@@ -13,7 +13,7 @@
     <option name="IS_MODULE_SDK" value="false" />
     <option name="ADD_CONTENT_ROOTS" value="true" />
     <option name="ADD_SOURCE_ROOTS" value="true" />
-    <option name="SCRIPT_NAME" value="$PROJECT_DIR$/yaml_to_xml.py" />
+    <option name="SCRIPT_NAME" value="$ProjectFileDir$/yaml_to_xml.py" />
     <option name="PARAMETERS" value="data-in data1-xml-out/oewn.xml" />
     <option name="SHOW_COMMAND_LINE" value="false" />
     <option name="EMULATE_TERMINAL" value="false" />
