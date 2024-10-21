@@ -241,23 +241,23 @@ def is_valid_xml_oewn_id(_):
 
 # s y n s e t
 
-def make_synset_id(synsetid: str):
+def to_xml_synset_id(synsetid: str):
     return f'{key_prefix}{synsetid}'
 
 
-def unmake_synset_id(xml_synsetid: str):
+def from_xml_synset_id(xml_synsetid: str):
     return xml_synsetid[key_prefix_len:]
 
 
 # e n t r y
 
-def make_entry_id(lemma: str, pos: str, discriminant: str | None = None, ):
+def to_xml_entry_id(lemma: str, pos: str, discriminant: str | None = None, ):
     p = pos
     d = f'-{discriminant}' if discriminant else ''
     return f'{key_prefix}{escape_lemma(lemma)}-{p}{d}'
 
 
-def unmake_entry_id(xml_entry_id: str) -> Tuple[str, str, str]:
+def from_xml_entry_id(xml_entry_id: str) -> Tuple[str, str, str]:
     entry_id2 = xml_entry_id[key_prefix_len:]
     pos_discriminant = entry_id2[-1]
     if pos_discriminant in ('n', 'v', 'a', 'r'):
@@ -285,7 +285,7 @@ def unmake_entry_id(xml_entry_id: str) -> Tuple[str, str, str]:
 
 # s e n s e
 
-def make_sense_id(sensekey):
+def to_xml_sense_id(sensekey):
     """
     Maps the sensekey so that it contains valid characters for XML ID, prefix added
     :param sensekey: sense key in WN format (YAML)
@@ -294,7 +294,7 @@ def make_sense_id(sensekey):
     return f"{key_prefix}{escape_sensekey(sensekey)}"
 
 
-def unmake_sense_id(xml_sensekey):
+def from_xml_sense_id(xml_sensekey):
     """
     Maps an OEWN XML sense key back to a WN one
     :param xml_sensekey: sense key in XML format
