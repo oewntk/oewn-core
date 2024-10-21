@@ -126,10 +126,10 @@ custom_char_escapes_for_sk_reverse = {custom_char_escapes_for_sk[k]: k for k in 
 
 def escape_lemma(lemma):
     """
-    Format the lemma so it is valid XML ID sequence
+    Escape the lemma so that it contains only valid characters for inclusion in XML ID
     """
 
-    def elc(c):
+    def escape_char(c):
         if ('A' <= c <= 'Z') or ('a' <= c <= 'z') or ('0' <= c <= '9'):
             return c
         elif c in custom_char_escapes:
@@ -140,12 +140,12 @@ def escape_lemma(lemma):
             return f'-{ord(c):04X}-'
         raise ValueError(f'{c!r} [x{ord(c):04X}] is illegal character in XML ID and no escape sequence is defined')
 
-    return ''.join(elc(c) for c in lemma)
+    return ''.join(escape_char(c) for c in lemma)
 
 
 def unescape_lemma(esc_lemma):
     """
-    Unformat the XML ID sequence so it is the original lemma
+    Reverse the escaping and retrieve the original lemma
     Reversing the keys matters because application order matters
     """
 
@@ -157,13 +157,13 @@ def unescape_lemma(esc_lemma):
 
 # S E N S E K E Y
 
-def escape_lemma_for_sk(lemma):
+def escape_lemma_in_sensekey(lemma):
     """
-    Format the lemma so it is valid XML ID sequence
-    This is to be used
+    Escape the lemma so that it contains only valid characters for inclusion in XML ID
+    within the context of sense id factory
     """
 
-    def elc(c):
+    def escape_char(c):
         if ('A' <= c <= 'Z') or ('a' <= c <= 'z') or ('0' <= c <= '9'):
             return c
         elif c in custom_char_escapes_for_sk:
@@ -174,12 +174,15 @@ def escape_lemma_for_sk(lemma):
             return f'-{ord(c):04X}-'
         raise ValueError(f'{c!r} [x{ord(c):04X}] is illegal character in XML ID and no escape sequence is defined')
 
-    return ''.join(elc(c) for c in lemma)
+    return ''.join(escape_char(c) for c in lemma)
 
 
-def unescape_lemma_for_sk(lemma):
-    """Format the valid XML ID sequence so it is the original lemma"""
-    s = lemma
+def unescape_lemma_in_sensekey(esc_lemma):
+    """
+    Reverse the escaping and retrieve the original lemma
+    within the context of sense id factory
+    """
+    s = esc_lemma
     for seq in custom_char_escapes_for_sk_reverse:
         s = s.replace(seq, custom_char_escapes_for_sk_reverse[seq])
     return s
@@ -194,14 +197,14 @@ def escape_sensekey(sensekey):
     """Escape the sensekey so that it contains valid characters for XML ID"""
     if '%' in sensekey:
         e = sensekey.split('%')
-        lemma = escape_lemma_for_sk(e[0])
+        lemma = escape_lemma_in_sensekey(e[0])
         lex_sense = e[1]
         lex_sense_fields = lex_sense.split(':')
         n = len(lex_sense_fields)
         assert n == 5, f'Parsing error: length {n} of lex_sense_fields in lex_sense {lex_sense} should be 5'
         head = lex_sense_fields[3]
         if head:
-            lex_sense_fields[3] = escape_lemma_for_sk(head)
+            lex_sense_fields[3] = escape_lemma_in_sensekey(head)
         return f"{lemma}{xml_percent_sep}{xml_colon_sep.join(lex_sense_fields)}"
     raise ValueError(f'Ill-formed OEWN sense key (no %): {sensekey}')
 
@@ -212,14 +215,14 @@ def unescape_sensekey(escaped_sensekey):
     """
     if xml_percent_sep in escaped_sensekey:
         e = escaped_sensekey.split(xml_percent_sep)
-        lemma = unescape_lemma_for_sk(e[0])
+        lemma = unescape_lemma_in_sensekey(e[0])
         lex_sense = e[1]
         lex_sense_fields = lex_sense.split(xml_colon_sep)
         n = len(lex_sense_fields)
         assert n == 5, f'Parsing error: length {n} of lex_sense_fields in lex_sense {lex_sense} should be 5'
         head = lex_sense_fields[3]
         if head:
-            lex_sense_fields[3] = unescape_lemma_for_sk(head)
+            lex_sense_fields[3] = unescape_lemma_in_sensekey(head)
         return f'{lemma}%{':'.join(lex_sense_fields)}'
     raise ValueError(f'Ill-formed OEWN sense key (no {xml_percent_sep}): {escaped_sensekey}')
 
