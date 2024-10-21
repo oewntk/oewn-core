@@ -38,10 +38,10 @@ class SensekeysTestCase(unittest.TestCase):
         for s in model.sorted_senses:
             try:
                 self.assertTrue(is_parsable_sensekey(s.id))
-                sid = xml.make_sense_id(s.id)
+                sid = xml.to_xml_sense_id(s.id)
                 self.assertTrue(xml.is_valid_xml_id(sid), f'{sid}')
                 self.assertTrue(is_parsable_xml_sensekey(sid[key_prefix_len:]), f'{sid}')
-                sk = xml.unmake_sense_id(sid)
+                sk = xml.from_xml_sense_id(sid)
                 self.assertEqual(s.id, sk)
                 print(f'{s.id}   {sid}   {sk}')
 

@@ -10,7 +10,7 @@ import wordnet_xml
 
 
 def make_xml_sensekeys(sk):
-    esc_sk = wordnet_xml.make_sense_id(sk)
+    esc_sk = wordnet_xml.to_xml_sense_id(sk)
     legacy_esc_sk = legacy.escape_sensekey(sk)
     return sk, esc_sk, legacy_esc_sk
 
