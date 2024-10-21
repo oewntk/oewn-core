@@ -61,6 +61,5 @@ class XMLIDTestCase(unittest.TestCase):
             print(f'{c} {ord(c):X} {" start" if start else ""} {"mid" if mid else ""}')
             self.assertTrue(xml.is_valid_xml_id_char(c))
 
-
 if __name__ == '__main__':
     unittest.main()

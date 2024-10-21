@@ -20,7 +20,7 @@ class EscapablesTestCase(unittest.TestCase):
     limit = 5
 
     def test_escapables(self):
-        r = model.collect_entries_for_escapes(model.entries, wordnet_xml.custom_char_escapes_for_sk)
+        r = model.collect_entries_for_escapes(model.wn.entries, wordnet_xml.custom_char_escapes_for_sk)
         model.print_as_dictionary(r)
         for k in r:
             v = r[k]

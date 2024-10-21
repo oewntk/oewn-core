@@ -6,7 +6,8 @@ import sys
 import unittest
 
 import model
-import wordnet_xml
+import wordnet_xml as xml
+from wordnet_xml import key_prefix_len
 
 
 def is_parsable_sensekey(sk):
@@ -21,28 +22,28 @@ def is_parsable_sensekey(sk):
 
 
 def is_parsable_xml_sensekey(sk):
-    f = sk.split(wordnet_xml.xml_percent_sep)
+    f = sk.split(xml.xml_percent_sep)
     if len(f) != 2:
-        raise ValueError(f'PERCENT ({wordnet_xml.xml_percent_sep}): {sk.id}')
+        raise ValueError(f'PERCENT ({xml.xml_percent_sep}): {sk}')
 
-    f2 = f[1].split(wordnet_xml.xml_colon_sep)
+    f2 = f[1].split(xml.xml_colon_sep)
     if len(f2) != 5:
-        raise ValueError(f'COLON ({wordnet_xml.xml_colon_sep}): {sk.id}')
+        raise ValueError(f'COLON ({xml.xml_colon_sep}): {sk}')
     return True
 
 
 class SensekeysTestCase(unittest.TestCase):
 
     def test_sensekeys(self):
-        for s in model.senses:
+        for s in model.sorted_senses:
             try:
                 self.assertTrue(is_parsable_sensekey(s.id))
-                xml_sk = wordnet_xml.escape_sensekey(s.id)
-                self.assertTrue(wordnet_xml.is_valid_xml_id(xml_sk))
-                self.assertTrue(is_parsable_xml_sensekey(xml_sk))
-                sk = wordnet_xml.unescape_sensekey(xml_sk)
+                sid = xml.make_sense_id(s.id)
+                self.assertTrue(xml.is_valid_xml_id(sid), f'{sid}')
+                self.assertTrue(is_parsable_xml_sensekey(sid[key_prefix_len:]), f'{sid}')
+                sk = xml.unmake_sense_id(sid)
                 self.assertEqual(s.id, sk)
-                print(f'{s.id}   {xml_sk}   {sk}')
+                print(f'{s.id}   {sid}   {sk}')
 
             except ValueError as e:
                 print(e, file=sys.stderr)

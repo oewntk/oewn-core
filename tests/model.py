@@ -9,8 +9,9 @@ import deserialize
 data_home = os.environ['OEWN_HOME']
 print(f'data={data_home}', file=sys.stderr)
 wn = deserialize.load_pickle(data_home)
-entries = sorted(list(wn.entries), key=lambda e: e.lemma)
+sorted_entries = sorted(list(wn.entries), key=lambda e: e.lemma)
 senses = wn.senses
+sorted_senses = sorted(list(wn.senses), key=lambda s: s.id)
 
 def collect_entries_for_escapes(entries, escape_map):
     r = {}
