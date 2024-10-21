@@ -64,8 +64,12 @@ def is_valid_xml_id(s):
     return xml_id_re.match(s) is not None
 
 
+# L E M M A
+
 def escape_lemma(lemma):
-    """Escape the lemma so that it contains valid characters for inclusion in XML ID"""
+    """
+    Escape the lemma so that it contains only valid characters for inclusion in XML ID
+    """
 
     def escape_char(c):
         if ('A' <= c <= 'Z') or ('a' <= c <= 'z') or ('0' <= c <= '9') or c == '.':
@@ -97,9 +101,12 @@ def escape_lemma(lemma):
     return ''.join(escape_char(c) for c in lemma)
 
 
-def unescape_lemma(escaped):
-    """Reverse escaping the lemma back to the WN lemma"""
-    return (escaped
+def unescape_lemma(esc_lemma):
+    """
+    Reverse the escaping and retrieve the original lemma
+    """
+
+    return (esc_lemma
             .replace('-pl-', '+')
             .replace('-ex-', '!')
             .replace('-cm-', ',')
@@ -111,7 +118,14 @@ def unescape_lemma(escaped):
             .replace('_', ' '))
 
 
-def escape_lemma_in_sk(lemma):
+# S E N S E K E Y
+
+def escape_lemma_in_sensekey(lemma):
+    """
+    Escape the lemma so that it contains only valid characters for inclusion in XML ID
+    within the context of sense id factory
+    """
+
     return (lemma
             .replace("'", "-ap-")
             .replace("/", "-sl-")
@@ -120,11 +134,13 @@ def escape_lemma_in_sk(lemma):
             .replace(":", "-cn-")
             .replace("+", "-pl-"))
 
-xml_percent_sep = '__'
-xml_colon_sep = '.'
 
-def unescape_lemma_in_sensekey(escaped_lemma):
-    return (escaped_lemma
+def unescape_lemma_in_sensekey(esc_lemma):
+    """
+     Reverse the escaping and retrieve the original lemma
+     within the context of sense id factory
+     """
+    return (esc_lemma
             .replace("-ap-", "'")
             .replace("-sl-", "/")
             .replace("-ex-", "!")
@@ -133,21 +149,23 @@ def unescape_lemma_in_sensekey(escaped_lemma):
             .replace("-pl-", "+"))
 
 
+xml_percent_sep = '__'
+xml_colon_sep = '.'
+
+
 def escape_sensekey(sensekey):
-    """
-    Maps a sense key into an OEWN XML form, prefix is added
-    """
+    """Escape the sensekey so that it contains valid characters for XML ID"""
     if '%' in sensekey:
         e = sensekey.split('%')
-        lemma = escape_lemma_in_sk(e[0])
+        lemma = escape_lemma_in_sensekey(e[0])
         lex_sense = e[1]
         lex_sense_fields = lex_sense.split(':')
         n = len(lex_sense_fields)
         assert n == 5, f'Parsing error: length {n} of lex_sense_fields in lex_sense {lex_sense} should be 5'
         head = lex_sense_fields[3]
         if head:
-            lex_sense_fields[3] = escape_lemma_in_sk(head)
-        return f"oewn-{lemma}{xml_percent_sep}{xml_colon_sep.join(lex_sense_fields)}"
+            lex_sense_fields[3] = escape_lemma_in_sensekey(head)
+        return f"{lemma}{xml_percent_sep}{xml_colon_sep.join(lex_sense_fields)}"
     raise ValueError(f'Ill-formed OEWN sense key (no %): {sensekey}')
 
 
@@ -183,23 +201,23 @@ def is_valid_xml_oewn_id(_):
 
 # s y n s e t
 
-def make_synset_id(synsetid: str):
+def to_xml_synset_id(synsetid: str):
     return f'{key_prefix}{synsetid}'
 
 
-def unmake_synset_id(xml_synsetid: str):
+def from_xml_synset_id(xml_synsetid: str):
     return xml_synsetid[key_prefix_len:]
 
 
 # e n t r y
 
-def make_entry_id(lemma: str, pos: str, discriminant: str | None = None, ):
+def to_xml_entry_id(lemma: str, pos: str, discriminant: str | None = None, ):
     p = pos
     d = f'-{discriminant}' if discriminant else ''
     return f'{key_prefix}{escape_lemma(lemma)}-{p}{d}'
 
 
-def unmake_entry_id(xml_entry_id: str) -> Tuple[str, str, str]:
+def from_xml_entry_id(xml_entry_id: str) -> Tuple[str, str, str]:
     entry_id2 = xml_entry_id[key_prefix_len:]
     pos_discriminant = entry_id2[-1]
     if pos_discriminant in ('n', 'v', 'a', 'r'):
@@ -227,7 +245,7 @@ def unmake_entry_id(xml_entry_id: str) -> Tuple[str, str, str]:
 
 # s e n s e
 
-def make_sense_id(sensekey):
+def to_xml_sense_id(sensekey):
     """
     Maps the sensekey so that it contains valid characters for XML ID, prefix added
     :param sensekey: sense key in WN format (YAML)
@@ -236,7 +254,7 @@ def make_sense_id(sensekey):
     return f"{key_prefix}{escape_sensekey(sensekey)}"
 
 
-def unmake_sense_id(xml_sensekey):
+def from_xml_sense_id(xml_sensekey):
     """
     Maps an OEWN XML sense key back to a WN one
     :param xml_sensekey: sense key in XML format

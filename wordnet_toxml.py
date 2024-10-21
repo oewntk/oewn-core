@@ -65,8 +65,8 @@ def sense_to_xml(sense: Sense, out, comments):
     a = f' adjposition="{sense.adjposition}"' if sense.adjposition else ''
     c = f' subcat="{' '.join(sense.verbframeids)}"' if sense.verbframeids else ''
     n = ''  # f' n="sense.n"'
-    sid = xml.make_sense_id(sense.id)
-    ssid = xml.make_synset_id(sense.synsetid)
+    sid = xml.to_xml_sense_id(sense.id)
+    ssid = xml.to_xml_synset_id(sense.synsetid)
     if len(sense.relations) > 0 or len(sense.examples) > 0:
         out.write(f'{I * 3}<Sense id="{sid}"{n}{a}{c} synset="{ssid}">\n')
         for rel in sense.relations:
@@ -81,7 +81,7 @@ def sense_to_xml(sense: Sense, out, comments):
 def synset_to_xml(synset: Synset, member_resolver: Dict[Tuple[str, str], Entry], out, comments):
     if comments and synset.id in comments:
         out.write(f'{I * 2}<!-- %s -->\n' % comments[synset.id])
-    ssid = xml.make_synset_id(synset.id)
+    ssid = xml.to_xml_synset_id(synset.id)
     p = synset.pos
     m = ' '.join([make_entry_id_from_member(m, synset.id, member_resolver) for m in synset.members])
     l = synset.lex_name
@@ -146,7 +146,7 @@ def usage_to_xml(usage: str, out):
 
 def synset_relation_to_xml(synset_relation: Synset.Relation, out, comments):
     r = synset_relation.relation_type
-    t = xml.make_synset_id(synset_relation.target)
+    t = xml.to_xml_synset_id(synset_relation.target)
     out.write(f'{I * 3}<SynsetRelation relType="{r}" target="{t}"/>')
     if comments and synset_relation.target in comments:
         out.write(f' <!-- {comments[synset_relation.target]} -->')
@@ -154,7 +154,7 @@ def synset_relation_to_xml(synset_relation: Synset.Relation, out, comments):
 
 
 def sense_relation_to_xml(sense_relation: Sense.Relation, out, comments):
-    t = xml.make_sense_id(sense_relation.target)
+    t = xml.to_xml_sense_id(sense_relation.target)
     r = sense_relation.relation_type
     o = sense_relation.other_type
     if o:
@@ -173,7 +173,7 @@ def verbframe_to_xml(verbframe: VerbFrame, out):
 
 
 def make_entry_id_from_entry(entry):
-    return xml.make_entry_id(entry.lemma, entry.pos, entry.discriminant)
+    return xml.to_xml_entry_id(entry.lemma, entry.pos, entry.discriminant)
 
 
 def make_entry_id_from_member(lemma: str, synsetid: str, member_resolver: Dict[Tuple[str, str], Entry]):
@@ -183,7 +183,7 @@ def make_entry_id_from_member(lemma: str, synsetid: str, member_resolver: Dict[T
     if k not in member_resolver:
         raise ValueError(f'Member resolver cannot resolve {k}')
     e = member_resolver[k]
-    return xml.make_entry_id(lemma, e.pos, e.discriminant)
+    return xml.to_xml_entry_id(lemma, e.pos, e.discriminant)
 
 
 def save(wn: WordnetModel, path):
