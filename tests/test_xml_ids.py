@@ -55,7 +55,7 @@ class XMLIDTestCase(unittest.TestCase):
 
     def test_ascii_diacritics_range(self):
         print('\nWITH DIACRITICS')
-        for c in 'ñéèàâç':
+        for c in 'ñéèàâç汉':
             start = xml.is_valid_xml_id_char(c) is not None
             mid = xml.xml_id_char1_re.match(c) is not None
             print(f'{c} {ord(c):X} {" start" if start else ""} {"mid" if mid else ""}')
