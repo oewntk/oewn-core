@@ -186,7 +186,8 @@ def check_symmetry(wn: WordnetModel):
             if t in Synset.Relation.inverses:
                 t2 = Synset.Relation.inverses[t]
                 synset2 = wn.synset_resolver[r.target]
-                if not any(r for r in synset2.relations if r.target == synset.id and Synset.Relation.Type(r.relation_type) == t2):
+                if not any(
+                        r for r in synset2.relations if r.target == synset.id and Synset.Relation.Type(r.relation_type) == t2):
                     raise ValidationError(f'No symmetric relation for {synset.id} ={r.relation_type}=> {synset2.id}')
     for sense in wn.senses:
         for r in sense.relations:
@@ -211,8 +212,8 @@ def check_transitive(wn: WordnetModel):
                 for r2 in synset2.relations:
                     t2 = Synset.Relation.Type(r2.relation_type)
                     if any(r for r in synset.relations if
-                            r.target == r2.target and
-                            t == Synset.Relation.Type.HYPERNYM) and t2 == Synset.Relation.Type.HYPERNYM:
+                           r.target == r2.target and
+                           t == Synset.Relation.Type.HYPERNYM) and t2 == Synset.Relation.Type.HYPERNYM:
                         print(f'Transitive error for {synset.id} => {synset2.id} => {r2.target}', file=sys.stderr)
                         # TODO raise ValidationError(f'Transitive error for {synset.id} => {synset2.id} => {r2.target}')
 
@@ -402,7 +403,28 @@ def main(wn: WordnetModel):
 
 if __name__ == "__main__":
     pickled_wn = deserialize.main()
+
+
+    def dump(s):
+        print(s)
+        for r in s.relations:
+            print(f'\t{r}')
+
+
+    # TODO
+    s1 = pickled_wn.synset_resolver['02372362-v']
+    s2 = pickled_wn.synset_resolver['00772482-v']
+    s3 = pickled_wn.synset_resolver['02512195-v']
+    dump(s1)
+    dump(s2)
+    dump(s3)
+
     pickled_wn.extend()
+
+    dump(s1)
+    dump(s2)
+    dump(s3)
+
     try:
         main(pickled_wn)
         print("No validity issues")
