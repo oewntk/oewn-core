@@ -1,5 +1,5 @@
 <component name="ProjectRunConfigurationManager">
-  <configuration default="false" name="tests.test_sensekeys.SensekeysTestCase" type="tests" factoryName="Unittests">
+  <configuration default="false" name="sensekeys" type="tests" factoryName="Unittests">
     <module name="oewn-core" />
     <option name="ENV_FILES" value="" />
     <option name="INTERPRETER_OPTIONS" value="" />

@@ -1,5 +1,5 @@
 <component name="ProjectRunConfigurationManager">
-  <configuration default="false" name="tests.test_xml_ids.XMLIDCasesTestCase" type="tests" factoryName="Unittests">
+  <configuration default="false" name="wordnet_xml" type="tests" factoryName="Unittests">
     <module name="oewn-core" />
     <option name="ENV_FILES" value="" />
     <option name="INTERPRETER_OPTIONS" value="" />
@@ -11,7 +11,7 @@
     <option name="ADD_SOURCE_ROOTS" value="true" />
     <option name="_new_pattern" value="&quot;&quot;" />
     <option name="_new_additionalArguments" value="&quot;&quot;" />
-    <option name="_new_target" value="&quot;test_xml_ids_cases.XMLIDCasesTestCase&quot;" />
+    <option name="_new_target" value="&quot;tests.test_wordnet_xml.XMLTestCase&quot;" />
     <option name="_new_targetType" value="&quot;PYTHON&quot;" />
     <method v="2" />
   </configuration>
