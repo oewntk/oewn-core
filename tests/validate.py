@@ -8,7 +8,7 @@ Author: Bernard Bou <1313ou@gmail.com> for rewrite and revamp
 """
 
 import deserialize
-from wordnet import (Synset, Sense, PartOfSpeech, WordnetModel, Entry)
+from wordnet import (Entry, Synset, Sense, PartOfSpeech, WordnetModel)
 import re
 import sys
 from collections import Counter
@@ -22,105 +22,7 @@ class ValidationError(Exception):
         super().__init__(self.message)
 
 
-def check_symmetry(wn: WordnetModel):
-    for synset in wn.synsets:
-        for r in synset.relations:
-            t = Synset.Relation.Type(r.relation_type)
-            t2 = Synset.Relation.inverses[t]
-            if t in Synset.Relation.inverses:
-                synset2 = wn.synset_resolver[r.target]
-                if not any(r for r in synset2.relations if r.target == synset.id and r.relation_type == t2):
-                    pass  # TODO raise ValidationError(f'No symmetric relation for {synset.id} ={r.relation_type}=> {synset2.id}')
-    for sense in wn.senses:
-        for r in sense.relations:
-            if not r.other_type:
-                t = Sense.Relation.Type(r.relation_type)
-                if t in Sense.Relation.inverses:
-                    t2 = Sense.Relation.inverses[t]
-                    sense2 = wn.sense_resolver[r.target]
-                    if not any(r for r in sense2.relations if
-                               r.target == sense.id and
-                               r.relation_type == t2):
-                        pass  # TODO raise ValidationError(f'No symmetric relation for {sense.id} ={r.relation_type}=> {sense2.id}')
-
-
-def check_transitive(wn: WordnetModel):
-    for synset in wn.synsets:
-        for r in synset.relations:
-            t = Synset.Relation.Type(r.relation_type)
-            if t == Synset.Relation.Type.HYPERNYM:
-                synset2 = wn.synset_resolver[r.target]
-                for r2 in synset2.relations:
-                    t2 = Synset.Relation.Type(r2.relation_type)
-                    if (any(r for r in synset.relations if
-                            r.target == r2.target and
-                            t == Synset.Relation.Type.HYPERNYM) and
-                            t2 == Synset.Relation.Type.HYPERNYM):
-                        pass  # TODO raise ValidationError(f'Transitive error for {synset.id} => {synset2.id} => {r2.target}')
-
-
-def check_no_loops(wn: WordnetModel):
-    hypernyms = {}
-    for synset in wn.synsets:
-        hypernyms[synset.id] = set()
-        for r in synset.relations:
-            if r.relation_type == Synset.Relation.Type.HYPERNYM:
-                hypernyms[synset.id].add(r.target)
-    changed = True
-    while changed:
-        changed = False
-        for synset in wn.synsets:
-            n_size = len(hypernyms[synset.id])
-            for c in hypernyms[synset.id]:
-                hypernyms[synset.id] = hypernyms[synset.id].union(hypernyms.get(c, []))
-                if synset.id in hypernyms[synset.id]:
-                    return ["Loop for %s <-> %s" % (synset.id, c)]
-            if len(hypernyms[synset.id]) != n_size:
-                changed = True
-    return []
-
-
-def check_no_domain_loops(wn: WordnetModel):
-    domains = {}
-    for synset in wn.synsets:
-        domains[synset.id] = set()
-        for r in synset.relations:
-            t = Synset.Relation.Type(r.relation_type)
-            if t in (Synset.Relation.Type.DOMAIN_TOPIC, Synset.Relation.Type.DOMAIN_REGION, Synset.Relation.Type.EXEMPLIFIES):
-                domains[synset.id].add(r.target)
-    changed = True
-    while changed:
-        changed = False
-        for synset in wn.synsets:
-            n_size = len(domains[synset.id])
-            for c in domains[synset.id]:
-                domains[synset.id] = domains[synset.id].union(domains.get(c, []))
-            if len(domains[synset.id]) != n_size:
-                changed = True
-            if synset.id in domains[synset.id]:
-                raise ValidationError([f'Domain loop for {synset.id}'])
-
-
-def check_members(wn: WordnetModel, synset: Synset):
-    return [wn.member_resolver[m, synset.id] for m in synset.members]
-
-
-def check_ili(synset: Synset):
-    if (not synset.ili or synset.ili == "in") and not synset.ili_definition:
-        pass  # TODO print("%s does not have an ILI definition" % ss.id)
-
-
-def check_lex_files(wn: WordnetModel):
-    for entry in wn.entries:
-        for sense in entry.senses:
-            if not sense.id:
-                raise ValidationError("%s does not have a sense key" % sense.id)
-            if not wn.synset_resolver[sense.synsetid]:
-                raise ValidationError(f'{sense.id} refers to nonexistent synset {sense.synsetid}')
-            calc_sense_key = get_sense_key(wn, entry, sense)
-            if sense.id != calc_sense_key:
-                raise ValidationError(f'Sense {sense.id} should have {calc_sense_key} id')
-
+# I D   V A L I D A T I O N
 
 valid_id = re.compile(fr"^{xml_id_char}*$")
 
@@ -137,7 +39,7 @@ def is_valid_synset_id(synset_id: str):
     return bool(valid_synset_id.match(synset_id))
 
 
-# TODO
+# TODO unused
 def is_valid_sense_id(sense_id: str, target_id: str):
     m = valid_sense_id.match(sense_id)
     if not m:
@@ -148,6 +50,8 @@ def is_valid_sense_id(sense_id: str, target_id: str):
         raise ValidationError(f'{target_id} target of {sense_id} is not well-formed')
     return True
 
+
+# U T I L I T I E S
 
 lex_filenums = {
     "adj.all": 0,
@@ -273,9 +177,108 @@ def equal_pos(pos1: PartOfSpeech, pos2: PartOfSpeech):
             or pos2 == PartOfSpeech.ADJECTIVE and pos1 == PartOfSpeech.ADJECTIVE_SATELLITE)
 
 
-# s e n s e s
+# C H E C K S
 
-def scan_senses(wn: WordnetModel):
+def check_symmetry(wn: WordnetModel):
+    for synset in wn.synsets:
+        for r in synset.relations:
+            t = Synset.Relation.Type(r.relation_type)
+            t2 = Synset.Relation.inverses[t]
+            if t in Synset.Relation.inverses:
+                synset2 = wn.synset_resolver[r.target]
+                if not any(r for r in synset2.relations if r.target == synset.id and r.relation_type == t2):
+                    pass  # TODO raise ValidationError(f'No symmetric relation for {synset.id} ={r.relation_type}=> {synset2.id}')
+    for sense in wn.senses:
+        for r in sense.relations:
+            if not r.other_type:
+                t = Sense.Relation.Type(r.relation_type)
+                if t in Sense.Relation.inverses:
+                    t2 = Sense.Relation.inverses[t]
+                    sense2 = wn.sense_resolver[r.target]
+                    if not any(r for r in sense2.relations if
+                               r.target == sense.id and
+                               r.relation_type == t2):
+                        pass  # TODO raise ValidationError(f'No symmetric relation for {sense.id} ={r.relation_type}=> {sense2.id}')
+
+
+def check_transitive(wn: WordnetModel):
+    for synset in wn.synsets:
+        for r in synset.relations:
+            t = Synset.Relation.Type(r.relation_type)
+            if t == Synset.Relation.Type.HYPERNYM:
+                synset2 = wn.synset_resolver[r.target]
+                for r2 in synset2.relations:
+                    t2 = Synset.Relation.Type(r2.relation_type)
+                    if (any(r for r in synset.relations if
+                            r.target == r2.target and
+                            t == Synset.Relation.Type.HYPERNYM) and
+                            t2 == Synset.Relation.Type.HYPERNYM):
+                        pass  # TODO raise ValidationError(f'Transitive error for {synset.id} => {synset2.id} => {r2.target}')
+
+
+def check_no_loops(wn: WordnetModel):
+    hypernyms = {}
+    for synset in wn.synsets:
+        hypernyms[synset.id] = set()
+        for r in synset.relations:
+            if r.relation_type == Synset.Relation.Type.HYPERNYM:
+                hypernyms[synset.id].add(r.target)
+    changed = True
+    while changed:
+        changed = False
+        for synset in wn.synsets:
+            n_size = len(hypernyms[synset.id])
+            for c in hypernyms[synset.id]:
+                hypernyms[synset.id] = hypernyms[synset.id].union(hypernyms.get(c, []))
+                if synset.id in hypernyms[synset.id]:
+                    return ["Loop for %s <-> %s" % (synset.id, c)]
+            if len(hypernyms[synset.id]) != n_size:
+                changed = True
+    return []
+
+
+def check_no_domain_loops(wn: WordnetModel):
+    domains = {}
+    for synset in wn.synsets:
+        domains[synset.id] = set()
+        for r in synset.relations:
+            t = Synset.Relation.Type(r.relation_type)
+            if t in (Synset.Relation.Type.DOMAIN_TOPIC, Synset.Relation.Type.DOMAIN_REGION, Synset.Relation.Type.EXEMPLIFIES):
+                domains[synset.id].add(r.target)
+    changed = True
+    while changed:
+        changed = False
+        for synset in wn.synsets:
+            n_size = len(domains[synset.id])
+            for c in domains[synset.id]:
+                domains[synset.id] = domains[synset.id].union(domains.get(c, []))
+            if len(domains[synset.id]) != n_size:
+                changed = True
+            if synset.id in domains[synset.id]:
+                raise ValidationError([f'Domain loop for {synset.id}'])
+
+
+def check_members(wn: WordnetModel, synset: Synset):
+    return [wn.member_resolver[m, synset.id] for m in synset.members]
+
+
+def check_ili(synset: Synset):
+    if (not synset.ili or synset.ili == "in") and not synset.ili_definition:
+        pass  # TODO print("%s does not have an ILI definition" % ss.id)
+
+
+def check_senses_wf(wn: WordnetModel):
+    for sense in wn.senses:
+        if not sense.id:
+            raise ValidationError("%s does not have a sense key" % sense.id)
+        if not wn.synset_resolver[sense.synsetid]:
+            raise ValidationError(f'{sense.id} refers to nonexistent synset {sense.synsetid}')
+        calc_sense_key = get_sense_key(wn, sense.entry, sense)
+        if sense.id != calc_sense_key:
+            raise ValidationError(f'Sense {sense.id} should have {calc_sense_key} id')
+
+
+def check_senses(wn: WordnetModel):
     visited_sense_ids = {}
     for entry in wn.entries:
         for sense in entry.senses:
@@ -308,9 +311,7 @@ def scan_senses(wn: WordnetModel):
                     raise ValidationError(f'Duplicate senses {sense.id} + {sense2.id} referring to {sense.synsetid}')
 
 
-# s y n s e t s
-
-def scan_synsets(wn: WordnetModel):
+def check_synsets(wn: WordnetModel):
     instances = set()
     for synset in wn.synsets:
         pos = PartOfSpeech(synset.pos)
@@ -388,10 +389,9 @@ def scan_synsets(wn: WordnetModel):
 
 
 def main(wn: WordnetModel):
-    check_lex_files(wn)
-
-    scan_senses(wn)
-    scan_synsets(wn)
+    check_senses_wf(wn)
+    check_senses(wn)
+    check_synsets(wn)
 
     check_symmetry(wn)
     check_transitive(wn)
