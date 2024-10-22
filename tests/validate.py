@@ -183,11 +183,11 @@ def check_symmetry(wn: WordnetModel):
     for synset in wn.synsets:
         for r in synset.relations:
             t = Synset.Relation.Type(r.relation_type)
-            t2 = Synset.Relation.inverses[t]
             if t in Synset.Relation.inverses:
+                t2 = Synset.Relation.inverses[t]
                 synset2 = wn.synset_resolver[r.target]
-                if not any(r for r in synset2.relations if r.target == synset.id and r.relation_type == t2):
-                    pass  # TODO raise ValidationError(f'No symmetric relation for {synset.id} ={r.relation_type}=> {synset2.id}')
+                if not any(r for r in synset2.relations if r.target == synset.id and Synset.Relation.Type(r.relation_type) == t2):
+                    raise ValidationError(f'No symmetric relation for {synset.id} ={r.relation_type}=> {synset2.id}')
     for sense in wn.senses:
         for r in sense.relations:
             if not r.other_type:
@@ -197,8 +197,9 @@ def check_symmetry(wn: WordnetModel):
                     sense2 = wn.sense_resolver[r.target]
                     if not any(r for r in sense2.relations if
                                r.target == sense.id and
-                               r.relation_type == t2):
-                        pass  # TODO raise ValidationError(f'No symmetric relation for {sense.id} ={r.relation_type}=> {sense2.id}')
+                               not r.other_type and
+                               Sense.Relation.Type(r.relation_type) == t2):
+                        raise ValidationError(f'No symmetric relation for {sense.id} ={r.relation_type}=> {sense2.id}')
 
 
 def check_transitive(wn: WordnetModel):
@@ -209,11 +210,11 @@ def check_transitive(wn: WordnetModel):
                 synset2 = wn.synset_resolver[r.target]
                 for r2 in synset2.relations:
                     t2 = Synset.Relation.Type(r2.relation_type)
-                    if (any(r for r in synset.relations if
+                    if any(r for r in synset.relations if
                             r.target == r2.target and
-                            t == Synset.Relation.Type.HYPERNYM) and
-                            t2 == Synset.Relation.Type.HYPERNYM):
-                        pass  # TODO raise ValidationError(f'Transitive error for {synset.id} => {synset2.id} => {r2.target}')
+                            t == Synset.Relation.Type.HYPERNYM) and t2 == Synset.Relation.Type.HYPERNYM:
+                        print(f'Transitive error for {synset.id} => {synset2.id} => {r2.target}', file=sys.stderr)
+                        # TODO raise ValidationError(f'Transitive error for {synset.id} => {synset2.id} => {r2.target}')
 
 
 def check_no_loops(wn: WordnetModel):
