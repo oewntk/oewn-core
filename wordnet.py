@@ -288,7 +288,7 @@ class Synset:
             Type.ANTONYM: Type.ANTONYM,
             Type.EQ_SYNONYM: Type.EQ_SYNONYM,
             Type.SIMILAR: Type.SIMILAR,
-            Type.ALSO: Type.ALSO,
+            #Type.ALSO: Type.ALSO,
             Type.ATTRIBUTE: Type.ATTRIBUTE,
             Type.CO_ROLE: Type.CO_ROLE
         }
@@ -409,7 +409,6 @@ class WordnetModel:
         """
         Extend to include inverse relations can be added here
         """
-        # raise NotImplementedError(f'Extending {wn} not implemented')
         for ss in self.synsets:
             self.extend_synset_relations(ss)
         for s in self.senses:
@@ -420,16 +419,17 @@ class WordnetModel:
         Add inverse sense relations as needed
         :param sense: sense to extend
         """
-        for rel in sense.relations:
-            t = rel.relation_type
-            if t in Sense.Relation.inverses:
-                inv_t = Sense.Relation.inverses[Sense.Relation.Type(t)]
-                if inv_t != t:
-                    target_sense = self.sense_resolver[rel.target]
-                    if not target_sense:
-                        raise ValueError(f'Unresolved target {rel.target} in relation of type {t} in sense {sense.id}')
-                    if not any(r for r in target_sense.relations if r.target == sense.id and r.relation_type == inv_t):
-                        target_sense.relations.append(Sense.Relation(sense.id, inv_t))
+        for r in sense.relations:
+            if not r.other_type:
+                t = Sense.Relation.Type(r.relation_type)
+                if t in Sense.Relation.inverses:
+                    inv_t = Sense.Relation.inverses[Sense.Relation.Type(t)]
+                    if inv_t != t:
+                        target_sense = self.sense_resolver[r.target]
+                        if not target_sense:
+                            raise ValueError(f'Unresolved target {r.target} in relation of type {t} in sense {sense.id}')
+                        if not any(r for r in target_sense.relations if r.target == sense.id and r.relation_type == inv_t.value):
+                            target_sense.relations.append(Sense.Relation(sense.id, inv_t.value))
 
     def extend_synset_relations(self, synset: Synset):
         """
@@ -437,15 +437,15 @@ class WordnetModel:
         :param synset: synset to extend
         """
         for r in synset.relations:
-            t = r.relation_type
+            t = Synset.Relation.Type(r.relation_type)
             if t in Synset.Relation.inverses:
                 inv_t = Synset.Relation.inverses[Synset.Relation.Type(t)]
                 if inv_t != t:
                     target_synset = self.synset_resolver[r.target]
                     if not target_synset:
                         raise ValueError(f'Unresolved target {r.target} in relation of type {t} in synset {synset.id}')
-                    if not any(r for r in target_synset.relations if r.target == synset.id and r.relation_type == inv_t):
-                        target_synset.relations.append(Synset.Relation(synset.id, inv_t))
+                    if not any(r for r in target_synset.relations if r.target == synset.id and r.relation_type == inv_t.value):
+                        target_synset.relations.append(Synset.Relation(synset.id, inv_t.value))
 
     def resolve(self):
         """
