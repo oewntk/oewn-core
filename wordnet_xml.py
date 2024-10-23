@@ -191,6 +191,7 @@ class LegacyNameFactory(NameFactory):
 
 
 class DashNameFactory(NameFactory):
+
     esc_char_escapes = {
         '-': '--',  # custom
     }
@@ -243,10 +244,10 @@ class DashNameFactory(NameFactory):
     }
 
     char_escapes = esc_char_escapes | base_char_escapes | extra_char_escapes
-    char_escapes_reverse = {char_escapes[k]: k for k in char_escapes}
+    char_escapes_reverse = {v: k for k, v in char_escapes.items()}
 
     char_escapes_for_sk = base_char_escapes | sk_char_escapes
-    char_escapes_for_sk_reverse = {char_escapes_for_sk[k]: k for k in char_escapes_for_sk}
+    char_escapes_for_sk_reverse = {v: k for k, v in char_escapes_for_sk.items()}
 
     # l e m m a
 
