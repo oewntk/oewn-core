@@ -10,7 +10,7 @@ Author: Bernard Bou <1313ou@gmail.com> for rewrite and revamp
 #  GPL3 for rewrite
 
 from enum import Enum
-from typing import List, Dict, Tuple, Optional
+from typing import List, Dict, Set, Tuple, Optional
 
 
 class Entry:
@@ -23,6 +23,9 @@ class Entry:
         self.forms: List[str] = []
         self.pronunciations: List[Pronunciation] = []
         self.senses: List[Sense] = []
+
+    def __repr__(self):
+        return f'{self.lemma} {self.pos}'
 
     @property
     def key(self) -> Tuple[str, str, str]:
@@ -41,6 +44,9 @@ class Sense:
         self.examples: List[str] = []
         self.verbframeids: Optional[List[str]] = None
         self.relations: List[Sense.Relation] = []
+
+    def __repr__(self):
+        return f'{self.entry.lemma}-{self.synsetid}'
 
     def __getstate__(self):
         state = self.__dict__.copy()
@@ -105,6 +111,9 @@ class Sense:
             self.relation_type: str = relation_type
             self.other_type: bool = other_type
 
+        def __repr__(self):
+            return f'-{self.relation_type}-> {self.target}'
+
         def __getstate__(self):
             state = self.__dict__.copy()
             if 'resolved_target' in state:
@@ -133,6 +142,9 @@ class Synset:
         self.wikidata: Optional[str] = None
         self.ili: Optional[str] = None
         self.relations: List[Synset.Relation] = []
+
+    def __repr__(self):
+        return f'{self.id} [{' '.join(self.members)}]'
 
     def __getstate__(self):
         state = self.__dict__.copy()
@@ -288,7 +300,7 @@ class Synset:
             Type.ANTONYM: Type.ANTONYM,
             Type.EQ_SYNONYM: Type.EQ_SYNONYM,
             Type.SIMILAR: Type.SIMILAR,
-            #Type.ALSO: Type.ALSO,
+            # Type.ALSO: Type.ALSO,
             Type.ATTRIBUTE: Type.ATTRIBUTE,
             Type.CO_ROLE: Type.CO_ROLE
         }
@@ -297,6 +309,9 @@ class Synset:
             self.target: str = target
             self.resolved_target: Optional[Synset] = None
             self.relation_type: str = relation_type
+
+        def __repr__(self):
+            return f'-{self.relation_type}-> {self.target}'
 
         def __getstate__(self):
             state = self.__dict__.copy()
@@ -307,6 +322,48 @@ class Synset:
         def __setstate__(self, state):
             self.__dict__.update(state)
             self.resolved_target = None  # restore o a default or None value
+
+
+ignored_symmetric_synset_relations: Set[Synset.Relation.Type] = {
+    Synset.Relation.Type.HYPONYM,
+    Synset.Relation.Type.INSTANCE_HYPONYM,
+    Synset.Relation.Type.HOLONYM,
+    Synset.Relation.Type.HOLO_LOCATION,
+    Synset.Relation.Type.HOLO_MEMBER,
+    Synset.Relation.Type.HOLO_PART,
+    Synset.Relation.Type.HOLO_PORTION,
+    Synset.Relation.Type.HOLO_SUBSTANCE,
+    Synset.Relation.Type.STATE_OF,
+    Synset.Relation.Type.IS_CAUSED_BY,
+    Synset.Relation.Type.IS_SUBEVENT_OF,
+    Synset.Relation.Type.IN_MANNER,
+    Synset.Relation.Type.RESTRICTED_BY,
+    Synset.Relation.Type.CLASSIFIED_BY,
+    Synset.Relation.Type.IS_ENTAILED_BY,
+    Synset.Relation.Type.HAS_DOMAIN_REGION,
+    Synset.Relation.Type.HAS_DOMAIN_TOPIC,
+    Synset.Relation.Type.IS_EXEMPLIFIED_BY,
+    Synset.Relation.Type.INVOLVED,
+    Synset.Relation.Type.INVOLVED_AGENT,
+    Synset.Relation.Type.INVOLVED_PATIENT,
+    Synset.Relation.Type.INVOLVED_RESULT,
+    Synset.Relation.Type.INVOLVED_INSTRUMENT,
+    Synset.Relation.Type.INVOLVED_LOCATION,
+    Synset.Relation.Type.INVOLVED_DIRECTION,
+    Synset.Relation.Type.INVOLVED_TARGET_DIRECTION,
+    Synset.Relation.Type.INVOLVED_SOURCE_DIRECTION,
+    Synset.Relation.Type.CO_PATIENT_AGENT,
+    Synset.Relation.Type.CO_INSTRUMENT_AGENT,
+    Synset.Relation.Type.CO_RESULT_AGENT,
+    Synset.Relation.Type.CO_INSTRUMENT_PATIENT,
+    Synset.Relation.Type.CO_INSTRUMENT_RESULT
+}
+
+ignored_symmetric_sense_relations: Set[Sense.Relation.Type] = {
+    Sense.Relation.Type.HAS_DOMAIN_REGION,
+    Sense.Relation.Type.HAS_DOMAIN_TOPIC,
+    Sense.Relation.Type.IS_EXEMPLIFIED_BY
+}
 
 
 class Pronunciation:
@@ -423,12 +480,13 @@ class WordnetModel:
             if not r.other_type:
                 t = Sense.Relation.Type(r.relation_type)
                 if t in Sense.Relation.inverses:
-                    inv_t = Sense.Relation.inverses[Sense.Relation.Type(t)]
-                    if inv_t != t:
+                    inv_t = Sense.Relation.inverses[t]
+                    if inv_t != t and t not in ignored_symmetric_sense_relations:
                         target_sense = self.sense_resolver[r.target]
                         if not target_sense:
                             raise ValueError(f'Unresolved target {r.target} in relation of type {t} in sense {sense.id}')
-                        if not any(r for r in target_sense.relations if r.target == sense.id and r.relation_type == inv_t.value):
+                        if not any(
+                                r for r in target_sense.relations if r.target == sense.id and r.relation_type == inv_t.value):
                             target_sense.relations.append(Sense.Relation(sense.id, inv_t.value))
 
     def extend_synset_relations(self, synset: Synset):
@@ -439,8 +497,8 @@ class WordnetModel:
         for r in synset.relations:
             t = Synset.Relation.Type(r.relation_type)
             if t in Synset.Relation.inverses:
-                inv_t = Synset.Relation.inverses[Synset.Relation.Type(t)]
-                if inv_t != t:
+                inv_t = Synset.Relation.inverses[t]
+                if inv_t != t and t not in ignored_symmetric_synset_relations:
                     target_synset = self.synset_resolver[r.target]
                     if not target_synset:
                         raise ValueError(f'Unresolved target {r.target} in relation of type {t} in synset {synset.id}')
