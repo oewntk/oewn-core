@@ -381,57 +381,6 @@ def check_members(wn: WordnetModel, synset: Synset):
 
 def check_synset_relations(wn: WordnetModel, synset: Synset):
     pos = PartOfSpeech(synset.pos)
-    for r in synset.relations:
-        t = Synset.Relation.Type(r.relation_type)
-        target = wn.synset_resolver[r.target]
-
-        if t == Synset.Relation.Type.HYPERNYM and not equal_pos(pos, PartOfSpeech(target.pos)):
-            raise ValidationError(f'Cross-part-of-speech hypernym {synset.id} => {r.target}')
-
-        if t == Synset.Relation.Type.ANTONYM:
-            raise ValidationError(f'antonymy should be at the sense level {synset.id} => {r.target}')
-
-
-def check_ili(synset: Synset):
-    if (not synset.ili or synset.ili == "in") and not synset.ili_definition:
-        pass  # TODO print("%s does not have an ILI definition" % ss.id)
-
-
-def collect_instances(wn: WordnetModel):
-    instances = set()
-    for synset in wn.synsets:
-        if any(Synset.Relation.Type(r.relation_type) == Synset.Relation.Type.INSTANCE_HYPERNYM for r in synset.relations):
-            if any(Synset.Relation.Type(r.relation_type) == Synset.Relation.Type.HYPERNYM for r in synset.relations):
-                raise ValidationError(f'synset {synset.id} has both hypernym and instance hypernym')
-            instances.add(synset.id)
-    return instances
-
-def check_instances(wn: WordnetModel):
-    instances =collect_instances(wn)
-    for synset in wn.synsets:
-        for r in synset.relations:
-            if Synset.Relation.Type(r.relation_type) == Synset.Relation.Type.HYPERNYM:
-                if r.target in instances:
-                    raise ValidationError(f'Hypernym targets instance {synset.id} => {r.target}')
-
-def check_synset(wn: WordnetModel, synset: Synset):
-    pos = PartOfSpeech(synset.pos)
-
-    # id
-    check_valid_synset_id(synset.id)
-    if synset.id[-1:] != pos.value:
-        raise ValidationError(f'Synset ID {synset.id} clashes with part-of-speech {pos.value}')
-    # members
-    check_members(wn, synset)
-
-    # definitions
-    if len(synset.definitions) == 0:
-        raise ValidationError(f'Synset without definition {synset.id}')
-    for defn in synset.definitions:
-        if len(defn) == 0:
-            raise ValidationError('Synset with empty definition {synset.id}')
-
-    check_ili(synset)
 
     # Duplicate synset relation
     sorted_relations = sorted(synset.relations, key=lambda _: (_.target, _.relation_type))
@@ -440,20 +389,36 @@ def check_synset(wn: WordnetModel, synset: Synset):
         r_next = sorted_relations[i + 1]
         if r.target == r_next.target and Synset.Relation.Type(r.relation_type) == Synset.Relation.Type(r_next.relation_type):
             raise ValidationError(f'Duplicate synset relation {synset.id} ={r.relation_type}=> {r.target}')
+    counter = Counter((r.target, r.relation_type) for r in synset.relations)
+    for item, count in counter.items():
+        if count > 1:
+            raise ValidationError(f'Duplicate synset relation {synset.id} ={item[1]}=> {item[0]}')
 
-    # Synset relations
-    check_synset_relations(wn, synset)
-
-    # Similar
-    similars = 0
+    # Iterate
     for r in synset.relations:
         t = Synset.Relation.Type(r.relation_type)
-        if t == Synset.Relation.Type.SIMILAR:
-            if not equal_pos(pos, PartOfSpeech.VERB) and not equal_pos(pos, PartOfSpeech.ADJECTIVE):
-                raise ValidationError(f'similar not between verb/adjective {synset.id} => {r.target}')
-            similars += 1
-            if similars > 1 and pos == PartOfSpeech.ADJECTIVE_SATELLITE:
-                raise ValidationError(f'satellite of more than one synset {synset.id}')
+        target = wn.synset_resolver[r.target]
+        # cross-pos hypernym
+        if t == Synset.Relation.Type.HYPERNYM and not equal_pos(pos, PartOfSpeech(target.pos)):
+            raise ValidationError(f'Cross-part-of-speech hypernym {synset.id} => {r.target}')
+        # antonym
+        if t == Synset.Relation.Type.ANTONYM:
+            raise ValidationError(f'antonymy should be at the sense level {synset.id} => {r.target}')
+
+    # Similar
+    def collect_similars(synset: Synset):
+        count = 0
+        for r in synset.relations:
+            t = Synset.Relation.Type(r.relation_type)
+            if t == Synset.Relation.Type.SIMILAR:
+                if not equal_pos(pos, PartOfSpeech.VERB) and not equal_pos(pos, PartOfSpeech.ADJECTIVE):
+                    raise ValidationError(f'similar not between verb/adjective {synset.id} => {r.target}')
+                count += 1
+                if count > 1 and pos == PartOfSpeech.ADJECTIVE_SATELLITE:
+                    raise ValidationError(f'satellite of more than one synset {synset.id}')
+        return count
+
+    similars = collect_similars(synset)
     if pos == PartOfSpeech.ADJECTIVE_SATELLITE and similars == 0:
         raise ValidationError(f'satellite must have at least one similar link {synset.id}')
 
@@ -465,10 +430,50 @@ def check_synset(wn: WordnetModel, synset: Synset):
         if not hypernyms and synset.id != "00001740-n":
             raise ValidationError(f'noun synset {synset.id} has no hypernym')
 
-    counter = Counter((r.target, r.relation_type) for r in synset.relations)
-    for item, count in counter.items():
-        if count > 1:
-            raise ValidationError(f'Duplicate relation {synset.id} ={item[1]}=> {item[0]}')
+
+def check_instances(wn: WordnetModel):
+    def collect_instances(wn: WordnetModel):
+        instances = set()
+        for synset in wn.synsets:
+            if any(Synset.Relation.Type(r.relation_type) == Synset.Relation.Type.INSTANCE_HYPERNYM for r in synset.relations):
+                if any(Synset.Relation.Type(r.relation_type) == Synset.Relation.Type.HYPERNYM for r in synset.relations):
+                    raise ValidationError(f'synset {synset.id} has both hypernym and instance hypernym')
+                instances.add(synset.id)
+        return instances
+
+    instances = collect_instances(wn)
+    for synset in wn.synsets:
+        for r in synset.relations:
+            if Synset.Relation.Type(r.relation_type) == Synset.Relation.Type.HYPERNYM:
+                if r.target in instances:
+                    raise ValidationError(f'Hypernym targets instance {synset.id} => {r.target}')
+
+def check_ili(synset: Synset):
+    if (not synset.ili or synset.ili == "in") and not synset.ili_definition:
+        pass  # TODO print("%s does not have an ILI definition" % ss.id)
+
+
+
+def check_synset(wn: WordnetModel, synset: Synset):
+    pos = PartOfSpeech(synset.pos)
+
+    # id
+    check_valid_synset_id(synset.id)
+    if synset.id[-1:] != pos.value:
+        raise ValidationError(f'Synset ID {synset.id} clashes with part-of-speech {pos.value}')
+    # members
+    check_members(wn, synset)
+    # definitions
+    if len(synset.definitions) == 0:
+        raise ValidationError(f'Synset without definition {synset.id}')
+    for defn in synset.definitions:
+        if len(defn) == 0:
+            raise ValidationError('Synset with empty definition {synset.id}')
+    # ili
+    check_ili(synset)
+
+    # Synset relations
+    check_synset_relations(wn, synset)
 
 
 def check_synsets(wn: WordnetModel):
