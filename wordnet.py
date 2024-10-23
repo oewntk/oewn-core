@@ -486,8 +486,7 @@ class WordnetModel:
                         target_sense = self.sense_resolver[r.target]
                         if not target_sense:
                             raise ValueError(f'Unresolved target {r.target} in relation of type {t} in sense {sense.id}')
-                        if not any(
-                                r for r in target_sense.relations if r.target == sense.id and r.relation_type == inv_t.value):
+                        if not any(r2 for r2 in target_sense.relations if r2.target == sense.id and Sense.Relation.Type(r2.relation_type) == inv_t):
                             target_sense.relations.append(Sense.Relation(sense.id, inv_t.value))
 
     def extend_synset_relations(self, synset: Synset):
@@ -503,7 +502,7 @@ class WordnetModel:
                     target_synset = self.synset_resolver[r.target]
                     if not target_synset:
                         raise ValueError(f'Unresolved target {r.target} in relation of type {t} in synset {synset.id}')
-                    if not any(r for r in target_synset.relations if r.target == synset.id and r.relation_type == inv_t.value):
+                    if not any(r2 for r2 in target_synset.relations if r2.target == synset.id and Synset.Relation.Type(r2.relation_type) == inv_t):
                         target_synset.relations.append(Synset.Relation(synset.id, inv_t.value))
 
     def resolve(self):
