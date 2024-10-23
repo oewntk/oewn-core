@@ -3,6 +3,7 @@ WordNet XML common
 
 Author: John McCrae <john@mccr.ae> for original code
 Author: Bernard Bou <1313ou@gmail.com> for rewrite and revamp
+Author: Michael Wayne Goodman <goodman.m.w@gmail.com> for escaping
 """
 #  Copyright (c) 2024.
 #  Creative Commons 4 for original code
@@ -64,10 +65,12 @@ def is_valid_xml_id(s):
     return xml_id_re.match(s) is not None
 
 
-custom_esc_char_escapes = {
+# E S C A P I N G
+
+esc_char_escapes = {
     '-': '--',  # custom
 }
-custom_base_char_escapes = {
+base_char_escapes = {
     # HTML entities
     # https://en.wikipedia.org/wiki/List_of_XML_and_HTML_character_entity_references
     "'": '-apos-',
@@ -107,19 +110,19 @@ custom_base_char_escapes = {
     '°': '-deg-',
     '~': '-tilde-',
 }
-custom_extras_char_escapes = {
+extra_char_escapes = {
     '_': '-lowbar-',
     ' ': '_',
 }
-custom_sk_char_escapes = {
+sk_char_escapes = {
     '-': '--',  # custom
 }
 
-custom_char_escapes = custom_esc_char_escapes | custom_base_char_escapes | custom_extras_char_escapes
-custom_char_escapes_reverse = {custom_char_escapes[k]: k for k in custom_char_escapes}
+char_escapes = esc_char_escapes | base_char_escapes | extra_char_escapes
+char_escapes_reverse = {char_escapes[k]: k for k in char_escapes}
 
-custom_char_escapes_for_sk = custom_base_char_escapes | custom_sk_char_escapes
-custom_char_escapes_for_sk_reverse = {custom_char_escapes_for_sk[k]: k for k in custom_char_escapes_for_sk}
+char_escapes_for_sk = base_char_escapes | sk_char_escapes
+char_escapes_for_sk_reverse = {char_escapes_for_sk[k]: k for k in char_escapes_for_sk}
 
 
 # L E M M A
@@ -132,8 +135,8 @@ def escape_lemma(lemma):
     def escape_char(c):
         if ('A' <= c <= 'Z') or ('a' <= c <= 'z') or ('0' <= c <= '9'):
             return c
-        elif c in custom_char_escapes:
-            return custom_char_escapes[c]
+        elif c in char_escapes:
+            return char_escapes[c]
         elif xml_id_char1_re.match(c):
             return c
         elif unconstrained:
@@ -150,8 +153,8 @@ def unescape_lemma(esc_lemma):
     """
 
     s = esc_lemma
-    for seq in reversed(custom_char_escapes_reverse):
-        s = s.replace(seq, custom_char_escapes_reverse[seq])
+    for seq in reversed(char_escapes_reverse):
+        s = s.replace(seq, char_escapes_reverse[seq])
     return s
 
 
@@ -166,8 +169,8 @@ def escape_lemma_in_sensekey(lemma):
     def escape_char(c):
         if ('A' <= c <= 'Z') or ('a' <= c <= 'z') or ('0' <= c <= '9'):
             return c
-        elif c in custom_char_escapes_for_sk:
-            return custom_char_escapes_for_sk[c]
+        elif c in char_escapes_for_sk:
+            return char_escapes_for_sk[c]
         elif xml_id_char1_re.match(c):
             return c
         elif unconstrained:
@@ -183,8 +186,8 @@ def unescape_lemma_in_sensekey(esc_lemma):
     within the context of sense id factory
     """
     s = esc_lemma
-    for seq in custom_char_escapes_for_sk_reverse:
-        s = s.replace(seq, custom_char_escapes_for_sk_reverse[seq])
+    for seq in char_escapes_for_sk_reverse:
+        s = s.replace(seq, char_escapes_for_sk_reverse[seq])
     return s
 
 

@@ -36,7 +36,7 @@ class EscapeSchemesTestCase(unittest.TestCase):
 
     def test_compare_escape_schemes_escapables(self):
         print('\nCOMPARE ESCAPE SCHEMES')
-        r = model.collect_entries_for_escapes(model.wn.entries, wordnet_xml.custom_char_escapes_for_sk)
+        r = model.collect_entries_for_escapes(model.wn.entries, wordnet_xml.char_escapes_for_sk)
         for k in r:
             v = r[k]
             if v:
@@ -49,7 +49,7 @@ class EscapeSchemesTestCase(unittest.TestCase):
 
     def test_escapables(self):
         print('\nTEST ESCAPE SCHEMES')
-        r = model.collect_entries_for_escapes(model.wn.entries, wordnet_xml.custom_char_escapes_for_sk)
+        r = model.collect_entries_for_escapes(model.wn.entries, wordnet_xml.char_escapes_for_sk)
         for k in r:
             v = r[k]
             if v:

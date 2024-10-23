@@ -353,7 +353,7 @@ def check_synsets(wn: WordnetModel):
         for i in range(len(sorted_relations) - 1):
             r = sorted_relations[i]
             r_next = sorted_relations[i + 1]
-            if r.target == r_next.target and r.relation_type == r_next.relation_type:
+            if r.target == r_next.target and Synset.Relation.Type(r.relation_type) == Synset.Relation.Type(r_next.relation_type):
                 raise ValidationError(f'Duplicate synset relation {synset.id} ={r.relation_type}=> {r.target}')
 
         # Synset relations
@@ -393,8 +393,8 @@ def check_synsets(wn: WordnetModel):
                 raise ValidationError(f'synset {synset.id} has both hypernym and instance hypernym')
             instances.add(synset.id)
 
-        sr_counter = Counter((r.target, r.relation_type) for r in synset.relations)
-        for item, count in sr_counter.items():
+        counter = Counter((r.target, r.relation_type) for r in synset.relations)
+        for item, count in counter.items():
             if count > 1:
                 raise ValidationError(f'Duplicate relation {synset.id} ={item[1]}=> {item[0]}')
 
@@ -405,16 +405,18 @@ def check_synsets(wn: WordnetModel):
                     raise ValidationError(f'Hypernym targets instance {synset.id} => {r.target}')
 
 
-def scan_entries(wn):
-    acc = set()
+def check_entry_keys(wn):
+    entry_keys = set()
     for entry in wn.entries:
-        k = (entry.lemma, entry.pos, entry.discriminant)
-        if k in acc:
+        k = entry.key
+        if k in entry_keys:
             raise ValueError(f'Duplicate key: {k} for {entry}')
-        acc.add(k)
+        entry_keys.add(k)
 
 
 def main(wn: WordnetModel):
+    check_entry_keys(wn)
+
     check_senses_wf(wn)
     check_senses(wn)
     check_synsets(wn)
@@ -428,6 +430,7 @@ def main(wn: WordnetModel):
 if __name__ == "__main__":
     pickled_wn = deserialize.main()
     pickled_wn.extend()
+    print(f'extended\n{pickled_wn.info_relations()}')
 
     try:
         main(pickled_wn)
