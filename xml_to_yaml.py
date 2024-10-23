@@ -20,27 +20,14 @@ import wordnet_fromxml as loader
 import wordnet_toyaml as saver
 
 
-def scan_entries(wn):
-    acc = set()
-    for entry in wn.entries:
-        k = (entry.lemma, entry.pos, entry.discriminant)
-        if k in acc:
-            raise ValueError(f'Duplicate key: {k} for {entry}')
-        acc.add(k)
-
-
 def xml1_to_yaml(in_file, out_dir):
     print(f'loading from XML {in_file}')
     wn = loader.load(in_file)
     print(f'loaded {wn} from XML {in_file}')
 
-    # print(f'resolving cross-references')
-    # wn.resolve()
-    # print(f'resolved cross-references')
-
     print(wn)
     print(wn.info())
-    scan_entries(wn)
+    print(wn.info_relations())
 
     print(f'saving to YAML in {out_dir}')
     saver.save(wn, out_dir)
