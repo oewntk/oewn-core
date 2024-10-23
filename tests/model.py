@@ -5,6 +5,7 @@ import os
 import sys
 
 import deserialize
+from wordnet import Synset, Sense
 
 data_home = os.environ['OEWN_HOME']
 print(f'data={data_home}', file=sys.stderr)
@@ -12,6 +13,7 @@ wn = deserialize.load_pickle(data_home)
 sorted_entries = sorted(list(wn.entries), key=lambda e: e.lemma)
 senses = wn.senses
 sorted_senses = sorted(list(wn.senses), key=lambda s: s.id)
+
 
 def collect_entries_for_escapes(entries, escape_map):
     r = {}
@@ -38,3 +40,9 @@ def print_as_dictionary(r, limit=5):
             i += 1
         print('\t),')
     print('}')
+
+
+def dump(s: Synset | Sense):
+    print(s)
+    for r in sorted(s.relations, key=lambda r: (r.relation_type, r.target)):
+        print(f'\t{r}')
