@@ -10,54 +10,12 @@ Author: Bernard Bou <1313ou@gmail.com> for rewrite and revamp
 #  GPL3 for rewrite
 
 import codecs
-from typing import Set
 
 import yaml
 
 from wordnet import *
 
 az = 'abcdefghijklmnopqrstuvwxyz'
-
-ignored_symmetric_synset_relations: Set[Synset.Relation.Type] = {
-    Synset.Relation.Type.HYPONYM,
-    Synset.Relation.Type.INSTANCE_HYPONYM,
-    Synset.Relation.Type.HOLONYM,
-    Synset.Relation.Type.HOLO_LOCATION,
-    Synset.Relation.Type.HOLO_MEMBER,
-    Synset.Relation.Type.HOLO_PART,
-    Synset.Relation.Type.HOLO_PORTION,
-    Synset.Relation.Type.HOLO_SUBSTANCE,
-    Synset.Relation.Type.STATE_OF,
-    Synset.Relation.Type.IS_CAUSED_BY,
-    Synset.Relation.Type.IS_SUBEVENT_OF,
-    Synset.Relation.Type.IN_MANNER,
-    Synset.Relation.Type.RESTRICTED_BY,
-    Synset.Relation.Type.CLASSIFIED_BY,
-    Synset.Relation.Type.IS_ENTAILED_BY,
-    Synset.Relation.Type.HAS_DOMAIN_REGION,
-    Synset.Relation.Type.HAS_DOMAIN_TOPIC,
-    Synset.Relation.Type.IS_EXEMPLIFIED_BY,
-    Synset.Relation.Type.INVOLVED,
-    Synset.Relation.Type.INVOLVED_AGENT,
-    Synset.Relation.Type.INVOLVED_PATIENT,
-    Synset.Relation.Type.INVOLVED_RESULT,
-    Synset.Relation.Type.INVOLVED_INSTRUMENT,
-    Synset.Relation.Type.INVOLVED_LOCATION,
-    Synset.Relation.Type.INVOLVED_DIRECTION,
-    Synset.Relation.Type.INVOLVED_TARGET_DIRECTION,
-    Synset.Relation.Type.INVOLVED_SOURCE_DIRECTION,
-    Synset.Relation.Type.CO_PATIENT_AGENT,
-    Synset.Relation.Type.CO_INSTRUMENT_AGENT,
-    Synset.Relation.Type.CO_RESULT_AGENT,
-    Synset.Relation.Type.CO_INSTRUMENT_PATIENT,
-    Synset.Relation.Type.CO_INSTRUMENT_RESULT
-}
-
-ignored_symmetric_sense_relations: Set[Sense.Relation.Type] = {
-    Sense.Relation.Type.HAS_DOMAIN_REGION,
-    Sense.Relation.Type.HAS_DOMAIN_TOPIC,
-    Sense.Relation.Type.IS_EXEMPLIFIED_BY
-}
 
 check_resolved = False
 """ Whether resolved_* members' resolution is checked, a no-op because these are not saved """
@@ -99,16 +57,17 @@ def sense_to_yaml(sense, sense_resolver=None) -> Dict[str, str]:
     if sense.examples:
         y['sent'] = sense.examples
     for r in sense.relations:
-        if r.relation_type not in ignored_symmetric_sense_relations:
-            t = r.relation_type
+
+        t = Sense.Relation.OtherType(r.relation_type) if r.other_type else Sense.Relation.Type(r.relation_type)
+        if t not in ignored_symmetric_sense_relations:
             if sense_resolver and (r.target not in sense_resolver):
-                raise ValueError(f'Unresolved sense relation target {r.target} of type {t} in {sense.id}')
+                raise ValueError(f'Unresolved sense relation target {r.target} of type {t.value} in {sense.id}')
             if check_resolved and sense_resolver and (
                     r.target not in sense_resolver or sense_resolver[r.target] != r.resolved_target):
-                raise ValueError(f'Invalid sense relation resolved target {r.target} of type {t} in {sense.id}')
-            if t not in y:
-                y[t] = []
-            y[t].append(r.target)
+                raise ValueError(f'Invalid sense relation resolved target {r.target} of type {t.value} in {sense.id}')
+            if t.value not in y:
+                y[t.value] = []
+            y[t.value].append(r.target)
     return y
 
 
@@ -138,16 +97,16 @@ def synset_to_yaml(synset, synset_resolver=None, member_resolver=None) -> Dict[s
     if synset.ili and synset.ili != 'in':
         y['ili'] = synset.ili
     for r in synset.relations:
-        if r.relation_type not in ignored_symmetric_synset_relations:
-            t = r.relation_type
+        t = Synset.Relation.Type(r.relation_type)
+        if t not in ignored_symmetric_synset_relations:
             if synset_resolver and r.target not in synset_resolver:
-                raise ValueError(f'Unresolved synset relation target {r.target} of type {t} in {synset.id}')
+                raise ValueError(f'Unresolved synset relation target {r.target} of type {t.value} in {synset.id}')
             if check_resolved and synset_resolver and (
                     r.target not in synset_resolver or synset_resolver[r.target] != r.resolved_target):
-                raise ValueError(f'Invalid synset relation resolved target {r.target} of type {t} in {synset.id}')
-            if t not in y:
-                y[t] = []
-            y[t].append(r.target)
+                raise ValueError(f'Invalid synset relation resolved target {r.target} of type {t.value} in {synset.id}')
+            if t.value not in y:
+                y[t.value] = []
+            y[t.value].append(r.target)
     return y
 
 
