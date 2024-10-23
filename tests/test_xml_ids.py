@@ -5,6 +5,7 @@
 import unittest
 
 import wordnet_xml as xml
+from wordnet_xml import dash_factory
 
 
 def char_range(c1, c2):
@@ -49,8 +50,8 @@ class XMLIDTestCase(unittest.TestCase):
         print('\nESCAPABILITY OF XML INVALID IN ASCII RANGE')
         for c in char_ranges(printable_ascii_but_alphanum):
             if not xml.is_valid_xml_id_char(c):
-                is_escaped = c in xml.char_escapes
-                print(f'Invalid {c} {c!r} {ord(c):X} {f'ESCAPED AS {xml.char_escapes[c]}' if is_escaped else ''}')
+                is_escaped = c in dash_factory.char_escapes
+                print(f'Invalid {c} {c!r} {ord(c):X} {f'ESCAPED AS {dash_factory.char_escapes[c]}' if is_escaped else ''}')
                 # self.assertTrue(is_escaped, f'{c!r} {ord(c):X}')
 
     def test_ascii_diacritics_range(self):

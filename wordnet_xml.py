@@ -10,6 +10,7 @@ Author: Michael Wayne Goodman <goodman.m.w@gmail.com> for escaping
 #  GPL3 for rewrite
 
 import re
+from abc import abstractmethod, ABC
 from typing import Tuple
 
 # Constrain input to avoid non letters or unescaped chars, or not
@@ -67,170 +68,309 @@ def is_valid_xml_id(s):
 
 # E S C A P I N G
 
-esc_char_escapes = {
-    '-': '--',  # custom
-}
-base_char_escapes = {
-    # HTML entities
-    # https://en.wikipedia.org/wiki/List_of_XML_and_HTML_character_entity_references
-    "'": '-apos-',
-    '`': '-grave-',
-    '´': '-acute-',
-    '‘': '-lsquo-',
-    '’': '-rsquo-',
-    '(': '-lpar-',
-    ')': '-rpar-',
-    '[': '-lsqb-',
-    ']': '-rsqb-',
-    '{': '-lbrace-',
-    '}': '-rbrace-',
-    ',': '-comma-',
-    ';': '-semi-',
-    '=': '-equals-',
-    '+': '-plus-',
-    '!': '-excl-',
-    '?': '-quest-',
-    '@': '-commat-',
-    '#': '-num-',
-    '%': '-percnt-',
-    '&': '-amp-',
-    '§': '-sect-',
-    '¶': '-para-',
-    '/': '-sol-',
-    '\\': '-bsol-',
-    '|': '-vert-',
-    '^': '-Hat-',
-    '*': '-ast-',
-    '$': '-dollar-',
-    '¢': '-cent-',
-    '£': '-pound-',
-    '©': '-copy-',
-    '®': '-reg-',
-    'º': '-ordm-',
-    '°': '-deg-',
-    '~': '-tilde-',
-}
-extra_char_escapes = {
-    '_': '-lowbar-',
-    ' ': '_',
-}
-sk_char_escapes = {
-    '-': '--',  # custom
-}
-
-char_escapes = esc_char_escapes | base_char_escapes | extra_char_escapes
-char_escapes_reverse = {char_escapes[k]: k for k in char_escapes}
-
-char_escapes_for_sk = base_char_escapes | sk_char_escapes
-char_escapes_for_sk_reverse = {char_escapes_for_sk[k]: k for k in char_escapes_for_sk}
-
-
-# L E M M A
-
-def escape_lemma(lemma):
+class NameFactory(ABC):
     """
-    Escape the lemma so that it contains only valid characters for inclusion in XML ID
+    Abstract Base Class / Interface
     """
 
-    def escape_char(c):
-        if ('A' <= c <= 'Z') or ('a' <= c <= 'z') or ('0' <= c <= '9'):
-            return c
-        elif c in char_escapes:
-            return char_escapes[c]
-        elif xml_id_char1_re.match(c):
-            return c
-        elif unconstrained:
-            return f'-{ord(c):04X}-'
-        raise ValueError(f'{c!r} [x{ord(c):04X}] is illegal character in XML ID and no escape sequence is defined')
+    @abstractmethod
+    def escape_lemma(self, lemma):
+        pass
 
-    return ''.join(escape_char(c) for c in lemma)
+    @abstractmethod
+    def unescape_lemma(self, esc_lemma):
+        pass
 
+    @abstractmethod
+    def escape_sensekey(self, sensekey):
+        pass
 
-def unescape_lemma(esc_lemma):
-    """
-    Reverse the escaping and retrieve the original lemma
-    Reversing the keys matters because application order matters
-    """
-
-    s = esc_lemma
-    for seq in reversed(char_escapes_reverse):
-        s = s.replace(seq, char_escapes_reverse[seq])
-    return s
+    @abstractmethod
+    def unescape_sensekey(self, esc_sensekey):
+        pass
 
 
-# S E N S E K E Y
+class LegacyNameFactory(NameFactory):
+    def escape_lemma(self, lemma):
+        """Escape the lemma so that it contains valid characters for inclusion in XML ID"""
 
-def escape_lemma_in_sensekey(lemma):
-    """
-    Escape the lemma so that it contains only valid characters for inclusion in XML ID
-    within the context of sense id factory
-    """
+        def escape_char(c):
+            if ('A' <= c <= 'Z') or ('a' <= c <= 'z') or ('0' <= c <= '9') or c == '.':
+                return c
+            elif c == ' ':
+                return '_'
+            elif c == '(':
+                return '-lb-'
+            elif c == ')':
+                return '-rb-'
+            elif c == '\'':
+                return '-ap-'
+            elif c == '/':
+                return '-sl-'
+            elif c == ':':
+                return '-cn-'
+            elif c == ',':
+                return '-cm-'
+            elif c == '!':
+                return '-ex-'
+            elif c == '+':
+                return '-pl-'
+            elif xml_id_char1_re.match(c):  # or xml_id_start_char1_re.match(c):
+                return c
+            raise ValueError(f'Illegal character {c}')
 
-    def escape_char(c):
-        if ('A' <= c <= 'Z') or ('a' <= c <= 'z') or ('0' <= c <= '9'):
-            return c
-        elif c in char_escapes_for_sk:
-            return char_escapes_for_sk[c]
-        elif xml_id_char1_re.match(c):
-            return c
-        elif unconstrained:
-            return f'-{ord(c):04X}-'
-        raise ValueError(f'{c!r} [x{ord(c):04X}] is illegal character in XML ID and no escape sequence is defined')
+        return "".join(escape_char(c) for c in lemma)
 
-    return ''.join(escape_char(c) for c in lemma)
+    def unescape_lemma(self, esc_lemma):
+        """Reverse escaping the lemma back to the WN lemma"""
+        return (esc_lemma
+                .replace('-pl-', '+')
+                .replace('-ex-', '!')
+                .replace('-cm-', ',')
+                .replace('-cn-', ':')
+                .replace('-sl-', '/')
+                .replace('-ap-', "'")
+                .replace('-rb-', ')')
+                .replace('-lb-', '(')
+                .replace('_', ' '))
+
+    xml_percent_sep = '__'
+    xml_colon_sep = '.'
+
+    def escape_sensekey(self, sensekey):
+        """
+        Maps a sense key into an OEWN form
+        """
+        def escape_lemma_in_sensekey(lemma):
+            return (lemma
+                    .replace("'", "-ap-")
+                    .replace("/", "-sl-")
+                    .replace("!", "-ex-")
+                    .replace(",", "-cm-")
+                    .replace(":", "-cn-")
+                    .replace("+", "-pl-"))
+
+        if '%' in sensekey:
+            e = sensekey.split('%')
+            esc_lemma = escape_lemma_in_sensekey(e[0])
+            lex_sense = e[1]
+            lex_sense_fields = lex_sense.split(':')
+            n = len(lex_sense_fields)
+            assert n == 5, f'Parsing error: length {n} of lex_sense_fields in lex_sense {lex_sense} should be 5'
+            head = lex_sense_fields[3]
+            if head:
+                lex_sense_fields[3] = escape_lemma_in_sensekey(head)
+            return f"oewn-{esc_lemma}{self.xml_percent_sep}{self.xml_colon_sep.join(lex_sense_fields)}"
+        raise ValueError(f'Ill-formed OEWN sense key (no %): {sensekey}')
+
+    def unescape_sensekey(self, sk):
+        """
+        Maps an OEWN sense key to a WN sense key
+        """
+        def unescape_lemma_in_sensekey(esc_lemma):
+            return (esc_lemma
+                    .replace("-ap-", "'")
+                    .replace("-sl-", "/")
+                    .replace("-ex-", "!")
+                    .replace("-cm-", ",")
+                    .replace("-cn-", ":")
+                    .replace("-pl-", "+"))
+
+        if self.xml_percent_sep in sk:
+            e = sk.split(self.xml_percent_sep)
+            lemma = unescape_lemma_in_sensekey(e[0][key_prefix_len:])
+            lex_sense = e[1]
+            lex_sense_fields = lex_sense.split(self.xml_colon_sep)
+            n = len(lex_sense_fields)
+            assert n == 5, f'Parsing error: length {n} of lex_sense_fields in lex_sense {lex_sense} should be 5'
+            head = lex_sense_fields[3]
+            if head:
+                lex_sense_fields[3] = unescape_lemma_in_sensekey(head)
+            return f'{lemma}%{':'.join(lex_sense_fields)}'
+        raise ValueError(f'Ill-formed OEWN sense key (no {self.xml_percent_sep}): {sk}')
 
 
-def unescape_lemma_in_sensekey(esc_lemma):
-    """
-    Reverse the escaping and retrieve the original lemma
-    within the context of sense id factory
-    """
-    s = esc_lemma
-    for seq in char_escapes_for_sk_reverse:
-        s = s.replace(seq, char_escapes_for_sk_reverse[seq])
-    return s
+class DashNameFactory(NameFactory):
+    esc_char_escapes = {
+        '-': '--',  # custom
+    }
+    base_char_escapes = {
+        # HTML entities
+        # https://en.wikipedia.org/wiki/List_of_XML_and_HTML_character_entity_references
+        "'": '-apos-',
+        '`': '-grave-',
+        '´': '-acute-',
+        '‘': '-lsquo-',
+        '’': '-rsquo-',
+        '(': '-lpar-',
+        ')': '-rpar-',
+        '[': '-lsqb-',
+        ']': '-rsqb-',
+        '{': '-lbrace-',
+        '}': '-rbrace-',
+        ',': '-comma-',
+        ';': '-semi-',
+        '=': '-equals-',
+        '+': '-plus-',
+        '!': '-excl-',
+        '?': '-quest-',
+        '@': '-commat-',
+        '#': '-num-',
+        '%': '-percnt-',
+        '&': '-amp-',
+        '§': '-sect-',
+        '¶': '-para-',
+        '/': '-sol-',
+        '\\': '-bsol-',
+        '|': '-vert-',
+        '^': '-Hat-',
+        '*': '-ast-',
+        '$': '-dollar-',
+        '¢': '-cent-',
+        '£': '-pound-',
+        '©': '-copy-',
+        '®': '-reg-',
+        'º': '-ordm-',
+        '°': '-deg-',
+        '~': '-tilde-',
+    }
+    extra_char_escapes = {
+        '_': '-lowbar-',
+        ' ': '_',
+    }
+    sk_char_escapes = {
+        '-': '--',  # custom
+    }
 
+    char_escapes = esc_char_escapes | base_char_escapes | extra_char_escapes
+    char_escapes_reverse = {char_escapes[k]: k for k in char_escapes}
 
-middledot = '·'
-xml_percent_sep = middledot
-xml_colon_sep = ':'
+    char_escapes_for_sk = base_char_escapes | sk_char_escapes
+    char_escapes_for_sk_reverse = {char_escapes_for_sk[k]: k for k in char_escapes_for_sk}
 
+    # l e m m a
 
-def escape_sensekey(sensekey):
-    """Escape the sensekey so that it contains valid characters for XML ID"""
-    if '%' in sensekey:
-        e = sensekey.split('%')
-        lemma = escape_lemma_in_sensekey(e[0])
-        lex_sense = e[1]
-        lex_sense_fields = lex_sense.split(':')
-        n = len(lex_sense_fields)
-        assert n == 5, f'Parsing error: length {n} of lex_sense_fields in lex_sense {lex_sense} should be 5'
-        head = lex_sense_fields[3]
-        if head:
-            lex_sense_fields[3] = escape_lemma_in_sensekey(head)
-        return f"{lemma}{xml_percent_sep}{xml_colon_sep.join(lex_sense_fields)}"
-    raise ValueError(f'Ill-formed OEWN sense key (no %): {sensekey}')
+    def escape_lemma(self, lemma):
+        """
+        Escape the lemma so that it contains only valid characters for inclusion in XML ID
+        """
 
+        def escape_char(c):
+            if ('A' <= c <= 'Z') or ('a' <= c <= 'z') or ('0' <= c <= '9'):
+                return c
+            elif c in self.char_escapes:
+                return self.char_escapes[c]
+            elif xml_id_char1_re.match(c):
+                return c
+            elif unconstrained:
+                return f'-{ord(c):04X}-'
+            raise ValueError(f'{c!r} [x{ord(c):04X}] is illegal character in XML ID and no escape sequence is defined')
 
-def unescape_sensekey(escaped_sensekey):
-    """
-    Unescape an OEWN sense key to a WN sense key
-    """
-    if xml_percent_sep in escaped_sensekey:
-        e = escaped_sensekey.split(xml_percent_sep)
-        lemma = unescape_lemma_in_sensekey(e[0])
-        lex_sense = e[1]
-        lex_sense_fields = lex_sense.split(xml_colon_sep)
-        n = len(lex_sense_fields)
-        assert n == 5, f'Parsing error: length {n} of lex_sense_fields in lex_sense {lex_sense} should be 5'
-        head = lex_sense_fields[3]
-        if head:
-            lex_sense_fields[3] = unescape_lemma_in_sensekey(head)
-        return f'{lemma}%{':'.join(lex_sense_fields)}'
-    raise ValueError(f'Ill-formed OEWN sense key (no {xml_percent_sep}): {escaped_sensekey}')
+        return ''.join(escape_char(c) for c in lemma)
+
+    def unescape_lemma(self, esc_lemma):
+        """
+        Reverse the escaping and retrieve the original lemma
+        Reversing the keys matters because application order matters
+        """
+
+        s = esc_lemma
+        for seq in reversed(self.char_escapes_reverse):
+            s = s.replace(seq, self.char_escapes_reverse[seq])
+        return s
+
+    # s e n s e k e y
+
+    def escape_lemma_in_sensekey(self, lemma):
+        """
+        Escape the lemma so that it contains only valid characters for inclusion in XML ID
+        within the context of sense id factory
+        """
+
+        def escape_char(c):
+            if ('A' <= c <= 'Z') or ('a' <= c <= 'z') or ('0' <= c <= '9'):
+                return c
+            elif c in self.char_escapes_for_sk:
+                return self.char_escapes_for_sk[c]
+            elif xml_id_char1_re.match(c):
+                return c
+            elif unconstrained:
+                return f'-{ord(c):04X}-'
+            raise ValueError(f'{c!r} [x{ord(c):04X}] is illegal character in XML ID and no escape sequence is defined')
+
+        return ''.join(escape_char(c) for c in lemma)
+
+    def unescape_lemma_in_sensekey(self, esc_lemma):
+        """
+        Reverse the escaping and retrieve the original lemma
+        within the context of sense id factory
+        """
+        s = esc_lemma
+        for seq in self.char_escapes_for_sk_reverse:
+            s = s.replace(seq, self.char_escapes_for_sk_reverse[seq])
+        return s
+
+    middledot = '·'
+    xml_percent_sep = middledot
+    xml_colon_sep = ':'
+
+    def escape_sensekey(self, sensekey):
+        """Escape the sensekey so that it contains valid characters for XML ID"""
+        if '%' in sensekey:
+            e = sensekey.split('%')
+            lemma = self.escape_lemma_in_sensekey(e[0])
+            lex_sense = e[1]
+            lex_sense_fields = lex_sense.split(':')
+            n = len(lex_sense_fields)
+            assert n == 5, f'Parsing error: length {n} of lex_sense_fields in lex_sense {lex_sense} should be 5'
+            head = lex_sense_fields[3]
+            if head:
+                lex_sense_fields[3] = self.escape_lemma_in_sensekey(head)
+            return f"{lemma}{self.xml_percent_sep}{self.xml_colon_sep.join(lex_sense_fields)}"
+        raise ValueError(f'Ill-formed OEWN sense key (no %): {sensekey}')
+
+    def unescape_sensekey(self, escaped_sensekey):
+        """
+        Unescape an OEWN sense key to a WN sense key
+        """
+        if self.xml_percent_sep in escaped_sensekey:
+            e = escaped_sensekey.split(self.xml_percent_sep)
+            lemma = self.unescape_lemma_in_sensekey(e[0])
+            lex_sense = e[1]
+            lex_sense_fields = lex_sense.split(self.xml_colon_sep)
+            n = len(lex_sense_fields)
+            assert n == 5, f'Parsing error: length {n} of lex_sense_fields in lex_sense {lex_sense} should be 5'
+            head = lex_sense_fields[3]
+            if head:
+                lex_sense_fields[3] = self.unescape_lemma_in_sensekey(head)
+            return f'{lemma}%{':'.join(lex_sense_fields)}'
+        raise ValueError(f'Ill-formed OEWN sense key (no {self.xml_percent_sep}): {escaped_sensekey}')
 
 
 # S Y N S E T / E N T R Y  /  S E N S E   X M L   I D
+
+# Name factory
+
+legacy_factory = DashNameFactory()
+dash_factory = DashNameFactory()
+factory = dash_factory
+
+
+def escape_lemma(lemma):
+    return factory.escape_lemma(lemma)
+
+
+def unescape_lemma(esc_lemma):
+    return factory.unescape_lemma(esc_lemma)
+
+
+def escape_sensekey(sensekey):
+    return factory.escape_sensekey(sensekey)
+
+
+def unescape_sensekey(esc_sensekey):
+    return factory.unescape_sensekey(esc_sensekey)
+
 
 # Prefix to XML IDs
 
@@ -257,7 +397,7 @@ def from_xml_synset_id(xml_synsetid: str):
 def to_xml_entry_id(lemma: str, pos: str, discriminant: str | None = None, ):
     p = pos
     d = f'-{discriminant}' if discriminant else ''
-    return f'{key_prefix}{escape_lemma(lemma)}-{p}{d}'
+    return f'{key_prefix}{factory.escape_lemma(lemma)}-{p}{d}'
 
 
 def from_xml_entry_id(xml_entry_id: str) -> Tuple[str, str, str]:
@@ -282,7 +422,7 @@ def from_xml_entry_id(xml_entry_id: str) -> Tuple[str, str, str]:
         f = pos_discriminant.split('-')
         pos = f[0]
         discriminant = f[1]
-    lemma = unescape_lemma(lemma)
+    lemma = factory.unescape_lemma(lemma)
     return lemma, pos, discriminant
 
 
@@ -294,7 +434,7 @@ def to_xml_sense_id(sensekey):
     :param sensekey: sense key in WN format (YAML)
     :return: sense key in XML format
     """
-    return f"{key_prefix}{escape_sensekey(sensekey)}"
+    return f"{key_prefix}{factory.escape_sensekey(sensekey)}"
 
 
 def from_xml_sense_id(xml_sensekey):
@@ -303,7 +443,7 @@ def from_xml_sense_id(xml_sensekey):
     :param xml_sensekey: sense key in XML format
     :return: sense key in WN format (YAML)
     """
-    return unescape_sensekey(xml_sensekey[key_prefix_len:])
+    return factory.unescape_sensekey(xml_sensekey[key_prefix_len:])
 
 
 # L I T E R A L S

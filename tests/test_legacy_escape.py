@@ -7,11 +7,12 @@ import unittest
 import legacy
 import model
 import wordnet_xml
+from wordnet_xml import legacy_factory
 
 
 def make_xml_sensekeys(sk):
     esc_sk = wordnet_xml.to_xml_sense_id(sk)
-    legacy_esc_sk = legacy.escape_sensekey(sk)
+    legacy_esc_sk = legacy_factory.escape_sensekey(sk)
     return sk, esc_sk, legacy_esc_sk
 
 
@@ -36,7 +37,7 @@ class EscapeSchemesTestCase(unittest.TestCase):
 
     def test_compare_escape_schemes_escapables(self):
         print('\nCOMPARE ESCAPE SCHEMES')
-        r = model.collect_entries_for_escapes(model.wn.entries, wordnet_xml.char_escapes_for_sk)
+        r = model.collect_entries_for_escapes(model.wn.entries, legacy_factory.char_escapes_for_sk)
         for k in r:
             v = r[k]
             if v:
@@ -49,7 +50,7 @@ class EscapeSchemesTestCase(unittest.TestCase):
 
     def test_escapables(self):
         print('\nTEST ESCAPE SCHEMES')
-        r = model.collect_entries_for_escapes(model.wn.entries, wordnet_xml.char_escapes_for_sk)
+        r = model.collect_entries_for_escapes(model.wn.entries, legacy_factory.char_escapes_for_sk)
         for k in r:
             v = r[k]
             if v:

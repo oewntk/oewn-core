@@ -292,7 +292,7 @@ def check_no_domain_loops(wn: WordnetModel):
             if len(domains[synset.id]) != n_size:
                 changed = True
             if synset.id in domains[synset.id]:
-                warn([f'Domain loop for {synset.id}'])
+                warn(f'Domain loop for {synset.id}')
 
 
 # E N T R I E S
@@ -343,7 +343,7 @@ def check_sense(wn: WordnetModel, sense: Sense):
     # synset reference resolves
     try:
         wn.synset_resolver[sense.synsetid]
-    except KeyError as ke:
+    except KeyError as _:
         warn(f'Sense {sense.id} refers to nonexistent synset {sense.synsetid}')
 
 
@@ -400,14 +400,14 @@ def check_synset_relations(wn: WordnetModel, synset: Synset):
         # resolve target
         try:
             target = wn.synset_resolver[r.target]
+            # cross-pos hypernym
+            if t == Synset.Relation.Type.HYPERNYM and not equal_pos(pos, PartOfSpeech(target.pos)):
+                warn(f'Cross-part-of-speech hypernym {synset.id} => {r.target}')
+            # no synset antonym
+            if t == Synset.Relation.Type.ANTONYM:
+                warn(f'Antonymy should be at the sense level {synset.id} => {r.target}')
         except KeyError as _:
             warn(f'{synset.id} refers to nonexistent synset {r.target}')
-        # cross-pos hypernym
-        if t == Synset.Relation.Type.HYPERNYM and not equal_pos(pos, PartOfSpeech(target.pos)):
-            warn(f'Cross-part-of-speech hypernym {synset.id} => {r.target}')
-        # no synset antonym
-        if t == Synset.Relation.Type.ANTONYM:
-            warn(f'Antonymy should be at the sense level {synset.id} => {r.target}')
 
     # Duplicates
     sorted_relations = sorted(synset.relations, key=lambda _: (_.target, _.relation_type))
@@ -423,21 +423,21 @@ def check_synset_relations(wn: WordnetModel, synset: Synset):
             warn(f'Duplicate synset relation {synset.id} ={item[1]}=> {item[0]}')
 
     # Similar/ Adj clusters
-    def collect_similars(synset: Synset):
-        count = 0
-        for r in synset.relations:
-            t = Synset.Relation.Type(r.relation_type)
-            if t == Synset.Relation.Type.SIMILAR:
+    def count_similars(ss: Synset):
+        result = 0
+        for r2 in ss.relations:
+            t2 = Synset.Relation.Type(r2.relation_type)
+            if t2 == Synset.Relation.Type.SIMILAR:
                 if not equal_pos(pos, PartOfSpeech.VERB) and not equal_pos(pos, PartOfSpeech.ADJECTIVE):
-                    warn(f'Similar relation not between verb/adjective {synset.id} => {r.target}')
-                count += 1
-                if count > 1 and pos == PartOfSpeech.ADJECTIVE_SATELLITE:
-                    warn(f'Satellite of more than one synset {synset.id}')
-        return count
+                    warn(f'Similar relation not between verb/adjective {ss.id} => {r2.target}')
+                result += 1
+                if result > 1 and pos == PartOfSpeech.ADJECTIVE_SATELLITE:
+                    warn(f'Satellite of more than one synset {ss.id}')
+        return result
 
     if pos == PartOfSpeech.ADJECTIVE_SATELLITE:
-        if collect_similars(synset) == 0:
-            warn(f'Satellite must have at least one similar link {synset.id}')
+        if count_similars(synset) == 0:
+            warn(f'Satellite must have at least one similar relation {synset.id}')
 
     # Noun hypernyms
     top = "00001740-n"
@@ -450,16 +450,16 @@ def check_synset_relations(wn: WordnetModel, synset: Synset):
 
 
 def check_instances(wn: WordnetModel):
-    def collect_instances(wn: WordnetModel):
+    def collect_instances():
         result = set()
-        for synset in wn.synsets:
-            if any(Synset.Relation.Type(r.relation_type) == Synset.Relation.Type.INSTANCE_HYPERNYM for r in synset.relations):
-                if any(Synset.Relation.Type(r.relation_type) == Synset.Relation.Type.HYPERNYM for r in synset.relations):
-                    warn(f'Synset {synset.id} has both hypernym and instance hypernym')
-                result.add(synset.id)
+        for ss in wn.synsets:
+            if any(Synset.Relation.Type(r2.relation_type) == Synset.Relation.Type.INSTANCE_HYPERNYM for r2 in ss.relations):
+                if any(Synset.Relation.Type(r3.relation_type) == Synset.Relation.Type.HYPERNYM for r3 in ss.relations):
+                    warn(f'Synset {ss.id} has both hypernym and instance hypernym')
+                result.add(ss.id)
         return result
 
-    instances = collect_instances(wn)
+    instances = collect_instances()
     for synset in wn.synsets:
         for r in synset.relations:
             if Synset.Relation.Type(r.relation_type) == Synset.Relation.Type.HYPERNYM:
@@ -520,5 +520,5 @@ if __name__ == "__main__":
     try:
         main(pickled_wn)
         print("No validity issues")
-    except ValidationError as e:
-        print(e, file=sys.stderr)
+    except ValidationError as ve:
+        print(ve, file=sys.stderr)

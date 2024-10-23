@@ -6,7 +6,7 @@ import sys
 import unittest
 
 import wordnet_xml
-from wordnet_xml import is_valid_xml_id, is_valid_xml_id_char, base_char_escapes
+from wordnet_xml import is_valid_xml_id, is_valid_xml_id_char, dash_factory
 
 
 class WordnetXMLTestCase(unittest.TestCase):
@@ -40,7 +40,7 @@ class WordnetXMLTestCase(unittest.TestCase):
             self.assertFalse(is_valid_xml_id(s), f'Not valid {s}')
 
     def test_valid_escape_keys(self):
-        d = base_char_escapes
+        d = dash_factory.base_char_escapes
         for c in d:
             self.assertFalse(is_valid_xml_id_char(c), f'Not valid {c} {c!r} x{ord(c):X}')
 

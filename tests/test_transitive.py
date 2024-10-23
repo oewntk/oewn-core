@@ -17,9 +17,9 @@ from wordnet import Synset
 class TransitiveTestCase(unittest.TestCase):
 
     def test_transitive(self):
-        s3 = model.wn.synset_resolver['05544491-n']
-        s2 = model.wn.synset_resolver['05543502-n']
         s1 = model.wn.synset_resolver['05543117-n']
+        # s2 = model.wn.synset_resolver['05543502-n']
+        s3 = model.wn.synset_resolver['05544491-n']
 
         model.wn.extend()
 

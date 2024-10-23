@@ -12,7 +12,7 @@ import unittest
 
 import model
 import wordnet_xml as xml
-from wordnet_xml import key_prefix_len
+from wordnet_xml import key_prefix_len, dash_factory
 
 
 def is_parsable_sensekey(sk):
@@ -27,13 +27,13 @@ def is_parsable_sensekey(sk):
 
 
 def is_parsable_xml_sensekey(sk):
-    f = sk.split(xml.xml_percent_sep)
+    f = sk.split(xml.dash_factory.xml_percent_sep)
     if len(f) != 2:
-        raise ValueError(f'PERCENT ({xml.xml_percent_sep}): {sk}')
+        raise ValueError(f'PERCENT ({dash_factory.xml.xml_percent_sep}): {sk}')
 
-    f2 = f[1].split(xml.xml_colon_sep)
+    f2 = f[1].split(dash_factory.xml.xml_colon_sep)
     if len(f2) != 5:
-        raise ValueError(f'COLON ({xml.xml_colon_sep}): {sk}')
+        raise ValueError(f'COLON ({dash_factory.xml_colon_sep}): {sk}')
     return True
 
 

@@ -44,5 +44,5 @@ def print_as_dictionary(r, limit=5):
 
 def dump(s: Synset | Sense):
     print(s)
-    for r in sorted(s.relations, key=lambda r: (r.relation_type, r.target)):
+    for r in sorted(s.relations, key=lambda r2: (r2.relation_type, r2.target)):
         print(f'\t{r}')
