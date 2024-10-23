@@ -448,14 +448,15 @@ class WordnetModel:
     def sense_relations(self):
         """ Sense relations generator """
         for s in self.senses:
-            yield s
+            for r in s.relations:
+                yield r
 
     @property
     def synset_relations(self):
         """ Synset relations generator """
-        for e in self.entries:
-            for s in e.senses:
-                yield s
+        for ss in self.synsets:
+            for r in ss.relations:
+                yield r
 
     @property
     def verbframe_resolver(self) -> Dict[str, str]:
