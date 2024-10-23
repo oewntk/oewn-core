@@ -27,12 +27,15 @@ def yaml_to_xml1(in_dir, out_file):
     print(f'resolving cross-references')
     wn.resolve()
     print(f'resolved cross-references')
+
     print(f'extending relations')
+    print(wn.info_relations())
     wn.extend()
     print(f'extended relations')
 
     print(wn)
     print(wn.info())
+    print(wn.info_relations())
 
     print(f'saving to XML {out_file}')
     saver.save(wn, out_file)
