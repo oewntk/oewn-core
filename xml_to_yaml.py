@@ -60,4 +60,4 @@ if __name__ == '__main__':
     main()
     end_time = time.time()
     duration = end_time - start_time
-    print(f"Identity conversion took {duration:.6f} seconds", file=sys.stderr)
+    print(f"XML-YAML conversion took {duration:.6f} seconds", file=sys.stderr)
