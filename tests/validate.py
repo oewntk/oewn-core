@@ -16,8 +16,6 @@ import re
 import sys
 from collections import Counter
 
-from wordnet_xml import xml_id_char
-
 
 class ValidationError(Exception):
     def __init__(self, message):
@@ -27,34 +25,46 @@ class ValidationError(Exception):
 
 # I D   V A L I D A T I O N
 
-valid_id = re.compile(fr"^{xml_id_char}*$")
+valid_id = re.compile(fr"^.+$")
 
-valid_sense_id = re.compile("^[A-Za-z0-9_\\-.]+-([nvars])-([0-9]{8})-[0-9]{2}$")
+#valid_lemma = f'[^ %:]+'
+valid_lemma = f'[^ %]+'
 
-valid_synset_id = re.compile("^[0-9]{8}-[nvars]$")
+#valid_head = f'[^ %:]*'
+valid_head = f'[^ %]*'
 
+valid_sense_id = re.compile(fr'^{valid_lemma}%[0-9]:([0-9]{{2}}):[0-9]{{2}}:{valid_head}:[0-9]{{0,2}}$')
 
-def is_valid_id(any_id: str):
-    return bool(valid_id.match(any_id))
-
-
-def is_valid_synset_id(synset_id: str):
-    return bool(valid_synset_id.match(synset_id))
+valid_synset_id = re.compile('^[0-9]{8}-([nvars])$')
 
 
-# TODO unused
-def is_valid_sense_id(sense_id: str, target_id: str):
+def check_valid_id(any_id: str):
+    if not bool(valid_id.match(any_id)):
+        raise ValidationError(f'{any_id} is not well-formed id')
+
+
+def check_valid_synset_id(synset_id: str):
+    check_valid_id(synset_id)
+    if not bool(valid_synset_id.match(synset_id)):
+        raise ValidationError(f'{synset_id} is not well-formed synset id')
+
+
+def check_valid_sense_id(sense_id: str):
+    check_valid_id(sense_id)
+    if not bool(valid_sense_id.match(sense_id)):
+        raise ValidationError(f'{sense_id} is not well-formed sense id')
+
+
+def check_valid_sense_id_for_target(sense_id: str, target_id: str):
     m = valid_sense_id.match(sense_id)
-    if not m:
-        raise ValidationError(f'{sense_id} is not well-formed')
     pos = m.group(1)
-    key = m.group(2)
-    if target_id != f'{key}-{pos}':
+    m2 = valid_synset_id.match(target_id)
+    pos2 = m2.group(1)
+    if pos != pos:
         raise ValidationError(f'{target_id} target of {sense_id} is not well-formed')
-    return True
 
 
-# U T I L I T I E S
+# U T I L I T I E S   F O R   S E N S E K E Y S
 
 lex_filenums = {
     "adj.all": 0,
@@ -155,7 +165,7 @@ def get_head_word(wn: WordnetModel, sense: Sense):
     raise ValidationError(f'Could not deduce target of satellite {sense.id}')
 
 
-def get_sense_key(wn: WordnetModel, entry: Entry, sense: Sense):
+def make_sense_key(wn: WordnetModel, entry: Entry, sense: Sense):
     """Calculate the sense key for a sense of an entry"""
     lemma = entry.lemma.lower().replace(' ', '_')
     ss = wn.synset_resolver[sense.synsetid]
@@ -180,7 +190,7 @@ def equal_pos(pos1: PartOfSpeech, pos2: PartOfSpeech):
             or pos2 == PartOfSpeech.ADJECTIVE and pos1 == PartOfSpeech.ADJECTIVE_SATELLITE)
 
 
-# C H E C K S
+# S T R U C T U R E  (R E L A T I O N S)
 
 def check_symmetry_synset(wn: WordnetModel, synset: Synset):
     for r in synset.relations:
@@ -275,6 +285,90 @@ def check_no_domain_loops(wn: WordnetModel):
                 raise ValidationError([f'Domain loop for {synset.id}'])
 
 
+# E N T R I E S
+
+def check_entry_keys(wn):
+    entry_keys = set()
+    for entry in wn.entries:
+        k = entry.key
+        if k in entry_keys:
+            raise ValueError(f'Duplicate key: {k} for {entry}')
+        entry_keys.add(k)
+
+
+def check_entry_sense_duplicates(wn: WordnetModel, entry: Entry):
+    for sense in entry.senses:
+        for sense2 in entry.senses:
+            if sense2.id != sense.id and sense2.synsetid == sense.synsetid:
+                raise ValidationError(f'Duplicate senses {sense.id} + {sense2.id} both referring to {sense.synsetid}')
+
+
+def check_entries(wn: WordnetModel):
+    check_entry_keys(wn)
+    for e in wn.entries:
+        check_entry_sense_duplicates(wn, e)
+
+
+# S E N S E S
+
+def check_senseid_duplicates(wn: WordnetModel):
+    visited_sense_ids = {}
+    for sense in wn.senses:
+        if sense.id in visited_sense_ids:
+            raise ValidationError(f'Duplicate sense id {sense.id}')
+        visited_sense_ids[sense.id] = sense.id
+
+
+def check_sense(wn: WordnetModel, sense: Sense):
+    # sense id is present
+    if not sense.id:
+        raise ValidationError("%s does not have a sense id" % sense.id)
+    # id is valid
+    check_valid_sense_id(sense.id)
+    check_valid_sense_id_for_target(sense.id, sense.synsetid)
+    # sensekey is well-formed as expected
+    calc_sense_key = make_sense_key(wn, sense.entry, sense)
+    if sense.id != calc_sense_key:
+        raise ValidationError(f'Sense {sense.id} should have {calc_sense_key} id')
+    # synset reference resolves
+    try:
+        wn.synset_resolver[sense.synsetid]
+    except KeyError as ke:
+        raise ValidationError(f'{sense.id} refers to nonexistent synset {sense.synsetid}')
+
+
+def check_sense_relations(wn: WordnetModel, sense: Sense):
+    synset = wn.synset_resolver[sense.synsetid]
+    pos = PartOfSpeech(synset.pos)
+
+    for r in sense.relations:
+        if not r.other_type and Sense.Relation.Type(r.relation_type) == Sense.Relation.Type.PERTAINYM:
+            if not equal_pos(pos, PartOfSpeech.ADJECTIVE) and not equal_pos(pos, PartOfSpeech.ADVERB):
+                raise ValidationError(f'Pertainym {r.target} of {sense.id} should be between adjectives')
+
+    sr_counter = Counter((r.target, r.relation_type) for r in sense.relations)
+    for item, count in sr_counter.items():
+        if count > 1:
+            raise ValidationError(f'Duplicate relation {sense.id} ={item[1]}=> {item[0]}')
+
+
+def check_sense_verbframes(wn: WordnetModel, sense: Sense):
+    counter = Counter(sense.verbframeids)
+    for item, count in counter.items():
+        if count > 1:
+            raise ValidationError(f'Duplicate verb frames in entry {sense.id}')
+
+
+def check_senses(wn: WordnetModel):
+    check_senseid_duplicates(wn)
+    for sense in wn.senses:
+        check_sense(wn, sense)
+        check_sense_relations(wn, sense)
+        check_sense_verbframes(wn, sense)
+
+
+# S Y N S E T S
+
 def check_members(wn: WordnetModel, synset: Synset):
     return [wn.member_resolver[m, synset.id] for m in synset.members]
 
@@ -284,59 +378,15 @@ def check_ili(synset: Synset):
         pass  # TODO print("%s does not have an ILI definition" % ss.id)
 
 
-def check_senses_wf(wn: WordnetModel):
-    for sense in wn.senses:
-        if not sense.id:
-            raise ValidationError("%s does not have a sense key" % sense.id)
-        if not wn.synset_resolver[sense.synsetid]:
-            raise ValidationError(f'{sense.id} refers to nonexistent synset {sense.synsetid}')
-        calc_sense_key = get_sense_key(wn, sense.entry, sense)
-        if sense.id != calc_sense_key:
-            raise ValidationError(f'Sense {sense.id} should have {calc_sense_key} id')
-
-
-def check_senses(wn: WordnetModel):
-    visited_sense_ids = {}
-    for entry in wn.entries:
-        for sense in entry.senses:
-
-            if sense.id in visited_sense_ids:
-                raise ValidationError(f'Duplicate sense id {sense.id}')  # later caught by XML validator
-
-            visited_sense_ids[sense.id] = sense.id
-
-            synset = wn.synset_resolver[sense.synsetid]
-            pos = PartOfSpeech(synset.pos)
-
-            for r in sense.relations:
-                if not r.other_type and Sense.Relation.Type(r.relation_type) == Sense.Relation.Type.PERTAINYM:
-                    if not equal_pos(pos, PartOfSpeech.ADJECTIVE) and not equal_pos(pos, PartOfSpeech.ADVERB):
-                        raise ValidationError(f'Pertainym {r.target} of {sense.id} should be between adjectives')
-
-            sr_counter = Counter((r.target, r.relation_type) for r in sense.relations)
-            for item, count in sr_counter.items():
-                if count > 1:
-                    raise ValidationError(f'Duplicate relation {sense.id} ={item[1]}=> {item[0]}')
-
-            sb_counter = Counter(sense.verbframeids)
-            for item, count in sb_counter.items():
-                if count > 1:
-                    raise ValidationError(f'Duplicate syntactic behaviour in entry {entry.key}')
-
-            for sense2 in entry.senses:
-                if sense2.id != sense.id and sense2.synsetid == sense.synsetid:
-                    raise ValidationError(f'Duplicate senses {sense.id} + {sense2.id} referring to {sense.synsetid}')
-
-
 def check_synsets(wn: WordnetModel):
     instances = set()
     for synset in wn.synsets:
         pos = PartOfSpeech(synset.pos)
+        check_valid_synset_id(synset.id)
 
         if synset.id[-1:] != pos.value:
             raise ValidationError(f'Synset ID {synset.id} clashes with part-of-speech {pos.value}')
-        if not is_valid_synset_id(synset.id):
-            raise ValidationError(f'Invalid ID {synset.id}')
+
         if not check_members(wn, synset):
             raise ValidationError(f'Synset {synset.id} members empty')
 
@@ -405,19 +455,9 @@ def check_synsets(wn: WordnetModel):
                     raise ValidationError(f'Hypernym targets instance {synset.id} => {r.target}')
 
 
-def check_entry_keys(wn):
-    entry_keys = set()
-    for entry in wn.entries:
-        k = entry.key
-        if k in entry_keys:
-            raise ValueError(f'Duplicate key: {k} for {entry}')
-        entry_keys.add(k)
-
-
 def main(wn: WordnetModel):
-    check_entry_keys(wn)
+    check_entries(wn)
 
-    check_senses_wf(wn)
     check_senses(wn)
     check_synsets(wn)
 
