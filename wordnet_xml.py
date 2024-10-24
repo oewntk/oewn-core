@@ -246,7 +246,8 @@ class DashNameFactory(NameFactory):
         ' ': '_',
     }
     sk_char_escapes = {
-        '-': '--',  # custom
+        '-': '--',
+        ':': '-colon-', # to make valid xsd:ids otherwise not necessary for XML:IDs
     }
 
     char_escapes = esc_char_escapes | base_char_escapes | extra_char_escapes
