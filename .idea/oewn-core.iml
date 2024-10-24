@@ -12,6 +12,8 @@
       <excludeFolder url="file://$MODULE_DIR$/data1-xml-out" />
       <excludeFolder url="file://$MODULE_DIR$/upstream" />
       <excludeFolder url="file://$MODULE_DIR$/data-pickle" />
+      <excludeFolder url="file://$MODULE_DIR$/validate-xml" />
+      <excludeFolder url="file://$MODULE_DIR$/validate-xml/dtd" />
     </content>
     <orderEntry type="jdk" jdkName="Python 3.12 (oewn-core)" jdkType="Python SDK" />
     <orderEntry type="sourceFolder" forTests="false" />
