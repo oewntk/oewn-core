@@ -103,9 +103,9 @@ class XMLIDCasesTestCase(unittest.TestCase):
             self.assertTrue(xml.is_valid_xml_id(legacy_sk_id))
             print(f'{legacy_sk_id} is valid XML ID')
 
-            self.expect_not_valid_xsd_id(e_id)
+            self.expect_valid_xsd_id(e_id)
             self.expect_valid_xsd_id(legacy_e_id)
-            self.expect_not_valid_xsd_id(sk_id)
+            self.expect_valid_xsd_id(sk_id)
             self.expect_valid_xsd_id(legacy_sk_id)
 
     def test_xsd_id(self):
@@ -154,8 +154,8 @@ class XMLIDCasesTestCase(unittest.TestCase):
             self.assertTrue(xml.is_valid_xml_id(legacy_sk_id))
             print(f'{legacy_sk_id} is valid XML ID')
 
-            self.expect_not_valid_xsd_id(e_id)
-            self.expect_not_valid_xsd_id(sk_id)
+            self.expect_valid_xsd_id(e_id)
+            self.expect_valid_xsd_id(sk_id)
             self.expect_valid_xsd_id(legacy_sk_id)
 
     def expect_valid_xsd_id(self, _id):
