@@ -3,5 +3,7 @@ __pycache__
 /data*/
 /upstream
 /upstream/
+/validate-xml
+/validate-xml/
 .venv/
 .idea/workspace.xml

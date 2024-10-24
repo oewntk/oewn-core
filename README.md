@@ -17,14 +17,14 @@ These have been reworked.
 
 Unused code has been trimmed.
 
-IN the model, IDs are not transformed — there is no mangling to make them valid XML IDs: 
-sense IDs are the **sensekey**s, 
-synset IDs are the **synsetid**s, 
-entries have no ID — they use **(lemma, pos, discriminant)** for resolution 
+In the model, **IDs are not transformed** — there is no mangling to make them valid XML IDs: 
+* sense IDs are the **sensekey**s, 
+* synset IDs are the **synsetid**s, 
+* entries have no ID — they use **(lemma, pos, discriminant)** for resolution 
 where _discriminant_ is the possible _indexing_ appended to the part-of-speech, for example:
-* (bass,a,None)
-* (bass,n,1)
-* (bass,n,2)
+(bass,a,None)
+(bass,n,1)
+(bass,n,2)
 
 One-field classes have been replaced with this field.
 
@@ -32,11 +32,11 @@ No processing nor editing of model is performed: it's up to other tools to do it
 
 No validation of model is performed: it's up to other tools to do it.
 
-If something goes wrong, the language and libraries will raise their own exceptions. 
+If anything goes wrong, the language and libraries will raise their own exceptions. 
 However, some exceptions are raised when a requested operation can't carry on.
 
 It is not considered inherent to the model to be exported to XML. 
-So the model is XML-agnostic. XML legacy has been ditched except when it comes to XML exporting / importing in the dedicated reader and writer.
+So the model is **XML-agnostic**. XML legacy has been ditched except when it comes to XML exporting / importing in the dedicated reader and writer.
 
 ## Modular
 
