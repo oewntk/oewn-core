@@ -5,6 +5,8 @@ import os
 import sys
 
 import deserialize
+import wordnet_xml as xml
+from wordnet_xml import dash_factory, is_valid_xml_id
 from wordnet import Synset, Sense
 
 data_home = os.environ['OEWN_HOME']
@@ -13,36 +15,3 @@ wn = deserialize.load_pickle(data_home)
 sorted_entries = sorted(list(wn.entries), key=lambda e: e.lemma)
 senses = wn.senses
 sorted_senses = sorted(list(wn.senses), key=lambda s: s.id)
-
-
-def collect_entries_for_escapes(entries, escape_map):
-    r = {}
-    for k in escape_map:
-        if k == ' ':
-            continue
-        r[k] = []
-        for e in entries:
-            if k in e.lemma:
-                r[k].append(e)
-    return r
-
-
-def print_as_dictionary(r, limit=5):
-    print('escapable = {')
-    for k, v in r.items():
-        print(f'\t"{k}": (')
-        i = 0
-        for e in v:
-            if i > limit:
-                print(f'\t\t# ... {len(r[k])} total')
-                break
-            print(f'\t\t{e.key},')
-            i += 1
-        print('\t),')
-    print('}')
-
-
-def dump(s: Synset | Sense):
-    print(s)
-    for r in sorted(s.relations, key=lambda r2: (r2.relation_type, r2.target)):
-        print(f'\t{r}')

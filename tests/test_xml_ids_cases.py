@@ -4,7 +4,18 @@
 
 import unittest
 
+import utils
 import wordnet_xml as xml
+from wordnet_xml import legacy_factory, DashNameFactory
+
+
+def try_is_valid_xsd_id(_id):
+    try:
+        utils.is_valid_xsd_id(_id)
+        print(f'{_id} is a valid xsd:id')
+    except ValueError as ve:
+        print(f'{_id} is NOT a valid xsd:id')
+        raise ve
 
 
 class XMLIDCasesTestCase(unittest.TestCase):
@@ -67,6 +78,93 @@ class XMLIDCasesTestCase(unittest.TestCase):
             self.assertEqual(d_0, None)
             self.assertEqual(d_1, d1)
             self.assertEqual(d_2, d2)
+
+    def test_rogue_xsd_id(self):
+        print('\nXSD IDS - ROGUE')
+        test_factory = DashNameFactory('__', '.')
+        for lemma in ('Capital: Critique of Political Economy',):
+            sk = utils.make_dummy_sk(lemma)
+            e_id = xml.to_xml_entry_id(lemma, 'n', name_factory=test_factory)
+            legacy_e_id = xml.to_xml_entry_id(lemma, 'n', name_factory=legacy_factory)
+            sk_id = xml.to_xml_sense_id(sk, name_factory=test_factory)
+            legacy_sk_id = xml.to_xml_sense_id(sk, name_factory=legacy_factory)
+            print(f'{lemma} -entryid--------> {e_id}')
+            print(f'{lemma} -legacy entryid-> {legacy_e_id}')
+            print(f'{sk} -senseid--------> {sk_id}')
+            print(f'{sk} -legacy senseid-> {legacy_sk_id}')
+            print()
+
+            self.assertTrue(xml.is_valid_xml_id(e_id))
+            print(f'{e_id} is valid XML ID')
+            self.assertTrue(xml.is_valid_xml_id(e_id))
+            print(f'{legacy_e_id} is valid XML ID')
+            self.assertTrue(xml.is_valid_xml_id(sk_id))
+            print(f'{sk_id} is valid XML ID')
+            self.assertTrue(xml.is_valid_xml_id(legacy_sk_id))
+            print(f'{legacy_sk_id} is valid XML ID')
+
+            self.expect_not_valid_xsd_id(e_id)
+            self.expect_valid_xsd_id(legacy_e_id)
+            self.expect_not_valid_xsd_id(sk_id)
+            self.expect_valid_xsd_id(legacy_sk_id)
+
+    def test_xsd_id(self):
+        print('\nXSD IDS')
+        dummy_colon_id = 'dummy:dummy'
+        with self.assertRaises(ValueError, msg=f'{dummy_colon_id} is a valid xsd:id'):
+            try_is_valid_xsd_id(dummy_colon_id)
+        test_factory = DashNameFactory('__', '.')
+        for lemma in ('bass',):
+            sk = utils.make_dummy_sk(lemma)
+            e_id = xml.to_xml_entry_id(lemma, 'n')
+            sk_id = xml.to_xml_sense_id(sk, name_factory=test_factory)
+            legacy_sk_id = xml.to_xml_sense_id(sk, name_factory=legacy_factory)
+            print(f'{lemma} -entryid-> {e_id}')
+            print(f'{sk} -senseid--------> {sk_id}')
+            print(f'{sk} -legacy senseid-> {legacy_sk_id}')
+            print()
+
+            self.assertTrue(xml.is_valid_xml_id(e_id))
+            print(f'{e_id} is valid XML ID')
+            self.assertTrue(xml.is_valid_xml_id(sk_id))
+            print(f'{sk_id} is valid XML ID')
+            self.assertTrue(xml.is_valid_xml_id(legacy_sk_id))
+            print(f'legacy {legacy_sk_id} is valid XML ID')
+
+            self.expect_valid_xsd_id(e_id)
+            self.expect_valid_xsd_id(sk_id)
+            self.expect_valid_xsd_id(legacy_sk_id)
+
+        print()
+
+        for lemma in ('1:1', 'Capital: Critique of Political Economy'):
+            sk = utils.make_dummy_sk(lemma)
+            e_id = xml.to_xml_entry_id(lemma, 'n')
+            sk_id = xml.to_xml_sense_id(sk, name_factory=test_factory)
+            legacy_sk_id = xml.to_xml_sense_id(sk, name_factory=legacy_factory)
+            print(f'{lemma} -entryid-> {e_id}')
+            print(f'{sk} -senseid--------> {sk_id}')
+            print(f'{sk} -legacy senseid-> {legacy_sk_id}')
+            print()
+
+            self.assertTrue(xml.is_valid_xml_id(e_id))
+            print(f'{e_id} is valid XML ID')
+            self.assertTrue(xml.is_valid_xml_id(sk_id))
+            print(f'{sk_id} is valid XML ID')
+            self.assertTrue(xml.is_valid_xml_id(legacy_sk_id))
+            print(f'{legacy_sk_id} is valid XML ID')
+
+            self.expect_not_valid_xsd_id(e_id)
+            self.expect_not_valid_xsd_id(sk_id)
+            self.expect_valid_xsd_id(legacy_sk_id)
+
+    def expect_valid_xsd_id(self, _id):
+        try_is_valid_xsd_id(_id)
+        # print(f'{_id} is valid XML ID')
+
+    def expect_not_valid_xsd_id(self, _id):
+        with self.assertRaises(ValueError, msg=f'{_id} is a valid xsd:id'):
+            try_is_valid_xsd_id(_id)
 
 
 if __name__ == '__main__':
