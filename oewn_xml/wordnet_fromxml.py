@@ -17,16 +17,16 @@ import sys
 import time
 from xml.sax import ContentHandler, parse
 
+import wordnet_xml as wnxml
 from oewn_core.wordnet import *
-import wordnet_xml as xml
 
 
 def make_synset_id(xml_synsetid):
-    return xml.from_xml_synset_id(xml_synsetid)
+    return wnxml.from_xml_synset_id(xml_synsetid)
 
 
 def make_sense_id(xml_senseid):
-    return xml.from_xml_sense_id(xml_senseid)
+    return wnxml.from_xml_sense_id(xml_senseid)
 
 
 def make_member(xml_member, entry_resolver):
@@ -81,7 +81,7 @@ class SAXParser(ContentHandler):
                 raise ValueError(f'Duplicate entry ID while parsing: {entryid}')
             self.entry_resolver[entryid] = self.entry
         elif name == 'Sense':
-            senseid = xml.from_xml_sense_id(attrs['id'])
+            senseid = wnxml.from_xml_sense_id(attrs['id'])
             synsetid = make_synset_id(attrs['synset'])
             verbframes = attrs['subcat'].split(' ') if 'subcat' in attrs else None
             self.sense = Sense(senseid, self.entry, synsetid, attrs.get('adjposition'))

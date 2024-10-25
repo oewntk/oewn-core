@@ -10,8 +10,9 @@ Author: Bernard Bou <1313ou@gmail.com> for rewrite and revamp
 import unittest
 
 import model
+import utils
 import validate
-from core.wordnet import Synset
+from oewn_core.wordnet import Synset
 
 
 class TransitiveTestCase(unittest.TestCase):
@@ -26,11 +27,11 @@ class TransitiveTestCase(unittest.TestCase):
         validate.check_transitive_synset(model.wn, s3)
 
         print("\nBEFORE EXTEND")
-        model.dump(s3)
+        utils.dump(s3)
         r = Synset.Relation(s1.id, Synset.Relation.Type.HYPERNYM.value)
         s3.relations.append(r)
         print("\nAFTER EXTEND")
-        model.dump(s3)
+        utils.dump(s3)
 
         with self.assertRaises(validate.ValidationError):
              validate.check_transitive_synset(model.wn, s3)

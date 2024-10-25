@@ -10,6 +10,7 @@ Author: Bernard Bou <1313ou@gmail.com> for rewrite and revamp
 import unittest
 
 import model
+import utils
 
 
 class ExtendTestCase(unittest.TestCase):
@@ -23,13 +24,13 @@ class ExtendTestCase(unittest.TestCase):
         s21 = model.wn.synset_resolver['05543117-n']
         print("\nBEFORE EXTEND")
         for s in (s11, s12, s13, s21, s22, s23):
-            model.dump(s)
+            utils.dump(s)
 
         model.wn.extend()
 
         print("\nAFTER EXTEND")
         for s in (s11, s12, s13, s21, s22, s23):
-            model.dump(s)
+            utils.dump(s)
 
 
 if __name__ == '__main__':

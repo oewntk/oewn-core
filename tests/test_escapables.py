@@ -5,8 +5,9 @@
 import unittest
 
 import model
-from xml import wordnet_xml
-from xml.wordnet_xml import DashNameFactory
+import utils
+from oewn_xml import wordnet_xml
+from oewn_xml.wordnet_xml import DashNameFactory
 
 
 def process_sensekey(sk):
@@ -21,8 +22,8 @@ class EscapablesTestCase(unittest.TestCase):
     limit = 5
 
     def test_escapables(self):
-        r = model.collect_entries_for_escapes(model.wn.entries, DashNameFactory.char_escapes_for_sk)
-        model.print_as_dictionary(r)
+        r = utils.collect_entries_for_escapes(model.wn.entries, DashNameFactory.char_escapes_for_sk)
+        utils.print_as_dictionary(r)
         for k in r:
             v = r[k]
             if v:

@@ -4,7 +4,7 @@
 import os
 import sys
 
-from core import deserialize
+from oewn_core import deserialize
 
 data_home = os.environ['OEWN_HOME']
 print(f'data={data_home}', file=sys.stderr)
