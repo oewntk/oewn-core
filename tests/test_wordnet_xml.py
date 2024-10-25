@@ -5,8 +5,8 @@
 import sys
 import unittest
 
-import wordnet_xml
-from wordnet_xml import is_valid_xml_id, is_valid_xml_id_char, dash_factory
+from xml import wordnet_xml
+from xml.wordnet_xml import is_valid_xml_id, is_valid_xml_id_char, dash_factory
 
 
 class WordnetXMLTestCase(unittest.TestCase):

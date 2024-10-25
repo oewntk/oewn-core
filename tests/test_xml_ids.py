@@ -4,8 +4,8 @@
 
 import unittest
 
-import wordnet_xml as xml
-from wordnet_xml import dash_factory
+from xml import wordnet_xml as xml
+from xml.wordnet_xml import dash_factory
 
 
 def char_range(c1, c2):

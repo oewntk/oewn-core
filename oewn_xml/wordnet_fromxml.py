@@ -17,7 +17,7 @@ import sys
 import time
 from xml.sax import ContentHandler, parse
 
-from wordnet import *
+from oewn_core.wordnet import *
 import wordnet_xml as xml
 
 

@@ -10,12 +10,12 @@ Author: Bernard Bou <1313ou@gmail.com> for rewrite and revamp
 #  GPL3 for rewrite
 
 import uuid
-from typing import List, Dict, Tuple, Union
+from typing import List, Dict, Tuple
 
 import wordnet_xml as xml
 from datetime import datetime
 
-from wordnet import WordnetModel, Sense, Entry, Synset, Pronunciation, VerbFrame, Example
+from oewn_core.wordnet import WordnetModel, Sense, Entry, Synset, Pronunciation, VerbFrame, Example
 
 I = '  '  # indentation
 
@@ -132,7 +132,7 @@ def definition_to_xml(definition: str, out, is_ili=False):
     out.write(result)
 
 
-def example_to_xml(example: Union[str, Example], indent: int, out):
+def example_to_xml(example: str | Example, indent: int, out):
     e = xml.escape_xml_lit(example.text if isinstance(example, Example) else example)
     s = example.source if isinstance(example, Example) and example.source else None
     result = f'{I * indent}<Example dc:source="{xml.escape_xml_lit(s)}">{e}</Example>\n' if s else f'{I * indent}<Example>{e}</Example>\n'

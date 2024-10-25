@@ -15,8 +15,8 @@ import argparse
 import sys
 import time
 
-import wordnet_fromyaml as loader
-import wordnet_toxml as saver
+from oewn_core import wordnet_fromyaml as loader
+from oewn_xml import wordnet_toxml as saver
 
 
 def yaml_to_xml1(in_dir, out_file):

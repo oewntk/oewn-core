@@ -69,23 +69,23 @@ Optional extension of relation sets with the addition of inverse relations (if i
 
 **Model**
 
-- [model](wordnet.py) : Model
+- [model](core/wordnet.py) : Model
 
 **Suppliers**:  YAML/XML/pickle
 
-- [fromyaml](wordnet_fromyaml.py) : Supply model from YAML
-- [fromxml](wordnet_fromxml.py) : Supply model from (one-file) XML
+- [fromyaml](core/wordnet_fromyaml.py) : Supply model from YAML
+- [fromxml](xml/wordnet_fromxml.py) : Supply model from (one-file) XML
 
 **Consumers**: YAML/XML/pickle
 
-- [toyaml](wordnet_toyaml.py) : Consume model to YAML
-- [toxml](wordnet_toxml.py) : Consume model to (one-file) XML
+- [toyaml](core/wordnet_toyaml.py) : Consume model to YAML
+- [toxml](xml/wordnet_toxml.py) : Consume model to (one-file) XML
 
 **Supplier-consumer chains**: YAML2YAML, YAML2XML, XML2YAML
 
-- [yaml_to_yaml](yaml_to_yaml.py) : Chain from YAML supplier to YAML consumer (side effect is normalization)
-- [yaml_to_xml](yaml_to_xml.py)  : Chain from YAML supplier to XML consumer (conversion from XML)
-- [xml_to_yaml](xml_to_yaml.py)  : Chain from XML supplier to YAML consumer (conversion to YAML)
+- [yaml_to_yaml](core/yaml_to_yaml.py) : Chain from YAML supplier to YAML consumer (side effect is normalization)
+- [yaml_to_xml](xml/yaml_to_xml.py)  : Chain from YAML supplier to XML consumer (conversion from XML)
+- [xml_to_yaml](xml/xml_to_yaml.py)  : Chain from XML supplier to YAML consumer (conversion to YAML)
 
 ## XML extensions ##
 

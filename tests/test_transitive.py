@@ -11,7 +11,7 @@ import unittest
 
 import model
 import validate
-from wordnet import Synset
+from core.wordnet import Synset
 
 
 class TransitiveTestCase(unittest.TestCase):

@@ -11,8 +11,8 @@ import sys
 import unittest
 
 import model
-import wordnet_xml as xml
-from wordnet_xml import key_prefix_len, dash_factory
+from xml import wordnet_xml as xml
+from xml.wordnet_xml import key_prefix_len
 
 
 class SensekeysTestCase(unittest.TestCase):

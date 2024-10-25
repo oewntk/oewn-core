@@ -5,8 +5,8 @@
 import unittest
 
 import model
-import wordnet_xml
-from wordnet_xml import DashNameFactory
+from xml import wordnet_xml
+from xml.wordnet_xml import DashNameFactory
 
 
 def process_sensekey(sk):

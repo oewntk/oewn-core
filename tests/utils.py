@@ -2,9 +2,9 @@
 #  Creative Commons 4 for original code
 #  GPL3 for rewrite
 
-import wordnet_xml as xml
-from wordnet import Synset, Sense
-from wordnet_xml import dash_factory, is_valid_xml_id
+from xml import wordnet_xml as xml
+from core.wordnet import Synset, Sense
+from xml.wordnet_xml import dash_factory, is_valid_xml_id
 
 
 def collect_entries_for_escapes(entries, escape_map):

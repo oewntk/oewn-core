@@ -10,8 +10,8 @@ Author: Bernard Bou <1313ou@gmail.com> for rewrite and revamp
 #  Creative Commons 4 for original code
 #  GPL3 for rewrite
 
-import deserialize
-from wordnet import (Entry, Synset, Sense, PartOfSpeech, WordnetModel)
+from core import deserialize
+from core.wordnet import (Entry, Synset, Sense, PartOfSpeech, WordnetModel)
 import re
 import sys
 from collections import Counter

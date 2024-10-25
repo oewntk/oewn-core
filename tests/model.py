@@ -4,10 +4,7 @@
 import os
 import sys
 
-import deserialize
-import wordnet_xml as xml
-from wordnet_xml import dash_factory, is_valid_xml_id
-from wordnet import Synset, Sense
+from core import deserialize
 
 data_home = os.environ['OEWN_HOME']
 print(f'data={data_home}', file=sys.stderr)

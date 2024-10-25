@@ -6,8 +6,8 @@ import unittest
 
 import legacy
 import model
-import wordnet_xml
-from wordnet_xml import legacy_factory
+from xml import wordnet_xml
+from xml.wordnet_xml import legacy_factory
 
 
 def make_xml_sensekeys(sk):

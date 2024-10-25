@@ -5,8 +5,8 @@
 import unittest
 
 import utils
-import wordnet_xml as xml
-from wordnet_xml import legacy_factory, DashNameFactory
+from xml import wordnet_xml as xml
+from xml.wordnet_xml import legacy_factory, DashNameFactory
 
 
 def try_is_valid_xsd_id(_id):
