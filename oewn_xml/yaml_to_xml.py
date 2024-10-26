@@ -21,9 +21,7 @@ from oewn_xml import wordnet_toxml as saver
 
 def yaml_to_xml1(in_dir, out_file):
     wn = loader.load(in_dir)
-    print(f'saving to XML {out_file}')
     saver.save(wn, out_file)
-    print(f'saved to XML {out_file}')
 
 
 def main():

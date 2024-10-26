@@ -22,10 +22,7 @@ from oewn_core import wordnet_toyaml as saver
 
 def xml1_to_yaml(in_file, out_dir):
     wn = loader.load(in_file)
-
-    print(f'saving to YAML in {out_dir}')
     saver.save(wn, out_dir)
-    print(f'saved to YAML in {out_dir}')
 
 
 def main():

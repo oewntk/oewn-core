@@ -187,5 +187,7 @@ def make_entry_id_from_member(lemma: str, synsetid: str, member_resolver: Dict[T
 
 
 def save(wn: WordnetModel, path):
+    print(f'saving to XML {path}')
     with open(path, 'w', encoding='utf-8') as out:
         lexicon_to_xml(wn, out)
+    print(f'saved to XML {path}')
