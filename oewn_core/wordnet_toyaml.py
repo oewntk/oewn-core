@@ -13,7 +13,7 @@ import codecs
 
 import yaml
 
-from wordnet import *
+from .wordnet import *
 
 az = 'abcdefghijklmnopqrstuvwxyz'
 

@@ -16,7 +16,7 @@ import sys
 import time
 
 import wordnet_fromyaml as loader
-from wordnet import WordnetModel
+from .wordnet import WordnetModel
 
 
 def load_pickle(path: str, file='wn.pickle'):

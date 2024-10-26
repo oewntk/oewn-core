@@ -204,21 +204,39 @@ class SAXParser(ContentHandler):
         return wn
 
 
-def load(wordnet_file):
+def load_core(wordnet_file):
     with codecs.open(wordnet_file, encoding='utf-8') as source:
         sax_parser = SAXParser()
         parse(source, sax_parser)
         return sax_parser.get_parsed()
 
 
-def main():
-    arg_parser = argparse.ArgumentParser(description='load from xml')
-    arg_parser.add_argument('in_file', type=str, help='from-file')
-    args = arg_parser.parse_args()
-    wn = load(args.in_file)
-    wn.resolve()
+def load(home: str, extend=True, resolve=False):
+    print(f'loading from XML in {home}')
+    wn = load_core(home)
+    print(f'loaded {wn} from XML in {home}')
+    if extend:
+        print(f'extending relations')
+        print(f'before extension: {wn.info_relations()}')
+        wn.extend()
+        print(f'after extension:  {wn.info_relations()}')
+        print(f'extended relations')
+    if resolve:
+        print(f'resolving cross-references')
+        wn.resolve()
+        print(f'resolved cross-references')
+    print(f'extending relations')
     print(wn)
+    print(wn.info())
+    print(wn.info_relations())
     return wn
+
+def main():
+    arg_parser = argparse.ArgumentParser(description="load from yaml")
+    arg_parser.add_argument('in_dir', type=str, help='from-dir')
+    args = arg_parser.parse_args()
+    return load(args.in_dir)
+
 
 
 if __name__ == '__main__':

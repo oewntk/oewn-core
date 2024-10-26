@@ -132,10 +132,9 @@ def definition_to_xml(definition: str, out, is_ili=False):
 
 
 def example_to_xml(example: str | Example, indent: int, out):
-    if isinstance(example, Example):
-        print()
-    e = wnxml.escape_xml_lit(example.text if isinstance(example, Example) else example)
-    s = example.source if isinstance(example, Example) and example.source else None
+    is_example = isinstance(example, Example)
+    e = wnxml.escape_xml_lit(example.text if is_example else example)
+    s = example.source if is_example and example.source else None
     result = f'{I * indent}<Example dc:source="{wnxml.escape_xml_lit(s)}">{e}</Example>\n' if s else f'{I * indent}<Example>{e}</Example>\n'
     out.write(result)
 

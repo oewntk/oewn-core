@@ -17,7 +17,7 @@ from typing import Any
 import argparse
 import yaml
 
-from wordnet import *
+from .wordnet import *
 
 
 def load_verbframes(home: str) -> List[VerbFrame]:
@@ -140,7 +140,7 @@ def load_synset(y: Dict[str, Any], synsetid: str, lex_name: str) -> Synset:
     return ss
 
 
-def load(home: str):
+def load_core(home: str):
     """
     Load synset from YAML
     :param home: home dir for YAML *.yaml file
@@ -162,28 +162,32 @@ def load(home: str):
     return wn
 
 
-def main():
-    arg_parser = argparse.ArgumentParser(description="load from yaml")
-    arg_parser.add_argument('in_dir', type=str, help='from-dir')
-    args = arg_parser.parse_args()
-
-    print(f'loading from YAML in {args.in_dir}')
-    wn = load(args.in_dir)
-    print(f'loaded {wn} from YAML in {args.in_dir}')
-
-    print(f'resolving cross-references')
-    wn.resolve()
-    print(f'resolved cross-references')
+def load(home: str, extend=True, resolve=False):
+    print(f'loading from YAML in {home}')
+    wn = load_core(home)
+    print(f'loaded {wn} from YAML in {home}')
+    if extend:
+        print(f'extending relations')
+        print(f'before extension: {wn.info_relations()}')
+        wn.extend()
+        print(f'after extension:  {wn.info_relations()}')
+        print(f'extended relations')
+    if resolve:
+        print(f'resolving cross-references')
+        wn.resolve()
+        print(f'resolved cross-references')
     print(f'extending relations')
-    print(wn.info_relations())
-    wn.extend()
-    print(wn.info_relations())
-    print(f'extended relations')
-
     print(wn)
     print(wn.info())
     print(wn.info_relations())
     return wn
+
+
+def main():
+    arg_parser = argparse.ArgumentParser(description="load from yaml")
+    arg_parser.add_argument('in_dir', type=str, help='from-dir')
+    args = arg_parser.parse_args()
+    return load(args.in_dir)
 
 
 if __name__ == '__main__':

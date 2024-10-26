@@ -64,32 +64,37 @@ The resolved entities are stored as **resolved_*** class members in the object.
 
 Optional extension of relation sets with the addition of inverse relations (if inversable) is possible at a later stage, if needed.
 
+## Packages
+
+Code has been packaged into 2 packages:
+* [oewn_core](oewn_core) which contains model and YAML I/O and knows nothing of oewn_xml
+* [oewn_xml](oewn_xml) which contains XML I/O and depends on oewn_core
 
 ## Modules ##
 
 **Model**
 
-- [model](core/wordnet.py) : Model
+- [model](oewn_core/wordnet.py) : Model
 
 **Suppliers**:  YAML/XML/pickle
 
-- [fromyaml](core/wordnet_fromyaml.py) : Supply model from YAML
-- [fromxml](xml/wordnet_fromxml.py) : Supply model from (one-file) XML
+- [fromyaml](oewn_core/wordnet_fromyaml.py) : Supply model from YAML
+- [fromxml](oewn_xml/wordnet_fromxml.py) : Supply model from (one-file) XML
 
 **Consumers**: YAML/XML/pickle
 
-- [toyaml](core/wordnet_toyaml.py) : Consume model to YAML
-- [toxml](xml/wordnet_toxml.py) : Consume model to (one-file) XML
+- [toyaml](oewn_core/wordnet_toyaml.py) : Consume model to YAML
+- [toxml](oewn_xml/wordnet_toxml.py) : Consume model to (one-file) XML
 
 **Supplier-consumer chains**: YAML2YAML, YAML2XML, XML2YAML
 
-- [yaml_to_yaml](core/yaml_to_yaml.py) : Chain from YAML supplier to YAML consumer (side effect is normalization)
-- [yaml_to_xml](xml/yaml_to_xml.py)  : Chain from YAML supplier to XML consumer (conversion from XML)
-- [xml_to_yaml](xml/xml_to_yaml.py)  : Chain from XML supplier to YAML consumer (conversion to YAML)
+- [yaml_to_yaml](oewn_core/yaml_to_yaml.py) : Chain from YAML supplier to YAML consumer (side effect is normalization)
+- [yaml_to_xml](oewn_xml/yaml_to_xml.py)  : Chain from YAML supplier to XML consumer (conversion from XML)
+- [xml_to_yaml](oewn_xml/xml_to_yaml.py)  : Chain from XML supplier to YAML consumer (conversion to YAML)
 
 ## XML extensions ##
 
-While still conforming to [WN-LMF-1.1.dtd](https://github.com/globalwordnet/schemas/blob/master/WN-LMF-1.3.dtd),
+While still conforming to [WN-LMF-1.1.dtd](https://github.com/globalwordnet/schemas/blob/master/WN-LMF-1.1.dtd),
 
 * **wikidata** in synsets is exported in the _dc:subject_ attribute
 * **sent** in synsets is exported as \<Example>

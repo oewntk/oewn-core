@@ -26,6 +26,27 @@ def load_pickle(path: str, file='wn.pickle'):
         return pickle.load(out)
 
 
+def load(home: str, file='oewn.pickle', extend=True, resolve=False):
+    print(f'loading from pickle {file} in {home}')
+    wn = load_pickle(home, file=file)
+    print(f'loaded {wn} from pickle {file} in {home}')
+    if extend:
+        print(f'extending relations')
+        print(f'before extension: {wn.info_relations()}')
+        wn.extend()
+        print(f'after extension:  {wn.info_relations()}')
+        print(f'extended relations')
+    if resolve:
+        print(f'resolving cross-references')
+        wn.resolve()
+        print(f'resolved cross-references')
+    print(f'extending relations')
+    print(wn)
+    print(wn.info())
+    print(wn.info_relations())
+    return wn
+
+
 def main():
     """
     WordNet load-save
@@ -35,15 +56,7 @@ def main():
     arg_parser.add_argument('in_dir', type=str, help='from-dir for pickle')
     arg_parser.add_argument('pickle', type=str, nargs='?', default='oewn.pickle', help='from-pickle')
     args = arg_parser.parse_args()
-
-    print(f'loading from pickle in {args.in_dir}')
-    wn = load_pickle(args.in_dir)
-    print(f'loading from pickle in {args.in_dir}')
-
-    print(wn)
-    print(wn.info())
-    print(wn.info_relations())
-    return wn
+    return load(args.in_dir, args.pickle)
 
 
 def test(wn, out_dir):
