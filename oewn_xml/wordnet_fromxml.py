@@ -22,20 +22,20 @@ from oewn_core.wordnet import *
 from oewn_xml.wordnet_xml import from_xml_synset_id, from_xml_sense_id
 
 
-def make_synset_id(xml_synsetid):
+def make_synset_id(xml_synsetid: str) -> str:
     return from_xml_synset_id(xml_synsetid)
 
 
-def make_sense_id(xml_senseid):
+def make_sense_id(xml_senseid: str) -> str:
     return from_xml_sense_id(xml_senseid)
 
 
-def make_member(xml_member, entry_resolver):
+def make_member(xml_member: str, entry_resolver) -> str:
     e = entry_resolver[xml_member]
     return e.lemma
 
 
-def make_members(xml_members, entry_resolver):
+def make_members(xml_members: str, entry_resolver) -> List[str]:
     return [make_member(m, entry_resolver) for m in xml_members.split(' ')]
 
 
