@@ -31,10 +31,7 @@ def main():
     args = arg_parser.parse_args()
 
     wn = loader.load(args.in_dir)
-
-    print(f'saving to YAML {args.out_dir}')
     saver.save(wn, args.out_dir)
-    print(f'saved to YAML {args.out_dir}')
 
 
 if __name__ == '__main__':

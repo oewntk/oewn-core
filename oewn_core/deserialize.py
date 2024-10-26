@@ -59,9 +59,7 @@ def main():
 
 
 def test(wn, out_dir):
-    print(f'saving to YAML {out_dir}')
     saver.save(wn, out_dir)
-    print(f'saved to YAML {out_dir}')
 
 
 if __name__ == '__main__':

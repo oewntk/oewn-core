@@ -32,8 +32,10 @@ def save_pickle(wn: WordnetModel, path: str, file: str = 'wn.pickle'):
     Save model to pickle file in path
     Cross-references don't have to be staled.
     """
+    print(f'saving to pickle in {path}/{file}')
     with open(f'{path}/{file}', 'wb') as out:
         pickle.dump(wn, out)
+    print(f'saved to pickle in {path}/{file}')
 
 
 def main():
@@ -48,10 +50,7 @@ def main():
     args = arg_parser.parse_args()
 
     wn = loader.load(args.in_dir)
-
-    print(f'saving to pickle in {args.out_dir}/wn.pickle')
     save_pickle(wn, args.out_dir)
-    print(f'saved to pickle in {args.out_dir}/wn.pickle')
     return wn
 
 
