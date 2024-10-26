@@ -89,7 +89,7 @@ class Sense:
             Type.DERIVATION: Type.DERIVATION,
         }
 
-        class OtherType(Enum):
+        class OtherType(StrEnum):
             AGENT:str = 'agent'
             MATERIAL:str = 'material'
             EVENT:str = 'event'
