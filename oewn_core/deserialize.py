@@ -15,7 +15,7 @@ import pickle
 import sys
 import time
 
-import wordnet_toyaml as saver
+import oewn_core.wordnet_toyaml as saver
 
 
 def load_pickle(path: str, file='wn.pickle'):
@@ -40,7 +40,6 @@ def load(home: str, file='oewn.pickle', extend=True, resolve=False):
         print(f'resolving cross-references')
         wn.resolve()
         print(f'resolved cross-references')
-    print(f'extending relations')
     print(wn)
     print(wn.info())
     print(wn.info_relations())

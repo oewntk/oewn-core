@@ -21,13 +21,7 @@ from oewn_core import wordnet_toyaml as saver
 
 
 def xml1_to_yaml(in_file, out_dir):
-    print(f'loading from XML {in_file}')
     wn = loader.load(in_file)
-    print(f'loaded {wn} from XML {in_file}')
-
-    print(wn)
-    print(wn.info())
-    print(wn.info_relations())
 
     print(f'saving to YAML in {out_dir}')
     saver.save(wn, out_dir)

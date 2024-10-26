@@ -4,15 +4,14 @@
 
 import unittest
 
-import model
-import utils
-from oewn_xml import wordnet_xml
-from oewn_xml.wordnet_xml import DashNameFactory
+from oewn_xml.wordnet_xml import DashNameFactory, escape_sensekey, unescape_sensekey
+from tests.utils import collect_entries_for_escapes, print_as_dictionary
+from tests.model import wn
 
 
 def process_sensekey(sk):
-    esc_sk = wordnet_xml.escape_sensekey(sk)
-    unesc_sk = wordnet_xml.unescape_sensekey(esc_sk)
+    esc_sk = escape_sensekey(sk)
+    unesc_sk = unescape_sensekey(esc_sk)
     if sk != unesc_sk:
         raise ValueError(f'unescaped != original: {sk} != {unesc_sk}')
     return sk, esc_sk, unesc_sk
@@ -22,8 +21,8 @@ class EscapablesTestCase(unittest.TestCase):
     limit = 5
 
     def test_escapables(self):
-        r = utils.collect_entries_for_escapes(model.wn.entries, DashNameFactory.char_escapes_for_sk)
-        utils.print_as_dictionary(r)
+        r = collect_entries_for_escapes(wn.entries, DashNameFactory.char_escapes_for_sk)
+        print_as_dictionary(r)
         for k in r:
             v = r[k]
             if v:

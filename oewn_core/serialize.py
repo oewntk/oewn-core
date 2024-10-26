@@ -15,8 +15,8 @@ import pickle
 import sys
 import time
 
-import wordnet_fromyaml as loader
-from .wordnet import WordnetModel
+import oewn_core.wordnet_fromyaml as loader
+from oewn_core.wordnet import WordnetModel
 
 
 def load_pickle(path: str, file='wn.pickle'):
@@ -47,17 +47,7 @@ def main():
     arg_parser.add_argument('pickle', type=str, nargs='?', default='oewn.pickle', help='to-pickle')
     args = arg_parser.parse_args()
 
-    print(f'loading from YAML in {args.in_dir}')
     wn = loader.load(args.in_dir)
-    print(f'loaded {wn} from YAML in {args.in_dir}')
-
-    print(f'resolving cross-references')
-    wn.resolve()
-    print(f'resolved cross-references')
-
-    print(wn)
-    print(wn.info())
-    print(wn.info_relations())
 
     print(f'saving to pickle in {args.out_dir}/wn.pickle')
     save_pickle(wn, args.out_dir)

@@ -10,10 +10,10 @@ Author: Bernard Bou <1313ou@gmail.com> for rewrite and revamp
 #  GPL3 for rewrite
 
 import codecs
+from typing import Dict, List, Any, Union
 
 import yaml
-
-from .wordnet import *
+from oewn_core.wordnet import *
 
 az = 'abcdefghijklmnopqrstuvwxyz'
 
@@ -21,28 +21,28 @@ check_resolved = False
 """ Whether resolved_* members' resolution is checked, a no-op because these are not saved """
 
 
-def entry_to_yaml(entry, sense_resolver=None) -> Dict[str, str]:
+def entry_to_yaml(entry, sense_resolver=None) -> Dict[str, Any]:
     """
     Build dictionary for lexical entry YAML
     :param entry: lexical entry
     :param sense_resolver: if not None, sense resolution will we attempted
     :return: dictionary
     """
-    e = {}
+    y = {}
     if entry.forms:
-        e['form'] = entry.forms
+        y['form'] = entry.forms
     if entry.pronunciations:
-        e['pronunciation'] = []
+        y['pronunciation'] = []
         for p in entry.pronunciations:
             if p.variety:
-                e['pronunciation'].append({'value': p.value, 'variety': p.variety})
+                y['pronunciation'].append({'value': p.value, 'variety': p.variety})
             else:
-                e['pronunciation'].append({'value': p.value})
-    e['sense'] = [sense_to_yaml(s, sense_resolver) for s in entry.senses]
-    return e
+                y['pronunciation'].append({'value': p.value})
+    y['sense'] = [sense_to_yaml(s, sense_resolver) for s in entry.senses]
+    return y
 
 
-def sense_to_yaml(sense, sense_resolver=None) -> Dict[str, str]:
+def sense_to_yaml(sense, sense_resolver=None) -> Dict[str, Any]:
     """
     Build dictionary for sense YAML
     :param sense: sense
@@ -56,8 +56,47 @@ def sense_to_yaml(sense, sense_resolver=None) -> Dict[str, str]:
         y['subcat'] = sense.verbframeids
     if sense.examples:
         y['sent'] = sense.examples
-    for r in sense.relations:
+    yr: Dict[str, List[str]] = sense_relations_to_yaml(sense, sense_resolver)
+    if yr:
+        y.update(yr)
+    return y
 
+
+def synset_to_yaml(synset, synset_resolver=None, member_resolver=None) -> Dict[str, Any]:
+    """
+    Build dictionary for synset YAML
+    :param synset: synset
+    :param synset_resolver: if not None, synset resolution will be attempted and checked
+    :param member_resolver: if not None, member resolution will be attempted and checked
+    :return: dictionary
+    """
+    if member_resolver and not all((m, synset.id) in member_resolver for m in synset.members):
+        raise ValueError(f'Unresolved member in {synset.members}')
+
+    y = {
+        'members': synset.members,
+        'partOfSpeech': synset.pos,
+        'definition': synset.definitions
+    }
+    if synset.examples:
+        y['example'] = [example_to_yaml(x) for x in synset.examples]
+    if synset.usages:
+        y['usage'] = synset.usages
+    if synset.wikidata:
+        y['wikidata'] = synset.wikidata
+    if synset.source:
+        y['source'] = synset.source
+    if synset.ili and synset.ili != 'in':
+        y['ili'] = synset.ili
+    yr: Dict[str, List[str]] = synset_relations_to_yaml(synset, synset_resolver)
+    if yr:
+        y.update(yr)
+    return y
+
+
+def sense_relations_to_yaml(sense: Sense, sense_resolver=None) -> Dict[str, List[str]]:
+    y: Dict[str, List[str]] = {}
+    for r in sense.relations:
         t = Sense.Relation.OtherType(r.relation_type) if r.other_type else Sense.Relation.Type(r.relation_type)
         if t not in ignored_symmetric_sense_relations:
             if sense_resolver and (r.target not in sense_resolver):
@@ -71,31 +110,8 @@ def sense_to_yaml(sense, sense_resolver=None) -> Dict[str, str]:
     return y
 
 
-def synset_to_yaml(synset, synset_resolver=None, member_resolver=None) -> Dict[str, str]:
-    """
-    Build dictionary for synset YAML
-    :param synset: synset
-    :param synset_resolver: if not None, synset resolution will be attempted and checked
-    :param member_resolver: if not None, member resolution will be attempted and checked
-    :return: dictionary
-    """
-    if member_resolver and not all((m, synset.id) in member_resolver for m in synset.members):
-        raise ValueError(f'Unresolved member in {synset.members}')
-
-    y = {'members': synset.members,
-         'partOfSpeech': synset.pos,
-         'definition': synset.definitions
-         }
-    if synset.examples:
-        y['example'] = [example_to_yaml(x) for x in synset.examples]
-    if synset.usages:
-        y['usage'] = synset.usages
-    if synset.wikidata:
-        y['wikidata'] = synset.wikidata
-    if synset.source:
-        y['source'] = synset.source
-    if synset.ili and synset.ili != 'in':
-        y['ili'] = synset.ili
+def synset_relations_to_yaml(synset: Synset, synset_resolver=None) -> Dict[str, List[str]]:
+    y: Dict[str, List[str]] = {}
     for r in synset.relations:
         t = Synset.Relation.Type(r.relation_type)
         if t not in ignored_symmetric_synset_relations:

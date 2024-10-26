@@ -4,17 +4,17 @@ WordNet from-YAML utilities
 Author: John McCrae <john@mccr.ae> for original code
 Author: Bernard Bou <1313ou@gmail.com> for rewrite and revamp
 """
-import sys
-import time
 #  Copyright (c) 2024.
 #  Creative Commons 4 for original code
 #  GPL3 for rewrite
 
+import argparse
+import sys
+import time
 from glob import glob
 from pathlib import Path
-from typing import Any
+from typing import Any,Tuple,List,Dict
 
-import argparse
 import yaml
 
 from .wordnet import *
@@ -176,7 +176,6 @@ def load(home: str, extend=True, resolve=False):
         print(f'resolving cross-references')
         wn.resolve()
         print(f'resolved cross-references')
-    print(f'extending relations')
     print(wn)
     print(wn.info())
     print(wn.info_relations())

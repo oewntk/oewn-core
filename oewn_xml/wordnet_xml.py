@@ -81,19 +81,19 @@ class NameFactory(ABC):
     """
 
     @abstractmethod
-    def escape_lemma(self, lemma):
+    def escape_lemma(self, lemma: str) -> str:
         pass
 
     @abstractmethod
-    def unescape_lemma(self, esc_lemma):
+    def unescape_lemma(self, esc_lemma: str) -> str:
         pass
 
     @abstractmethod
-    def escape_sensekey(self, sensekey):
+    def escape_sensekey(self, sensekey: str) -> str:
         pass
 
     @abstractmethod
-    def unescape_sensekey(self, esc_sensekey):
+    def unescape_sensekey(self, esc_sensekey: str) -> str:
         pass
 
 
@@ -244,11 +244,11 @@ class DashNameFactory(NameFactory):
     extra_char_escapes = {
         '_': '-lowbar-',
         ' ': '_',
-        ':': '-colon-', # to make valid xsd:ids otherwise not necessary for XML:IDs
+        ':': '-colon-',  # to make valid xsd:ids otherwise not necessary for XML:IDs
     }
     sk_char_escapes = {
         '-': '--',
-        ':': '-colon-', # to make valid xsd:ids otherwise not necessary for XML:IDs
+        ':': '-colon-',  # to make valid xsd:ids otherwise not necessary for XML:IDs
     }
 
     char_escapes = esc_char_escapes | base_char_escapes | extra_char_escapes
@@ -288,7 +288,7 @@ class DashNameFactory(NameFactory):
         """
 
         s = esc_lemma
-        for seq in reversed(self.char_escapes_reverse):
+        for seq in reversed(self.char_escapes_reverse.keys()):
             s = s.replace(seq, self.char_escapes_reverse[seq])
         return s
 
@@ -408,7 +408,7 @@ def to_xml_entry_id(lemma: str, pos: str, discriminant: str | None = None, name_
     return f'{key_prefix}{name_factory.escape_lemma(lemma)}-{p}{d}'
 
 
-def from_xml_entry_id(xml_entry_id: str, name_factory=default_factory) -> Tuple[str, str, str]:
+def from_xml_entry_id(xml_entry_id: str, name_factory=default_factory) -> Tuple[str, str, str | None]:
     entry_id2 = xml_entry_id[key_prefix_len:]
     pos_discriminant = entry_id2[-1]
     if pos_discriminant in ('n', 'v', 'a', 'r'):

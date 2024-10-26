@@ -4,6 +4,7 @@
 
 import sys
 import unittest
+from typing import Tuple
 
 from oewn_xml import wordnet_xml
 from oewn_xml.wordnet_xml import is_valid_xml_id, is_valid_xml_id_char, dash_factory
@@ -46,7 +47,9 @@ class WordnetXMLTestCase(unittest.TestCase):
 
     def test_valid_escape_unescape_lemmas(self):
         for l in some_lemmas:
-            l1, l2 = lemma_escape_unescape(l)
+            r = lemma_escape_unescape(l)
+            assert r
+            l1, l2 = r
             print(f'{l} -> {l1} -> {l2}')
             self.assertTrue(is_valid_xml_id(l1), f'Illegal XML ID "{l1}"')
             self.assertEqual(l, l2, f'Reversing failed {l} {l2}')
@@ -55,7 +58,9 @@ class WordnetXMLTestCase(unittest.TestCase):
         for l in some_lemmas:
             sk = make_yaml_sense_key(l, 1, 2, 3, None, None)
             # sk = 'a_b_c%1:02:03::'
-            sk1, sk2 = sensekey_escape_unescape(sk)
+            r = sensekey_escape_unescape(sk)
+            assert r
+            sk1, sk2 = r
             print(f'{sk} -> {sk1} -> {sk2}')
             self.assertTrue(is_valid_xml_id(sk1), f'Illegal XML ID "{sk1}"')
             self.assertEqual(sk, sk2, f'Reversing failed {sk} {sk2}')
@@ -63,7 +68,7 @@ class WordnetXMLTestCase(unittest.TestCase):
 
 # UTILS
 
-def lemma_escape_unescape(l):
+def lemma_escape_unescape(l: str) -> Tuple[str, str] | None:
     try:
         l1 = wordnet_xml.escape_lemma(l)
         l2 = wordnet_xml.unescape_lemma(l1)
@@ -72,7 +77,7 @@ def lemma_escape_unescape(l):
         print(f'{l} -> LEMMA ERROR {er}', file=sys.stderr)
 
 
-def sensekey_escape_unescape(sk):
+def sensekey_escape_unescape(sk: str) -> Tuple[str, str] | None:
     try:
         sk1 = wordnet_xml.escape_sensekey(sk)
         sk2 = wordnet_xml.unescape_sensekey(sk1)

@@ -10,11 +10,13 @@ Author: Bernard Bou <1313ou@gmail.com> for rewrite and revamp
 #  Creative Commons 4 for original code
 #  GPL3 for rewrite
 
-from oewn_core import deserialize
-from oewn_core.wordnet import (Entry, Synset, Sense, PartOfSpeech, WordnetModel)
 import re
 import sys
 from collections import Counter
+from typing import Pattern
+
+from oewn_core import deserialize
+from oewn_core.wordnet import (Entry, Synset, Sense, PartOfSpeech, WordnetModel)
 
 
 class ValidationError(Exception):
@@ -22,7 +24,9 @@ class ValidationError(Exception):
         self.message = message
         super().__init__(self.message)
 
+
 break_on_error = True
+
 
 def warn(message: str):
     if break_on_error:
@@ -30,19 +34,20 @@ def warn(message: str):
     else:
         print(message, file=sys.stderr)
 
+
 # I D   V A L I D A T I O N
 
-valid_id = re.compile(fr"^.+$")
+valid_id: Pattern = re.compile(fr"^.+$")
 
 # valid_lemma = f'[^ %:]+'
-valid_lemma = f'[^ %]+'
+valid_lemma: str = f'[^ %]+'
 
 # valid_head = f'[^ %:]*'
-valid_head = f'[^ %]*'
+valid_head: str = f'[^ %]*'
 
-valid_sense_id = re.compile(fr'^{valid_lemma}%([0-9]):[0-9]{{2}}:[0-9]{{2}}:{valid_head}:[0-9]{{0,2}}$')
+valid_sense_id: Pattern = re.compile(fr'^{valid_lemma}%([0-9]):[0-9]{{2}}:[0-9]{{2}}:{valid_head}:[0-9]{{0,2}}$')
 
-valid_synset_id = re.compile('^[0-9]{8}-([nvars])$')
+valid_synset_id: Pattern = re.compile('^[0-9]{8}-([nvars])$')
 
 
 def check_valid_id(any_id: str):
@@ -64,9 +69,11 @@ def check_valid_sense_id(sense_id: str):
 
 def check_valid_sense_id_for_target(sense_id: str, target_id: str):
     m = valid_sense_id.match(sense_id)
+    assert m is not None
     g = m.group(1)
     pos = ss_types_reverse[int(g)]
     m2 = valid_synset_id.match(target_id)
+    assert m2 is not None
     g2 = m2.group(1)
     pos2 = PartOfSpeech(g2)
     if pos != pos2:
@@ -143,6 +150,7 @@ def gen_lex_id(entry: Entry, sense: Sense):
     for s2 in entry.senses:
         if s2.id:
             m = re.match(sense_id_lex_id, s2.id)
+            assert m is not None
             max_id = max(max_id, int(m.group(1)))
         else:
             if not seen:
@@ -154,10 +162,12 @@ def gen_lex_id(entry: Entry, sense: Sense):
 
 
 def extract_lex_id(sense_key: str):
-    return int(re.match(sense_id_lex_id, sense_key).group(1))
+    m = re.match(sense_id_lex_id, sense_key)
+    assert m is not None
+    return int(m.group(1))
 
 
-def get_head_word(wn: WordnetModel, sense: Sense):
+def get_head_word(wn: WordnetModel, sense: Sense) -> tuple[str, str] | None:
     synset = wn.synset_resolver[sense.synsetid]
     similars = [r for r in synset.relations if
                 Synset.Relation.Type(r.relation_type) == Synset.Relation.Type.SIMILAR and
@@ -169,8 +179,11 @@ def get_head_word(wn: WordnetModel, sense: Sense):
         target = wn.synset_resolver[target_id]
         target_entry = wn.member_resolver[(target.members[0], target.id)]
         target_sense = next((s for s in target_entry.senses if s.synsetid == target_id), None)
+        assert target_sense is not None
         head = target_sense.id[:target_sense.id.rindex('%')]
-        head_id = re.match(sense_id_lex_id, target_sense.id).group(1)
+        m = re.match(sense_id_lex_id, target_sense.id)
+        assert m is not None
+        head_id = m.group(1)
         return head, head_id
     warn(f'Could not deduce target of satellite {sense.id}')
 
@@ -187,7 +200,9 @@ def make_sense_key(wn: WordnetModel, entry: Entry, sense: Sense):
     else:
         lex_id = gen_lex_id(entry, sense)
     if pos == PartOfSpeech.ADJECTIVE_SATELLITE:
-        head_word, head_id = get_head_word(wn, sense)
+        h = get_head_word(wn, sense)
+        assert h is not None
+        head_word, head_id = h
     else:
         head_word = ""
         head_id = ""

@@ -4,14 +4,14 @@
 
 import unittest
 
-import utils
 from oewn_xml import wordnet_xml as xml
 from oewn_xml.wordnet_xml import legacy_factory, DashNameFactory
+from tests.utils import is_valid_xsd_id, make_dummy_sk
 
 
 def try_is_valid_xsd_id(_id):
     try:
-        utils.is_valid_xsd_id(_id)
+        is_valid_xsd_id(_id)
         print(f'{_id} is a valid xsd:id')
     except ValueError as ve:
         print(f'{_id} is NOT a valid xsd:id')
@@ -83,7 +83,7 @@ class XMLIDCasesTestCase(unittest.TestCase):
         print('\nXSD IDS - ROGUE')
         test_factory = DashNameFactory('__', '.')
         for lemma in ('Capital: Critique of Political Economy',):
-            sk = utils.make_dummy_sk(lemma)
+            sk = make_dummy_sk(lemma)
             e_id = xml.to_xml_entry_id(lemma, 'n', name_factory=test_factory)
             legacy_e_id = xml.to_xml_entry_id(lemma, 'n', name_factory=legacy_factory)
             sk_id = xml.to_xml_sense_id(sk, name_factory=test_factory)
@@ -115,7 +115,7 @@ class XMLIDCasesTestCase(unittest.TestCase):
             try_is_valid_xsd_id(dummy_colon_id)
         test_factory = DashNameFactory('__', '.')
         for lemma in ('bass',):
-            sk = utils.make_dummy_sk(lemma)
+            sk = make_dummy_sk(lemma)
             e_id = xml.to_xml_entry_id(lemma, 'n')
             sk_id = xml.to_xml_sense_id(sk, name_factory=test_factory)
             legacy_sk_id = xml.to_xml_sense_id(sk, name_factory=legacy_factory)
@@ -138,7 +138,7 @@ class XMLIDCasesTestCase(unittest.TestCase):
         print()
 
         for lemma in ('1:1', 'Capital: Critique of Political Economy'):
-            sk = utils.make_dummy_sk(lemma)
+            sk = make_dummy_sk(lemma)
             e_id = xml.to_xml_entry_id(lemma, 'n')
             sk_id = xml.to_xml_sense_id(sk, name_factory=test_factory)
             legacy_sk_id = xml.to_xml_sense_id(sk, name_factory=legacy_factory)

@@ -4,18 +4,12 @@
 import random
 import unittest
 
-import legacy
-import model
-import utils
 from oewn_xml import wordnet_xml
+from oewn_xml.wordnet_xml import dash_factory
 from oewn_xml.wordnet_xml import legacy_factory
-from wordnet_xml import dash_factory
-
-
-def make_xml_sensekeys(sk):
-    esc_sk = wordnet_xml.to_xml_sense_id(sk)
-    legacy_esc_sk = legacy_factory.escape_sensekey(sk)
-    return sk, esc_sk, legacy_esc_sk
+from tests.model import wn
+from tests.utils import collect_entries_for_escapes
+from tests.legacy import make_xml_sensekeys as legacy_make_xml_sensekeys
 
 
 def process(some_entries, factory, limit=3):
@@ -31,32 +25,32 @@ class EscapeSchemesTestCase(unittest.TestCase):
 
     def test_compare_escape_schemes(self):
         print('\nCOMPARE ESCAPE SCHEMES (RANDOM SELECTION)')
-        some_entries = random.sample(model.wn.entries, min(len(model.wn.entries), 5))
-        for sk, esc_sk, legacy_esc_sk in process(some_entries, make_xml_sensekeys, self.limit):
+        some_entries = random.sample(wn.entries, min(len(wn.entries), 5))
+        for sk, esc_sk, legacy_esc_sk in process(some_entries, legacy_make_xml_sensekeys, self.limit):
             print(f'\t{sk}')
             print(f'\t\t--now--> {esc_sk}')
             print(f'\t\t--leg--> {legacy_esc_sk}')
 
     def test_compare_escape_schemes_escapables(self):
         print('\nCOMPARE ESCAPE SCHEMES')
-        r = utils.collect_entries_for_escapes(model.wn.entries, dash_factory.char_escapes_for_sk)
+        r = collect_entries_for_escapes(wn.entries, dash_factory.char_escapes_for_sk)
         for k in r:
             v = r[k]
             if v:
                 print(f'{k}')
                 some_entries = random.sample(r[k], min(len(r[k]), 5))
-                for sk, esc_sk, legacy_esc_sk in process(some_entries, make_xml_sensekeys, self.limit):
+                for sk, esc_sk, legacy_esc_sk in process(some_entries, legacy_make_xml_sensekeys, self.limit):
                     print(f'\t{sk}')
                     print(f'\t\t--now--> {esc_sk}')
                     print(f'\t\t--leg--> {legacy_esc_sk}')
 
     def test_escapables(self):
         print('\nTEST ESCAPE SCHEMES')
-        r = utils.collect_entries_for_escapes(model.wn.entries, dash_factory.char_escapes_for_sk)
+        r = collect_entries_for_escapes(wn.entries, dash_factory.char_escapes_for_sk)
         for k in r:
             v = r[k]
             if v:
                 print(f'{k}')
                 some_entries = random.sample(r[k], min(len(r[k]), 5))
-                for sk, esc_sk, unesc_sk in process(some_entries, legacy.make_xml_sensekeys, self.limit):
+                for sk, esc_sk, unesc_sk in process(some_entries, legacy_make_xml_sensekeys, self.limit):
                     print(f'\t{sk} --esc--> {esc_sk} --unesc--> {unesc_sk}')

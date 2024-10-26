@@ -9,32 +9,33 @@ Author: Bernard Bou <1313ou@gmail.com> for rewrite and revamp
 
 import unittest
 
-import model
-import utils
-import validate
 from oewn_core.wordnet import Synset
+from tests.model import wn
+from tests.utils import dump
+from tests.validate import check_transitive_synset, ValidationError
 
 
 class TransitiveTestCase(unittest.TestCase):
 
     def test_transitive(self):
-        s1 = model.wn.synset_resolver['05543117-n']
-        # s2 = model.wn.synset_resolver['05543502-n']
-        s3 = model.wn.synset_resolver['05544491-n']
+        s1 = wn.synset_resolver['05543117-n']
+        # s2 = wn.synset_resolver['05543502-n']
+        s3 = wn.synset_resolver['05544491-n']
 
-        model.wn.extend()
+        wn.extend()
 
-        validate.check_transitive_synset(model.wn, s3)
+        check_transitive_synset(wn, s3)
 
         print("\nBEFORE EXTEND")
-        utils.dump(s3)
+        dump(s3)
         r = Synset.Relation(s1.id, Synset.Relation.Type.HYPERNYM.value)
         s3.relations.append(r)
         print("\nAFTER EXTEND")
-        utils.dump(s3)
+        dump(s3)
 
-        with self.assertRaises(validate.ValidationError):
-             validate.check_transitive_synset(model.wn, s3)
+        with self.assertRaises(ValidationError):
+            check_transitive_synset(wn, s3)
+
 
 if __name__ == '__main__':
     unittest.main()
