@@ -4,9 +4,7 @@
 import random
 import unittest
 
-from oewn_xml import wordnet_xml
 from oewn_xml.wordnet_xml import dash_factory
-from oewn_xml.wordnet_xml import legacy_factory
 from tests.model import wn
 from tests.utils import collect_entries_for_escapes
 from tests.legacy import make_xml_sensekeys as legacy_make_xml_sensekeys
