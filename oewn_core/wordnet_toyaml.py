@@ -10,7 +10,7 @@ Author: Bernard Bou <1313ou@gmail.com> for rewrite and revamp
 #  GPL3 for rewrite
 
 import codecs
-from typing import Dict, List, Any, Union
+from typing import Dict, List, Any
 
 import yaml
 from oewn_core.wordnet import *
@@ -104,9 +104,10 @@ def sense_relations_to_yaml(sense: Sense, sense_resolver=None) -> Dict[str, List
             if check_resolved and sense_resolver and (
                     r.target not in sense_resolver or sense_resolver[r.target] != r.resolved_target):
                 raise ValueError(f'Invalid sense relation resolved target {r.target} of type {t.value} in {sense.id}')
-            if t.value not in y:
-                y[t.value] = []
-            y[t.value].append(r.target)
+            k: str = str(t.value)
+            if k  not in y:
+                y[k] = []
+            y[k].append(r.target)
     return y
 
 
@@ -120,9 +121,10 @@ def synset_relations_to_yaml(synset: Synset, synset_resolver=None) -> Dict[str, 
             if check_resolved and synset_resolver and (
                     r.target not in synset_resolver or synset_resolver[r.target] != r.resolved_target):
                 raise ValueError(f'Invalid synset relation resolved target {r.target} of type {t.value} in {synset.id}')
+            k: str = str(t.value)
             if t.value not in y:
-                y[t.value] = []
-            y[t.value].append(r.target)
+                y[k] = []
+            y[k].append(r.target)
     return y
 
 
@@ -218,6 +220,8 @@ def save(wn: WordnetModel, home: str) -> None:
     :param wn: model
     :param home: home dir for persist files
     """
+    print(f'saving to YAML {home}')
     save_entries(wn, home)
     save_synsets(wn, home)
     save_verbframes(wn, home)
+    print(f'saved to YAML {home}')
