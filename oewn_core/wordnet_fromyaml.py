@@ -13,7 +13,7 @@ import sys
 import time
 from glob import glob
 from pathlib import Path
-from typing import Any,Tuple,List,Dict
+from typing import Any, Tuple, List, Dict
 
 import yaml
 
@@ -97,8 +97,8 @@ def load_sense(y: Dict[str, Any], entry: Entry) -> Sense:
     if 'subcat' in y:
         s.verbframeids = y['subcat']
     # relations
-    sense_rel_types = [t.value for t in Sense.Relation.Type]
-    other_rel_types = [t.value for t in Sense.Relation.OtherType]
+    sense_rel_types: List[str] = [t.value for t in Sense.Relation.Type]
+    other_rel_types: List[str] = [t.value for t in Sense.Relation.OtherType]
     for rel, targets in y.items():
         if rel in sense_rel_types:
             for target in targets:
@@ -132,7 +132,7 @@ def load_synset(y: Dict[str, Any], synsetid: str, lex_name: str) -> Synset:
     ss.wikidata = y.get('wikidata')
     ss.ili = y.get('ili', 'in')
     # relations
-    synset_rel_types = [t.value for t in Synset.Relation.Type]
+    synset_rel_types: List[str] = [str(t.value) for t in Synset.Relation.Type]
     for rel, targets in y.items():
         if rel in synset_rel_types:
             for target in targets:
