@@ -6,6 +6,7 @@ This validation does not validate XML form (use an XML validator)
 Author: John McCrae <john@mccr.ae> for original code
 Author: Bernard Bou <1313ou@gmail.com> for rewrite and revamp
 """
+import argparse
 #  Copyright (c) 2024.
 #  Creative Commons 4 for original code
 #  GPL3 for rewrite
@@ -13,9 +14,8 @@ Author: Bernard Bou <1313ou@gmail.com> for rewrite and revamp
 import re
 import sys
 from collections import Counter
-from typing import Any, Dict, Pattern, Tuple
+from typing import Dict, Pattern, Tuple
 
-from oewn_core import deserialize
 from oewn_core.wordnet import (Entry, Synset, Sense, PartOfSpeech, WordnetModel)
 
 
@@ -528,12 +528,24 @@ def main(wn: WordnetModel) -> None:
 
 
 if __name__ == "__main__":
-    pickled_wn: Any = deserialize.main()
-    pickled_wn.extend()
-    print(f'extended\n{pickled_wn.info_relations()}')
+    arg_parser = argparse.ArgumentParser(description="load from yaml and save")
+    arg_parser.add_argument('--pickle', action=argparse.BooleanOptionalAction, help='use pickle')
+    arg_parser.add_argument('in_dir', type=str, help='from-dir for yaml/pickle')
+    arg_parser.add_argument('file', type=str, nargs='?', default='oewn.pickle', help='from-pickle')
+    args = arg_parser.parse_args()
 
+
+    def get_wn() -> WordnetModel:
+        if args.pickle:
+            from oewn_core.deserialize import load as pickle_load
+            return pickle_load(args.in_dir, args.file) #, extend=True
+        from oewn_core.wordnet_fromyaml import load as yaml_load
+        return yaml_load(args.in_dir) # , extend=True
+
+
+    _wn: WordnetModel = get_wn()
     try:
-        main(pickled_wn)
+        main(_wn)
         print("No validity issues")
     except ValidationError as ve:
         print(ve, file=sys.stderr)

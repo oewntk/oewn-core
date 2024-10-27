@@ -12,7 +12,7 @@ import unittest
 from oewn_core.wordnet import Synset
 from tests.model import wn
 from tests.utils import dump
-from tests.validate import check_transitive_synset, ValidationError
+from oewn_validate.validate import check_transitive_synset, ValidationError
 
 
 class TransitiveTestCase(unittest.TestCase):

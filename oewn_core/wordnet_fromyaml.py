@@ -153,14 +153,15 @@ def load_core(home: str) -> WordnetModel:
                       'https://creativecommons.org/licenses/by/4.0',
                       '2024',
                       'https://github.com/globalwordnet/english-wordnet')
-    # frames
-    wn.verbframes = load_verbframes(home)
-
     # lex entries
     wn.entries, wn.sense_resolver, wn.member_resolver = load_entries(home)
 
     # synsets
     wn.synsets, wn.synset_resolver = load_synsets(home)
+
+    # frames
+    wn.verbframes = load_verbframes(home)
+
     return wn
 
 
