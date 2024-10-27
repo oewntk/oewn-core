@@ -11,7 +11,7 @@ Author: Michael Wayne Goodman <goodman.m.w@gmail.com> for escaping
 
 import re
 from abc import abstractmethod, ABC
-from typing import Tuple
+from typing import Any, Dict, Tuple
 
 # Constrain input to avoid non letters or unescaped chars, or not
 unconstrained = False
@@ -51,24 +51,24 @@ xml_id_char = fr'[{xml_id_punct}{xml_id_punct_not_first}{xml_id_az}{xml_id_num}{
 xml_id_start_char1 = fr'^{xml_id_start_char}$'
 xml_id_char1 = fr'^{xml_id_char}$'
 
-xml_id_start_char1_re = re.compile(xml_id_start_char1)
-xml_id_char1_re = re.compile(xml_id_char1)
+xml_id_start_char1_re: re.Pattern[str] = re.compile(xml_id_start_char1)
+xml_id_char1_re: re.Pattern = re.compile(xml_id_char1)
 
 xml_id = fr'^{xml_id_start_char}{xml_id_char}*$'
-xml_id_re = re.compile(xml_id)
+xml_id_re: re.Pattern = re.compile(xml_id)
 
 
-def is_valid_xml_id_char(c):
+def is_valid_xml_id_char(c) -> bool:
     return bool(xml_id_char1_re.match(c))
 
 
-def is_valid_xml_id(s):
+def is_valid_xml_id(s) -> bool:
     return bool(xml_id_re.match(s))
 
 
 # E S C A P I N G
 
-def split_at_last(s, c):
+def split_at_last(s, c) -> Tuple[Any, Any]:
     cut = s.rfind(c)
     if cut > -1:
         return s[:cut], s[cut + 1:]
@@ -98,7 +98,7 @@ class NameFactory(ABC):
 
 
 class LegacyNameFactory(NameFactory):
-    def escape_lemma(self, lemma):
+    def escape_lemma(self, lemma) -> str:
         """Escape the lemma so that it contains valid characters for inclusion in XML ID"""
 
         def escape_char(c):
@@ -144,7 +144,7 @@ class LegacyNameFactory(NameFactory):
     xml_percent_sep = '__'
     xml_colon_sep = '.'
 
-    def escape_sensekey(self, sensekey):
+    def escape_sensekey(self, sensekey) -> str:
         """
         Maps a sense key into an OEWN form
         """
@@ -170,7 +170,7 @@ class LegacyNameFactory(NameFactory):
             return f"{esc_lemma}{self.xml_percent_sep}{self.xml_colon_sep.join(lex_sense_fields)}"
         raise ValueError(f'Ill-formed OEWN sense key (no %): {sensekey}')
 
-    def unescape_sensekey(self, esc_sensekey):
+    def unescape_sensekey(self, esc_sensekey) -> str:
         """
         Maps an OEWN sense key to a WN sense key
         """
@@ -198,10 +198,10 @@ class LegacyNameFactory(NameFactory):
 
 
 class DashNameFactory(NameFactory):
-    esc_char_escapes = {
+    esc_char_escapes: Dict[str, str] = {
         '-': '--',  # custom
     }
-    base_char_escapes = {
+    base_char_escapes: Dict[str, str] = {
         # HTML entities
         # https://en.wikipedia.org/wiki/List_of_XML_and_HTML_character_entity_references
         "'": '-apos-',
@@ -241,29 +241,29 @@ class DashNameFactory(NameFactory):
         '°': '-deg-',
         '~': '-tilde-',
     }
-    extra_char_escapes = {
+    extra_char_escapes: Dict[str, str] = {
         '_': '-lowbar-',
         ' ': '_',
         ':': '-colon-',  # to make valid xsd:ids otherwise not necessary for XML:IDs
     }
-    sk_char_escapes = {
+    sk_char_escapes: Dict[str, str] = {
         '-': '--',
         ':': '-colon-',  # to make valid xsd:ids otherwise not necessary for XML:IDs
     }
 
-    char_escapes = esc_char_escapes | base_char_escapes | extra_char_escapes
-    char_escapes_reverse = {v: k for k, v in char_escapes.items()}
+    char_escapes: Dict[str, str] = esc_char_escapes | base_char_escapes | extra_char_escapes
+    char_escapes_reverse: Dict[str, str] = {v: k for k, v in char_escapes.items()}
 
-    char_escapes_for_sk = base_char_escapes | sk_char_escapes
-    char_escapes_for_sk_reverse = {v: k for k, v in char_escapes_for_sk.items()}
+    char_escapes_for_sk: Dict[str, str] = base_char_escapes | sk_char_escapes
+    char_escapes_for_sk_reverse: Dict[str, str] = {v: k for k, v in char_escapes_for_sk.items()}
 
-    def __init__(self, main_separator, minor_separator):
+    def __init__(self, main_separator, minor_separator) -> None:
         self.xml_percent_sep = main_separator
         self.xml_colon_sep = minor_separator
 
     # l e m m a
 
-    def escape_lemma(self, lemma):
+    def escape_lemma(self, lemma) -> str:
         """
         Escape the lemma so that it contains only valid characters for inclusion in XML ID
         """
@@ -294,7 +294,7 @@ class DashNameFactory(NameFactory):
 
     # s e n s e k e y
 
-    def escape_lemma_in_sensekey(self, lemma):
+    def escape_lemma_in_sensekey(self, lemma) -> str:
         """
         Escape the lemma so that it contains only valid characters for inclusion in XML ID
         within the context of sense id factory
@@ -323,7 +323,7 @@ class DashNameFactory(NameFactory):
             s = s.replace(seq, self.char_escapes_for_sk_reverse[seq])
         return s
 
-    def escape_sensekey(self, sensekey):
+    def escape_sensekey(self, sensekey) -> str:
         """Escape the sensekey so that it contains valid characters for XML ID"""
         if '%' in sensekey:
             l, lex_sense = split_at_last(sensekey, '%')
@@ -337,7 +337,7 @@ class DashNameFactory(NameFactory):
             return f"{lemma}{self.xml_percent_sep}{self.xml_colon_sep.join(lex_sense_fields)}"
         raise ValueError(f'Ill-formed OEWN sense key (no %): {sensekey}')
 
-    def unescape_sensekey(self, esc_sensekey):
+    def unescape_sensekey(self, esc_sensekey) -> str:
         """
         Unescape an OEWN sense key to a WN sense key
         """
@@ -364,19 +364,19 @@ dash_factory: DashNameFactory = DashNameFactory(middledot, '.')
 default_factory: NameFactory = dash_factory
 
 
-def escape_lemma(lemma):
+def escape_lemma(lemma) -> str:
     return default_factory.escape_lemma(lemma)
 
 
-def unescape_lemma(esc_lemma):
+def unescape_lemma(esc_lemma) -> str:
     return default_factory.unescape_lemma(esc_lemma)
 
 
-def escape_sensekey(sensekey):
+def escape_sensekey(sensekey) -> str:
     return default_factory.escape_sensekey(sensekey)
 
 
-def unescape_sensekey(esc_sensekey):
+def unescape_sensekey(esc_sensekey) -> str:
     return default_factory.unescape_sensekey(esc_sensekey)
 
 
@@ -392,11 +392,11 @@ def is_valid_xml_oewn_id(_):
 
 # s y n s e t
 
-def to_xml_synset_id(synsetid: str):
+def to_xml_synset_id(synsetid: str) -> str:
     return f'{key_prefix}{synsetid}'
 
 
-def from_xml_synset_id(xml_synsetid: str):
+def from_xml_synset_id(xml_synsetid: str) -> str:
     return xml_synsetid[key_prefix_len:]
 
 
@@ -436,7 +436,7 @@ def from_xml_entry_id(xml_entry_id: str, name_factory=default_factory) -> Tuple[
 
 # s e n s e
 
-def to_xml_sense_id(sensekey, name_factory=default_factory):
+def to_xml_sense_id(sensekey, name_factory=default_factory) -> str:
     """
     Maps the sensekey so that it contains valid characters for XML ID, prefix added
     :param sensekey: sense key in WN format (YAML)
