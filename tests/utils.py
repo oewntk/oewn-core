@@ -5,9 +5,10 @@
 from oewn_xml import wordnet_xml as xml
 from oewn_core.wordnet import Synset, Sense
 from oewn_xml.wordnet_xml import dash_factory, is_valid_xml_id
+from typing import Any, Dict
 
 
-def collect_entries_for_escapes(entries, escape_map):
+def collect_entries_for_escapes(entries, escape_map) -> Dict[Any, list]:
     r = {}
     for k in escape_map:
         if k == ' ':
@@ -19,7 +20,7 @@ def collect_entries_for_escapes(entries, escape_map):
     return r
 
 
-def print_as_dictionary(r, limit=5):
+def print_as_dictionary(r, limit=5) -> None:
     print('escapable = {')
     for k, v in r.items():
         print(f'\t"{k}": (')
@@ -40,15 +41,15 @@ def dump(s: Synset | Sense):
         print(f'\t{r}')
 
 
-def make_dummy_sk(lemma):
+def make_dummy_sk(lemma) -> str:
     return make_sk(lemma, '1:00:00::')
 
 
-def make_sk(lemma, lex_sense):
+def make_sk(lemma, lex_sense) -> str:
     return f'{lemma.lower().replace(' ', '_')}%{lex_sense}'
 
 
-def is_valid_xsd_id(s):
+def is_valid_xsd_id(s) -> bool:
     if not is_valid_xml_id(s):
         raise ValueError(f'Invalid xsd:id : {s} is not a valid XML ID')
     if ':' in s:
@@ -56,7 +57,7 @@ def is_valid_xsd_id(s):
     return True
 
 
-def is_parsable_sensekey(sk):
+def is_parsable_sensekey(sk) -> bool:
     try:
         l, s = xml.split_at_last(sk, '%')
         f = s.split(':')
@@ -67,7 +68,7 @@ def is_parsable_sensekey(sk):
         raise ValueError(f'PERCENT: {sk.id} {ve}')
 
 
-def is_parsable_xml_sensekey(sk):
+def is_parsable_xml_sensekey(sk) -> bool:
     try:
         l, s = xml.split_at_last(sk, dash_factory.xml_percent_sep)
         f = s.split(dash_factory.xml_colon_sep)
