@@ -13,14 +13,14 @@ Author: Bernard Bou <1313ou@gmail.com> for rewrite and revamp
 import re
 import sys
 from collections import Counter
-from typing import Pattern
+from typing import Any, Dict, Pattern
 
 from oewn_core import deserialize
 from oewn_core.wordnet import (Entry, Synset, Sense, PartOfSpeech, WordnetModel)
 
 
 class ValidationError(Exception):
-    def __init__(self, message):
+    def __init__(self, message) -> None:
         self.message = message
         super().__init__(self.message)
 
@@ -28,7 +28,7 @@ class ValidationError(Exception):
 break_on_error = True
 
 
-def warn(message: str):
+def warn(message: str) -> None:
     if break_on_error:
         raise ValidationError(message)
     else:
@@ -50,24 +50,24 @@ valid_sense_id: Pattern = re.compile(fr'^{valid_lemma}%([0-9]):[0-9]{{2}}:[0-9]{
 valid_synset_id: Pattern = re.compile('^[0-9]{8}-([nvars])$')
 
 
-def check_valid_id(any_id: str):
+def check_valid_id(any_id: str) -> None:
     if not bool(valid_id.match(any_id)):
         warn(f'{any_id} is not well-formed id')
 
 
-def check_valid_synset_id(synset_id: str):
+def check_valid_synset_id(synset_id: str) -> None:
     check_valid_id(synset_id)
     if not bool(valid_synset_id.match(synset_id)):
         warn(f'{synset_id} is not well-formed synset id')
 
 
-def check_valid_sense_id(sense_id: str):
+def check_valid_sense_id(sense_id: str) -> None:
     check_valid_id(sense_id)
     if not bool(valid_sense_id.match(sense_id)):
         warn(f'{sense_id} is not well-formed sense id')
 
 
-def check_valid_sense_id_for_target(sense_id: str, target_id: str):
+def check_valid_sense_id_for_target(sense_id: str, target_id: str) -> None:
     m = valid_sense_id.match(sense_id)
     assert m is not None
     g = m.group(1)
@@ -82,7 +82,7 @@ def check_valid_sense_id_for_target(sense_id: str, target_id: str):
 
 # U T I L I T I E S   F O R   S E N S E K E Y S
 
-lex_file_nums = {
+lex_file_nums: Dict[str, int] = {
     "adj.all": 0,
     "adj.pert": 1,
     "adv.all": 2,
@@ -131,19 +131,19 @@ lex_file_nums = {
     "contrib.colloq": 50,
     "contrib.plwn": 51}
 
-ss_types = {
+ss_types: Dict[PartOfSpeech, int] = {
     PartOfSpeech.NOUN: 1,
     PartOfSpeech.VERB: 2,
     PartOfSpeech.ADJECTIVE: 3,
     PartOfSpeech.ADVERB: 4,
     PartOfSpeech.ADJECTIVE_SATELLITE: 5
 }
-ss_types_reverse = {ss_types[k]: k for k in ss_types}
+ss_types_reverse: Dict[int, PartOfSpeech] = {ss_types[k]: k for k in ss_types}
 
-sense_id_lex_id = re.compile(".*%\\d:\\d\\d:(\\d\\d):.*")
+sense_id_lex_id: Pattern[str] = re.compile(".*%\\d:\\d\\d:(\\d\\d):.*")
 
 
-def gen_lex_id(entry: Entry, sense: Sense):
+def gen_lex_id(entry: Entry, sense: Sense) -> int:
     max_id = 0
     unseen = 1
     seen = False
@@ -161,7 +161,7 @@ def gen_lex_id(entry: Entry, sense: Sense):
     return max_id + unseen
 
 
-def extract_lex_id(sense_key: str):
+def extract_lex_id(sense_key: str) -> int:
     m = re.match(sense_id_lex_id, sense_key)
     assert m is not None
     return int(m.group(1))
@@ -188,7 +188,7 @@ def get_head_word(wn: WordnetModel, sense: Sense) -> tuple[str, str] | None:
     warn(f'Could not deduce target of satellite {sense.id}')
 
 
-def make_sense_key(wn: WordnetModel, entry: Entry, sense: Sense):
+def make_sense_key(wn: WordnetModel, entry: Entry, sense: Sense) -> str:
     """Calculate the sense key for a sense of an entry"""
     lemma = entry.lemma.lower().replace(' ', '_')
     ss = wn.synset_resolver[sense.synsetid]
@@ -209,7 +209,7 @@ def make_sense_key(wn: WordnetModel, entry: Entry, sense: Sense):
     return f'{lemma}%{ss_type:1}:{lex_filenum:02}:{lex_id:02}:{head_word}:{head_id}'
 
 
-def equal_pos(pos1: PartOfSpeech, pos2: PartOfSpeech):
+def equal_pos(pos1: PartOfSpeech, pos2: PartOfSpeech) -> bool:
     return (pos1 == pos2
             or pos1 == PartOfSpeech.ADJECTIVE and pos2 == PartOfSpeech.ADJECTIVE_SATELLITE
             or pos2 == PartOfSpeech.ADJECTIVE and pos1 == PartOfSpeech.ADJECTIVE_SATELLITE)
@@ -217,7 +217,7 @@ def equal_pos(pos1: PartOfSpeech, pos2: PartOfSpeech):
 
 # S T R U C T U R E  (R E L A T I O N S)
 
-def check_symmetry_synset(wn: WordnetModel, synset: Synset):
+def check_symmetry_synset(wn: WordnetModel, synset: Synset) -> None:
     for r in synset.relations:
         t = Synset.Relation.Type(r.relation_type)
         if t in Synset.Relation.inverses:
@@ -227,7 +227,7 @@ def check_symmetry_synset(wn: WordnetModel, synset: Synset):
                 warn(f'No symmetric relation for {synset.id} ={r.relation_type}=> {synset2.id}')
 
 
-def check_symmetry_sense(wn: WordnetModel, sense: Sense):
+def check_symmetry_sense(wn: WordnetModel, sense: Sense) -> None:
     for r in sense.relations:
         if not r.other_type:
             t = Sense.Relation.Type(r.relation_type)
@@ -241,14 +241,14 @@ def check_symmetry_sense(wn: WordnetModel, sense: Sense):
                     warn(f'No symmetric relation for {sense.id} ={r.relation_type}=> {sense2.id}')
 
 
-def check_symmetry(wn: WordnetModel):
+def check_symmetry(wn: WordnetModel) -> None:
     for synset in wn.synsets:
         check_symmetry_synset(wn, synset)
     for sense in wn.senses:
         check_symmetry_sense(wn, sense)
 
 
-def check_transitive_synset(wn: WordnetModel, synset: Synset):
+def check_transitive_synset(wn: WordnetModel, synset: Synset) -> None:
     for r1 in synset.relations:
         t1 = Synset.Relation.Type(r1.relation_type)
         if t1 == Synset.Relation.Type.HYPERNYM:
@@ -264,12 +264,12 @@ def check_transitive_synset(wn: WordnetModel, synset: Synset):
                         warn(f'Transitive error for {synset.id} => {synset2.id} => {r2.target} with {synset.id} => {trans.target}')
 
 
-def check_transitive(wn: WordnetModel):
+def check_transitive(wn: WordnetModel) -> None:
     for synset in wn.synsets:
         check_transitive_synset(wn, synset)
 
 
-def check_no_loops(wn: WordnetModel):
+def check_no_loops(wn: WordnetModel) -> None:
     hypernyms = {}
     for synset in wn.synsets:
         hypernyms[synset.id] = set()
@@ -289,7 +289,7 @@ def check_no_loops(wn: WordnetModel):
                 changed = True
 
 
-def check_no_domain_loops(wn: WordnetModel):
+def check_no_domain_loops(wn: WordnetModel) -> None:
     domains = {}
     for synset in wn.synsets:
         domains[synset.id] = set()
@@ -312,7 +312,7 @@ def check_no_domain_loops(wn: WordnetModel):
 
 # E N T R I E S
 
-def check_entry_keys(wn):
+def check_entry_keys(wn) -> None:
     entry_keys = set()
     for entry in wn.entries:
         k = entry.key
@@ -321,22 +321,22 @@ def check_entry_keys(wn):
         entry_keys.add(k)
 
 
-def check_entry_sense_duplicates(wn: WordnetModel, entry: Entry):
+def check_entry_sense_duplicates(entry: Entry) -> None:
     for sense in entry.senses:
         for sense2 in entry.senses:
             if sense2.id != sense.id and sense2.synsetid == sense.synsetid:
                 warn(f'Duplicate senses {sense.id} + {sense2.id} both referring to {sense.synsetid}')
 
 
-def check_entries(wn: WordnetModel):
+def check_entries(wn: WordnetModel) -> None:
     check_entry_keys(wn)
     for e in wn.entries:
-        check_entry_sense_duplicates(wn, e)
+        check_entry_sense_duplicates(e)
 
 
 # S E N S E S
 
-def check_senseid_duplicates(wn: WordnetModel):
+def check_senseid_duplicates(wn: WordnetModel) -> None:
     visited_sense_ids = {}
     for sense in wn.senses:
         if sense.id in visited_sense_ids:
@@ -344,7 +344,7 @@ def check_senseid_duplicates(wn: WordnetModel):
         visited_sense_ids[sense.id] = sense.id
 
 
-def check_sense(wn: WordnetModel, sense: Sense):
+def check_sense(wn: WordnetModel, sense: Sense) -> None:
     # sense id is present
     if not sense.id:
         warn("Sense %s does not have a sense id" % sense)
@@ -362,7 +362,7 @@ def check_sense(wn: WordnetModel, sense: Sense):
         warn(f'Sense {sense.id} refers to nonexistent synset {sense.synsetid}')
 
 
-def check_sense_relations(wn: WordnetModel, sense: Sense):
+def check_sense_relations(wn: WordnetModel, sense: Sense) -> None:
     synset = wn.synset_resolver[sense.synsetid]
     pos = PartOfSpeech(synset.pos)
 
@@ -379,24 +379,24 @@ def check_sense_relations(wn: WordnetModel, sense: Sense):
             warn(f'Duplicate relation {sense.id} ={item[1]}=> {item[0]}')
 
 
-def check_sense_verbframes(wn: WordnetModel, sense: Sense):
+def check_sense_verbframes(sense: Sense) -> None:
     counter = Counter(sense.verbframeids)
     for item, count in counter.items():
         if count > 1:
             warn(f'Duplicate verb frames in entry {sense.id}')
 
 
-def check_senses(wn: WordnetModel):
+def check_senses(wn: WordnetModel) -> None:
     check_senseid_duplicates(wn)
     for sense in wn.senses:
         check_sense(wn, sense)
         check_sense_relations(wn, sense)
-        check_sense_verbframes(wn, sense)
+        check_sense_verbframes(sense)
 
 
 # S Y N S E T S
 
-def check_members(wn: WordnetModel, synset: Synset):
+def check_members(wn: WordnetModel, synset: Synset) -> None:
     if not synset.members:
         warn(f'Synset {synset.id} members empty')
     try:
@@ -406,7 +406,7 @@ def check_members(wn: WordnetModel, synset: Synset):
         warn(f'Synset {synset.id} refers to nonexistent member {ke.args[0]}')
 
 
-def check_synset_relations(wn: WordnetModel, synset: Synset):
+def check_synset_relations(wn: WordnetModel, synset: Synset) -> None:
     pos = PartOfSpeech(synset.pos)
 
     # Iterate
@@ -464,7 +464,7 @@ def check_synset_relations(wn: WordnetModel, synset: Synset):
             warn(f'Noun synset {synset.id} has no hypernym')
 
 
-def check_instances(wn: WordnetModel):
+def check_instances(wn: WordnetModel) -> None:
     def collect_instances():
         result = set()
         for ss in wn.synsets:
@@ -482,12 +482,12 @@ def check_instances(wn: WordnetModel):
                     warn(f'Hypernym targets instance {synset.id} => {r.target}')
 
 
-def check_ili(synset: Synset):
+def check_ili(synset: Synset) -> None:
     if (not synset.ili or synset.ili == "in") and not synset.ili_definition:
         pass  # TODO print("%s does not have an ILI definition" % ss.id)
 
 
-def check_synset(wn: WordnetModel, synset: Synset):
+def check_synset(wn: WordnetModel, synset: Synset) -> None:
     pos = PartOfSpeech(synset.pos)
 
     # id
@@ -509,13 +509,13 @@ def check_synset(wn: WordnetModel, synset: Synset):
     check_synset_relations(wn, synset)
 
 
-def check_synsets(wn: WordnetModel):
+def check_synsets(wn: WordnetModel) -> None:
     for synset in wn.synsets:
         check_synset(wn, synset)
     check_instances(wn)
 
 
-def main(wn: WordnetModel):
+def main(wn: WordnetModel) -> None:
     check_entries(wn)
 
     check_senses(wn)
@@ -528,7 +528,7 @@ def main(wn: WordnetModel):
 
 
 if __name__ == "__main__":
-    pickled_wn = deserialize.main()
+    pickled_wn: Any = deserialize.main()
     pickled_wn.extend()
     print(f'extended\n{pickled_wn.info_relations()}')
 
