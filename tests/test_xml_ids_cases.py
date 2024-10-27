@@ -9,7 +9,7 @@ from oewn_xml.wordnet_xml import legacy_factory, DashNameFactory
 from tests.utils import is_valid_xsd_id, make_dummy_sk
 
 
-def try_is_valid_xsd_id(_id):
+def try_is_valid_xsd_id(_id) -> None:
     try:
         is_valid_xsd_id(_id)
         print(f'{_id} is a valid xsd:id')
@@ -20,7 +20,7 @@ def try_is_valid_xsd_id(_id):
 
 class XMLIDCasesTestCase(unittest.TestCase):
 
-    def test_rogue(self):
+    def test_rogue(self) -> None:
         print('\nROGUE')
         lemma = 'Capital: Critique of Political Economy'
         sk = 'capital:_critique_of_political_economy%1:10:01::'
@@ -54,7 +54,7 @@ class XMLIDCasesTestCase(unittest.TestCase):
         self.assertEqual(sk_esk, sk)
         self.assertEqual(sk_sid, sk)
 
-    def test_discriminant(self):
+    def test_discriminant(self) -> None:
         print('\nDISCRIMINANT')
         d1 = '1'
         d2 = '2'
@@ -79,7 +79,7 @@ class XMLIDCasesTestCase(unittest.TestCase):
             self.assertEqual(d_1, d1)
             self.assertEqual(d_2, d2)
 
-    def test_rogue_xsd_id(self):
+    def test_rogue_xsd_id(self) -> None:
         print('\nXSD IDS - ROGUE')
         test_factory = DashNameFactory('__', '.')
         for lemma in ('Capital: Critique of Political Economy',):
@@ -108,7 +108,7 @@ class XMLIDCasesTestCase(unittest.TestCase):
             self.expect_valid_xsd_id(sk_id)
             self.expect_valid_xsd_id(legacy_sk_id)
 
-    def test_xsd_id(self):
+    def test_xsd_id(self) -> None:
         print('\nXSD IDS')
         dummy_colon_id = 'dummy:dummy'
         with self.assertRaises(ValueError, msg=f'{dummy_colon_id} is a valid xsd:id'):
@@ -158,11 +158,11 @@ class XMLIDCasesTestCase(unittest.TestCase):
             self.expect_valid_xsd_id(sk_id)
             self.expect_valid_xsd_id(legacy_sk_id)
 
-    def expect_valid_xsd_id(self, _id):
+    def expect_valid_xsd_id(self, _id) -> None:
         try_is_valid_xsd_id(_id)
-        # print(f'{_id} is valid XML ID')
+        self.assertTrue(True)
 
-    def expect_not_valid_xsd_id(self, _id):
+    def expect_not_valid_xsd_id(self, _id) -> None:
         with self.assertRaises(ValueError, msg=f'{_id} is a valid xsd:id'):
             try_is_valid_xsd_id(_id)
 

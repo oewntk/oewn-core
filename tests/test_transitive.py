@@ -17,10 +17,10 @@ from tests.validate import check_transitive_synset, ValidationError
 
 class TransitiveTestCase(unittest.TestCase):
 
-    def test_transitive(self):
-        s1 = wn.synset_resolver['05543117-n']
-        # s2 = wn.synset_resolver['05543502-n']
-        s3 = wn.synset_resolver['05544491-n']
+    def test_transitive(self) -> None:
+        s1: Synset = wn.synset_resolver['05543117-n']
+        # s2: Synset = wn.synset_resolver['05543502-n']
+        s3: Synset = wn.synset_resolver['05544491-n']
 
         wn.extend()
 

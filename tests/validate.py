@@ -13,7 +13,7 @@ Author: Bernard Bou <1313ou@gmail.com> for rewrite and revamp
 import re
 import sys
 from collections import Counter
-from typing import Any, Dict, Pattern
+from typing import Any, Dict, Pattern, Tuple
 
 from oewn_core import deserialize
 from oewn_core.wordnet import (Entry, Synset, Sense, PartOfSpeech, WordnetModel)
@@ -167,7 +167,7 @@ def extract_lex_id(sense_key: str) -> int:
     return int(m.group(1))
 
 
-def get_head_word(wn: WordnetModel, sense: Sense) -> tuple[str, str] | None:
+def get_head_word(wn: WordnetModel, sense: Sense) -> Tuple[str, str] | None:
     synset = wn.synset_resolver[sense.synsetid]
     similars = [r for r in synset.relations if
                 Synset.Relation.Type(r.relation_type) == Synset.Relation.Type.SIMILAR and

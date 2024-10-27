@@ -11,13 +11,13 @@ from oewn_xml.wordnet_xml import is_valid_xml_id, is_valid_xml_id_char, dash_fac
 
 
 class WordnetXMLTestCase(unittest.TestCase):
-    def test_valid_char(self):
+    def test_valid_char(self) -> None:
         for c in ('.', '·', ':', '_', '-'):
             self.assertTrue(is_valid_xml_id_char(c), f'Valid {c} {c!r} x{ord(c):X}')
         for c in (',', ';', '%', '!', '?', '*', '/', '|', '\\', '`'):
             self.assertFalse(is_valid_xml_id_char(c), f'Not valid {c} {c!r} x{ord(c):X}')
 
-    def test_valid_ids(self):
+    def test_valid_ids(self) -> None:
         for s in (
                 'a.b',
                 'a·b',
@@ -40,12 +40,12 @@ class WordnetXMLTestCase(unittest.TestCase):
         ):
             self.assertFalse(is_valid_xml_id(s), f'Not valid {s}')
 
-    def test_valid_escape_keys(self):
+    def test_valid_escape_keys(self) -> None:
         d = dash_factory.base_char_escapes
         for c in d:
             self.assertFalse(is_valid_xml_id_char(c), f'Not valid {c} {c!r} x{ord(c):X}')
 
-    def test_valid_escape_unescape_lemmas(self):
+    def test_valid_escape_unescape_lemmas(self) -> None:
         for l in some_lemmas:
             r = lemma_escape_unescape(l)
             assert r
@@ -54,7 +54,7 @@ class WordnetXMLTestCase(unittest.TestCase):
             self.assertTrue(is_valid_xml_id(l1), f'Illegal XML ID "{l1}"')
             self.assertEqual(l, l2, f'Reversing failed {l} {l2}')
 
-    def test_valid_escape_unescape_sensekeys(self):
+    def test_valid_escape_unescape_sensekeys(self) -> None:
         for l in some_lemmas:
             sk = make_yaml_sense_key(l, 1, 2, 3, None, None)
             # sk = 'a_b_c%1:02:03::'
@@ -93,7 +93,7 @@ def make_yaml_sense_key(lemma: str, ss_type: int, lex_filenum: int, lexid: int, 
     return f'{lemma2}%{ss_type}:{lex_filenum:02}:{lexid:02}:{head if head is not None else ''}:{f'{head_id:02}' if head_id is not None else ''}'
 
 
-some_lemmas = (
+some_lemmas: Tuple[str, ...] = (
     'protégé',
     'señor',
     'a.b.c',
@@ -126,11 +126,11 @@ some_lemmas = (
     'a🠀b🠂c',
 )
 
-some_illegal_lemmas = (
+some_illegal_lemmas: Tuple[str, ...] = (
     'a→b←c',
 )
 
-some_lemmas_with_percent_or_colon = (
+some_lemmas_with_percent_or_colon: Tuple[str, ...] = (
     'a%b%c',
     'a:b:c',
 )

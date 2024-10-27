@@ -12,14 +12,14 @@ import unittest
 
 from oewn_xml import wordnet_xml as xml
 from oewn_xml.wordnet_xml import key_prefix_len
-from tests.model import wn
+from tests.model import sorted_senses
 from tests.utils import is_parsable_sensekey, is_parsable_xml_sensekey
 
 
 class SensekeysTestCase(unittest.TestCase):
 
-    def test_sensekeys(self):
-        for s in wn.sorted_senses:
+    def test_sensekeys(self) -> None:
+        for s in sorted_senses:
             try:
                 self.assertTrue(is_parsable_sensekey(s.id))
                 sid = xml.to_xml_sense_id(s.id)

@@ -10,10 +10,10 @@ Author: Bernard Bou <1313ou@gmail.com> for rewrite and revamp
 #  GPL3 for rewrite
 
 import codecs
-from typing import Dict, List, Any
-
 import yaml
+
 from oewn_core.wordnet import *
+from typing import Dict, List, Any
 
 az = 'abcdefghijklmnopqrstuvwxyz'
 
@@ -105,7 +105,7 @@ def sense_relations_to_yaml(sense: Sense, sense_resolver=None) -> Dict[str, List
                     r.target not in sense_resolver or sense_resolver[r.target] != r.resolved_target):
                 raise ValueError(f'Invalid sense relation resolved target {r.target} of type {t.value} in {sense.id}')
             k: str = str(t.value)
-            if k  not in y:
+            if k not in y:
                 y[k] = []
             y[k].append(r.target)
     return y

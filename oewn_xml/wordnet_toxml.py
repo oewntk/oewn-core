@@ -11,12 +11,10 @@ Author: Bernard Bou <1313ou@gmail.com> for rewrite and revamp
 
 import uuid
 from datetime import datetime
-from typing import Optional, Union, List, Dict, Tuple
+from typing import List, Dict, Tuple
 
 from oewn_core.wordnet import WordnetModel, Sense, Entry, Synset, Pronunciation, Example, VerbFrame
 from oewn_xml.wordnet_xml import to_xml_sense_id, to_xml_synset_id, escape_xml_lit, to_xml_entry_id
-from oewn_core.wordnet.Sense import Relation
-from oewn_core.wordnet.Synset import Relation
 
 I = '  '  # indentation
 

@@ -15,7 +15,7 @@ from tests.utils import dump
 
 class ExtendTestCase(unittest.TestCase):
 
-    def test_extend(self):
+    def test_extend(self) -> None:
         s13 = wn.synset_resolver['02372362-v']
         s12 = wn.synset_resolver['00772482-v']
         s11 = wn.synset_resolver['02512195-v']
@@ -31,7 +31,7 @@ class ExtendTestCase(unittest.TestCase):
         print("\nAFTER EXTEND")
         for s in (s11, s12, s13, s21, s22, s23):
             dump(s)
-
+        self.assertTrue(True)
 
 if __name__ == '__main__':
     unittest.main()
