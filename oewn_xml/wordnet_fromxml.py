@@ -1,3 +1,5 @@
+#!/usr/bin/python3
+
 """
 WordNet from-XML utilities
 Uses a SAX parser
