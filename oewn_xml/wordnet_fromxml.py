@@ -15,11 +15,12 @@ import codecs
 import re
 import sys
 import time
-from xml.sax import ContentHandler, parse
-from typing import Optional, List, Dict, Tuple
+from xml.sax import parse
+from xml.sax.handler import ContentHandler
 
 from oewn_core.wordnet import *
 from oewn_xml.wordnet_xml import from_xml_synset_id, from_xml_sense_id
+from typing import Optional, List, Dict, Tuple
 
 
 def make_synset_id(xml_synsetid: str) -> str:
@@ -44,7 +45,7 @@ class SAXParser(ContentHandler):
     SAX parser
     """
 
-    def __init__(self):
+    def __init__(self) -> None:
         ContentHandler.__init__(self)
 
         # local data
@@ -72,7 +73,7 @@ class SAXParser(ContentHandler):
 
     discriminant_pattern = r'\-\d+$'
 
-    def startElement(self, name, attrs):
+    def startElement(self, name, attrs) -> None:
         if name == 'LexicalEntry':
             entryid = attrs.get('id')
             match = re.search(self.discriminant_pattern, entryid)
@@ -138,7 +139,7 @@ class SAXParser(ContentHandler):
         else:
             raise ValueError(f'Unexpected Tag: {name}')
 
-    def endElement(self, name):
+    def endElement(self, name) -> None:
         if name == 'LexicalEntry':
             self.entries.append(self.entry)
             self.entry = None
@@ -183,7 +184,7 @@ class SAXParser(ContentHandler):
             self.entry.pronunciations.append(Pronunciation(self.pronunciation, self.pronunciation_variety))
             self.pronunciation = None
 
-    def characters(self, content):
+    def characters(self, content) -> None:
         if self.defn is not None:
             self.defn += content
         elif self.ili_defn is not None:
@@ -238,7 +239,7 @@ def load(home: str, extend=True, resolve=False) -> WordnetModel:
     return wn
 
 
-def main():
+def main() -> WordnetModel:
     arg_parser = argparse.ArgumentParser(description="load from yaml")
     arg_parser.add_argument('in_dir', type=str, help='from-dir')
     args = arg_parser.parse_args()

@@ -11,15 +11,17 @@ Author: Bernard Bou <1313ou@gmail.com> for rewrite and revamp
 
 import uuid
 from datetime import datetime
-from typing import List, Dict, Tuple
+from typing import Optional, Union, List, Dict, Tuple
 
 from oewn_core.wordnet import WordnetModel, Sense, Entry, Synset, Pronunciation, Example, VerbFrame
 from oewn_xml.wordnet_xml import to_xml_sense_id, to_xml_synset_id, escape_xml_lit, to_xml_entry_id
+from oewn_core.wordnet.Sense import Relation
+from oewn_core.wordnet.Synset import Relation
 
 I = '  '  # indentation
 
 
-def lexicon_to_xml(wn: WordnetModel, out, comments=None):
+def lexicon_to_xml(wn: WordnetModel, out, comments=None) -> None:
     """
     Lexicon to XML
     :param wn: lexicon
@@ -49,7 +51,7 @@ def lexicon_to_xml(wn: WordnetModel, out, comments=None):
     out.write('</LexicalResource>\n')
 
 
-def entry_to_xml(entry: Entry, out, comments):
+def entry_to_xml(entry: Entry, out, comments) -> None:
     eid = make_entry_id_from_entry(entry)
     out.write(f'{I * 2}<LexicalEntry id="{eid}">\n')
     lemma_to_xml(entry.lemma, entry.pos, entry.pronunciations, out)
@@ -60,7 +62,7 @@ def entry_to_xml(entry: Entry, out, comments):
     out.write(f'{I * 2}</LexicalEntry>\n')
 
 
-def sense_to_xml(sense: Sense, out, comments):
+def sense_to_xml(sense: Sense, out, comments) -> None:
     a = f' adjposition="{sense.adjposition}"' if sense.adjposition else ''
     c = f' subcat="{' '.join(sense.verbframeids)}"' if sense.verbframeids else ''
     n = ''  # f' n="sense.n"'
@@ -114,18 +116,18 @@ def lemma_to_xml(lemma: str, pos: str, pronunciations: List[Pronunciation], out)
         out.write(f'{I * 3}<Lemma writtenForm="{w}" partOfSpeech="{p}"/>\n')
 
 
-def pronunciation_to_xml(pronunciation: Pronunciation, out):
+def pronunciation_to_xml(pronunciation: Pronunciation, out) -> None:
     v = f' variety="{pronunciation.variety}"' if pronunciation.variety else ''
     p = escape_xml_lit(pronunciation.value)
     out.write(f'{I * 4}<Pronunciation{v}>{p}</Pronunciation>\n')
 
 
-def form_to_xml(form: str, out):
+def form_to_xml(form: str, out) -> None:
     f = escape_xml_lit(form)
     out.write(f'{I * 4}<Form writtenForm="{f}"/>\n')
 
 
-def definition_to_xml(definition: str, out, is_ili=False):
+def definition_to_xml(definition: str, out, is_ili=False) -> None:
     d = escape_xml_lit(definition)
     result = f'{I * 3}<ILIDefinition>{d}</ILIDefinition>\n' if is_ili else f'{I * 3}<Definition>{d}</Definition>\n'
     out.write(result)
@@ -139,7 +141,7 @@ def example_to_xml(example: str | Example, indent: int, out):
     out.write(result)
 
 
-def usage_to_xml(usage: str, out):
+def usage_to_xml(usage: str, out) -> None:
     u = escape_xml_lit(usage)
     out.write(f'{I * 3}<Usage>{u}</Usage>\n')
 
@@ -166,13 +168,13 @@ def sense_relation_to_xml(sense_relation: Sense.Relation, out, comments):
     out.write('\n')
 
 
-def verbframe_to_xml(verbframe: VerbFrame, out):
+def verbframe_to_xml(verbframe: VerbFrame, out) -> None:
     fid = verbframe.id
     f = escape_xml_lit(verbframe.verbframe)
     out.write(f'{I * 2}<SyntacticBehaviour id="{fid}" subcategorizationFrame="{f}"/>\n')
 
 
-def make_entry_id_from_entry(entry):
+def make_entry_id_from_entry(entry) -> str:
     return to_xml_entry_id(entry.lemma, entry.pos, entry.discriminant)
 
 
@@ -186,7 +188,7 @@ def make_entry_id_from_member(lemma: str, synsetid: str, member_resolver: Dict[T
     return to_xml_entry_id(lemma, e.pos, e.discriminant)
 
 
-def save(wn: WordnetModel, path):
+def save(wn: WordnetModel, path) -> None:
     print(f'saving to XML {path}')
     with open(path, 'w', encoding='utf-8') as out:
         lexicon_to_xml(wn, out)

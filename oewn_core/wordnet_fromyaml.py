@@ -17,7 +17,7 @@ from typing import Any, Tuple, List, Dict
 
 import yaml
 
-from .wordnet import *
+from oewn_core.wordnet import Entry, Example, PartOfSpeech, Pronunciation, Sense, Synset, VerbFrame, WordnetModel
 
 
 def load_verbframes(home: str) -> List[VerbFrame]:
@@ -97,8 +97,8 @@ def load_sense(y: Dict[str, Any], entry: Entry) -> Sense:
     if 'subcat' in y:
         s.verbframeids = y['subcat']
     # relations
-    sense_rel_types: List[str] = [t.value for t in Sense.Relation.Type]
-    other_rel_types: List[str] = [t.value for t in Sense.Relation.OtherType]
+    sense_rel_types: List[str] = [str(t) for t in Sense.Relation.Type]
+    other_rel_types: List[str] = [str(t) for t in Sense.Relation.OtherType]
     for rel, targets in y.items():
         if rel in sense_rel_types:
             for target in targets:
@@ -132,7 +132,7 @@ def load_synset(y: Dict[str, Any], synsetid: str, lex_name: str) -> Synset:
     ss.wikidata = y.get('wikidata')
     ss.ili = y.get('ili', 'in')
     # relations
-    synset_rel_types: List[str] = [str(t.value) for t in Synset.Relation.Type]
+    synset_rel_types: List[str] = [str(t) for t in Synset.Relation.Type]
     for rel, targets in y.items():
         if rel in synset_rel_types:
             for target in targets:
@@ -140,7 +140,7 @@ def load_synset(y: Dict[str, Any], synsetid: str, lex_name: str) -> Synset:
     return ss
 
 
-def load_core(home: str):
+def load_core(home: str) -> WordnetModel:
     """
     Load synset from YAML
     :param home: home dir for YAML *.yaml file
@@ -162,7 +162,7 @@ def load_core(home: str):
     return wn
 
 
-def load(home: str, extend=True, resolve=False):
+def load(home: str, extend=True, resolve=False) -> WordnetModel:
     print(f'loading from YAML in {home}')
     wn = load_core(home)
     print(f'loaded {wn} from YAML in {home}')
@@ -182,7 +182,7 @@ def load(home: str, extend=True, resolve=False):
     return wn
 
 
-def main():
+def main() -> WordnetModel:
     arg_parser = argparse.ArgumentParser(description="load from yaml")
     arg_parser.add_argument('in_dir', type=str, help='from-dir')
     args = arg_parser.parse_args()
