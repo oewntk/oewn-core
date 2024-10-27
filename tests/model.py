@@ -7,7 +7,7 @@ import sys
 from oewn_core import deserialize
 from typing import List, Generator
 
-from wordnet import WordnetModel, Sense
+from oewn_core.wordnet import WordnetModel, Sense
 
 data_home = os.environ['OEWN_HOME']
 print(f'data={data_home}', file=sys.stderr)

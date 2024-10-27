@@ -17,7 +17,7 @@ import sys
 import time
 
 import oewn_core.wordnet_toyaml as saver
-from wordnet import WordnetModel
+from  oewn_core.wordnet import WordnetModel
 
 
 def load_pickle(path: str, file='wn.pickle') -> WordnetModel:
