@@ -24,8 +24,11 @@ class Entry:
         self.pronunciations: List[Pronunciation] = []
         self.senses: List[Sense] = []
 
+    def __str__(self) -> str:
+        return f'{self.lemma},{self.pos}'
+
     def __repr__(self) -> str:
-        return f'{self.lemma} {self.pos}'
+        return str(self.key)
 
     @property
     def key(self) -> Tuple[str, str, str]:
@@ -45,8 +48,11 @@ class Sense:
         self.verbframeids: Optional[List[str]] = None
         self.relations: List[Sense.Relation] = []
 
+    def __str__(self) -> str:
+        return f'{self.id}'
+
     def __repr__(self) -> str:
-        return f'{self.entry.lemma}-{self.synsetid}'
+        return f'{self.id} →{self.synsetid}'
 
     def __getstate__(self) -> Dict[str, Any]:
         state = self.__dict__.copy()
@@ -112,7 +118,7 @@ class Sense:
             self.other_type: bool = other_type
 
         def __repr__(self) -> str:
-            return f'-{self.relation_type}-> {self.target}'
+            return f'-{self.relation_type}→ {self.target}'
 
         def __getstate__(self) -> dict[str, Any]:
             state = self.__dict__.copy()
@@ -142,6 +148,9 @@ class Synset:
         self.wikidata: Optional[str] = None
         self.ili: Optional[str] = None
         self.relations: List[Synset.Relation] = []
+
+    def __str__(self) -> str:
+        return f'{self.id}'
 
     def __repr__(self) -> str:
         return f'{self.id} [{' '.join(self.members)}]'
@@ -311,7 +320,7 @@ class Synset:
             self.relation_type: str = relation_type
 
         def __repr__(self) -> str:
-            return f'-{self.relation_type}-> {self.target}'
+            return f'-{self.relation_type}→ {self.target}'
 
         def __getstate__(self) -> dict[str, Any]:
             state = self.__dict__.copy()
@@ -436,6 +445,10 @@ class WordnetModel:
     def info_relations(self) -> str:
         """ Counts of relations """
         return f'{self} has {sum(1 for _ in self.sense_relations)} sense relations and {sum(1 for _ in self.synset_relations)} synset relations'
+
+    @property
+    def entry_resolver(self) -> Dict[Tuple[str, str, str], Entry]:
+        return {e.key: e for e in self.entries}
 
     @property
     def senses(self) -> Generator[Sense, None, None]:

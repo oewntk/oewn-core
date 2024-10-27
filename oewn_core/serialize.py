@@ -20,23 +20,17 @@ import oewn_core.wordnet_fromyaml as loader
 from oewn_core.wordnet import WordnetModel
 
 
-def load_pickle(path: str, file='wn.pickle'):
-    """
-    Load model from pickle file in path
-    """
-    with open(f"{path}/{file}", "rb") as out:
-        return pickle.load(out)
-
-
-def save_pickle(wn: WordnetModel, path: str, file: str = 'wn.pickle') -> None:
+def save_pickle(wn: WordnetModel, path: str, file: str = 'wn.pickle', verbose: bool = False) -> None:
     """
     Save model to pickle file in path
     Cross-references don't have to be staled.
     """
-    print(f'saving to pickle in {path}/{file}')
+    if verbose:
+        print(f'saving to pickle in {path}/{file}')
     with open(f'{path}/{file}', 'wb') as out:
         pickle.dump(wn, out)
-    print(f'saved to pickle in {path}/{file}')
+    if verbose:
+        print(f'saved to pickle in {path}/{file}')
 
 
 def main() -> WordnetModel:
@@ -55,14 +49,16 @@ def main() -> WordnetModel:
     return wn
 
 
-def test(out_dir) -> None:
-    print(f'loading from pickle in {out_dir}')
+def test(out_dir, verbose: bool = False) -> None:
+    from oewn_core.deserialize import load_pickle
+    if verbose:
+        print(f'loading from pickle in {out_dir}')
     wn = load_pickle(out_dir)
-    print(f'loading from pickle in {out_dir}')
-
-    print(wn)
-    print(wn.info())
-    print(wn.info_relations())
+    if verbose:
+        print(f'loading from pickle in {out_dir}')
+        print(wn)
+        print(wn.info())
+        print(wn.info_relations())
 
 
 if __name__ == '__main__':

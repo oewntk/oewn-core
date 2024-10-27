@@ -165,23 +165,30 @@ def load_core(home: str) -> WordnetModel:
     return wn
 
 
-def load(home: str, extend=True, resolve=False) -> WordnetModel:
-    print(f'loading from YAML in {home}')
+def load(home: str, extend: bool=True, resolve: bool=False, verbose: bool = False) -> WordnetModel:
+    if verbose:
+        print(f'loading from YAML in {home}')
     wn = load_core(home)
-    print(f'loaded {wn} from YAML in {home}')
+    if verbose:
+        print(f'loaded {wn} from YAML in {home}')
     if extend:
-        print(f'extending relations')
-        print(f'before extension: {wn.info_relations()}')
+        if verbose:
+            print(f'extending relations')
+            print(f'before extension: {wn.info_relations()}')
         wn.extend()
-        print(f'after extension:  {wn.info_relations()}')
-        print(f'extended relations')
+        if verbose:
+            print(f'after extension:  {wn.info_relations()}')
+            print(f'extended relations')
     if resolve:
-        print(f'resolving cross-references')
+        if verbose:
+            print(f'resolving cross-references')
         wn.resolve()
-        print(f'resolved cross-references')
-    print(wn)
-    print(wn.info())
-    print(wn.info_relations())
+        if verbose:
+            print(f'resolved cross-references')
+    if verbose:
+        print(wn)
+        print(wn.info())
+        print(wn.info_relations())
     return wn
 
 
