@@ -117,6 +117,9 @@ class Sense:
             self.relation_type: str = relation_type
             self.other_type: bool = other_type
 
+        def __str__(self) -> str:
+            return f'-{self.relation_type}-> {self.target}'
+
         def __repr__(self) -> str:
             return f'{self.relation_type}: {self.target}'
 
@@ -318,6 +321,9 @@ class Synset:
             self.target: str = target
             self.resolved_target: Optional[Synset] = None
             self.relation_type: str = relation_type
+
+        def __str__(self) -> str:
+            return f'-{self.relation_type}-> {self.target}'
 
         def __repr__(self) -> str:
             return f'{self.relation_type}: {self.target}'
