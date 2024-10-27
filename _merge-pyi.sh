@@ -1,5 +1,11 @@
 #!/bin/bash
 
+#
+# Copyright (c) 2024.
+# Creative Commons 4 for original code
+# GPL3 for rewrite
+#
+
 MERGE_PYI='.venv/bin/merge-pyi -i'
 for p in oewn_core oewn_xml tests; do
     while read -r f; do
