@@ -5,6 +5,7 @@
       <sourceFolder url="file://$MODULE_DIR$/tests" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/oewn_core" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/oewn_xml" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/oewn_validate" isTestSource="false" />
       <excludeFolder url="file://$MODULE_DIR$/.venv" />
       <excludeFolder url="file://$MODULE_DIR$/data-in" />
       <excludeFolder url="file://$MODULE_DIR$/data-out" />
@@ -19,6 +20,7 @@
       <excludeFolder url="file://$MODULE_DIR$/.pytype" />
       <excludeFolder url="file://$MODULE_DIR$/build" />
       <excludeFolder url="file://$MODULE_DIR$/dist" />
+      <excludeFolder url="file://$MODULE_DIR$/oewn_core.egg-info" />
     </content>
     <orderEntry type="jdk" jdkName="Python 3.12 (oewn-core)" jdkType="Python SDK" />
     <orderEntry type="sourceFolder" forTests="false" />

@@ -7,6 +7,7 @@
 #
 
 MERGE_PYI='.venv/bin/merge-pyi -i'
+MERGE_PYI='.venv/bin/merge-pyi --diff'
 for p in oewn_core oewn_xml tests; do
     while read -r f; do
       b=$(basename "$f");

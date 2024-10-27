@@ -9,9 +9,16 @@ This project's purpose is to provide basic load/save utilities in Python for Ope
 The starting point is a number of Python scripts written by JohnMcCrae that used to come with OEWN source.
 These have been reworked.
 
-## Dataflow
+## Dataflows
 
 ![Dataflow](images/dataflow.png  "Dataflow")
+* 
+* YAML -> model
+* model -> YAML
+* pickle -> model
+* model -> pickle
+* XML -> model
+* model -> XML
 
 ## Bare-Bones, No-Frills
 
