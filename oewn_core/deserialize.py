@@ -16,9 +16,10 @@ import sys
 import time
 
 import oewn_core.wordnet_toyaml as saver
+from wordnet import WordnetModel
 
 
-def load_pickle(path: str, file='wn.pickle'):
+def load_pickle(path: str, file='wn.pickle') -> WordnetModel:
     """
     Load model from pickle file in path
     """
@@ -26,7 +27,7 @@ def load_pickle(path: str, file='wn.pickle'):
         return pickle.load(out)
 
 
-def load(home: str, file='oewn.pickle', extend=True, resolve=False):
+def load(home: str, file='oewn.pickle', extend=True, resolve=False) -> WordnetModel:
     print(f'loading from pickle {file} in {home}')
     wn = load_pickle(home, file=file)
     print(f'loaded {wn} from pickle {file} in {home}')
@@ -46,7 +47,7 @@ def load(home: str, file='oewn.pickle', extend=True, resolve=False):
     return wn
 
 
-def main():
+def main() -> WordnetModel:
     """
     WordNet load-save
     Will have a normalizing effect, after which it's not modified
