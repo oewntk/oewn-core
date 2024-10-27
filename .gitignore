@@ -1,6 +1,10 @@
 __pycache__
 /data*
 /data*/
+/build
+/build/
+/dist
+/dist/
 /upstream
 /upstream/
 /validate-xml

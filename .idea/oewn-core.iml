@@ -17,6 +17,8 @@
       <excludeFolder url="file://$MODULE_DIR$/validate-xml/dtd" />
       <excludeFolder url="file://$MODULE_DIR$/images" />
       <excludeFolder url="file://$MODULE_DIR$/.pytype" />
+      <excludeFolder url="file://$MODULE_DIR$/build" />
+      <excludeFolder url="file://$MODULE_DIR$/dist" />
     </content>
     <orderEntry type="jdk" jdkName="Python 3.12 (oewn-core)" jdkType="Python SDK" />
     <orderEntry type="sourceFolder" forTests="false" />
