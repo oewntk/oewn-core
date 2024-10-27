@@ -52,7 +52,7 @@ class Sense:
         return f'{self.id}'
 
     def __repr__(self) -> str:
-        return f'{self.id} →{self.synsetid}'
+        return f'{self.id} @{self.synsetid}'
 
     def __getstate__(self) -> Dict[str, Any]:
         state = self.__dict__.copy()
@@ -118,7 +118,7 @@ class Sense:
             self.other_type: bool = other_type
 
         def __repr__(self) -> str:
-            return f'-{self.relation_type}→ {self.target}'
+            return f'{self.relation_type}: {self.target}'
 
         def __getstate__(self) -> dict[str, Any]:
             state = self.__dict__.copy()
@@ -320,7 +320,7 @@ class Synset:
             self.relation_type: str = relation_type
 
         def __repr__(self) -> str:
-            return f'-{self.relation_type}→ {self.target}'
+            return f'{self.relation_type}: {self.target}'
 
         def __getstate__(self) -> dict[str, Any]:
             state = self.__dict__.copy()
