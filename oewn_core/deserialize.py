@@ -58,7 +58,7 @@ def main():
     return load(args.in_dir, args.pickle)
 
 
-def test(wn, out_dir):
+def test(wn, out_dir) -> None:
     saver.save(wn, out_dir)
 
 

@@ -20,7 +20,7 @@ import oewn_core.wordnet_fromyaml as loader
 import oewn_core.wordnet_toyaml as saver
 
 
-def main():
+def main() -> None:
     """
     WordNet load-save
     Will have a normalizing effect, after which it's not modified

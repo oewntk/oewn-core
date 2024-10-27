@@ -18,7 +18,7 @@ import time
 import yaml
 
 
-def normalize(home: str):
+def normalize(home: str) -> None:
     """ Normalize (home dir)"""
     for f in glob.glob(f"{home}/*.yaml"):
         data = yaml.load(open(f), Loader=yaml.CLoader)
@@ -26,7 +26,7 @@ def normalize(home: str):
             out.write(yaml.dump(data, allow_unicode=True))
 
 
-def main():
+def main() -> None:
     """
     WordNet normalize
     Will test YAML well-formedness

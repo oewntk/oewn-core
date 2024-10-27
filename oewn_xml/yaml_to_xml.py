@@ -19,12 +19,12 @@ from oewn_core import wordnet_fromyaml as loader
 from oewn_xml import wordnet_toxml as saver
 
 
-def yaml_to_xml1(in_dir, out_file):
+def yaml_to_xml1(in_dir, out_file) -> None:
     wn = loader.load(in_dir)
     saver.save(wn, out_file)
 
 
-def main():
+def main() -> None:
     arg_parser = argparse.ArgumentParser(description="load from yaml and save")
     arg_parser.add_argument('in_dir', type=str, help='from-dir')
     arg_parser.add_argument('out_file', type=str, help='to-file')

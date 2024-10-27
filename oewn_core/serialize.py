@@ -27,7 +27,7 @@ def load_pickle(path: str, file='wn.pickle'):
         return pickle.load(out)
 
 
-def save_pickle(wn: WordnetModel, path: str, file: str = 'wn.pickle'):
+def save_pickle(wn: WordnetModel, path: str, file: str = 'wn.pickle') -> None:
     """
     Save model to pickle file in path
     Cross-references don't have to be staled.
@@ -38,7 +38,7 @@ def save_pickle(wn: WordnetModel, path: str, file: str = 'wn.pickle'):
     print(f'saved to pickle in {path}/{file}')
 
 
-def main():
+def main() -> WordnetModel:
     """
     WordNet load-save
     Will have a normalizing effect, after which it's not modified
@@ -54,7 +54,7 @@ def main():
     return wn
 
 
-def test(out_dir):
+def test(out_dir) -> None:
     print(f'loading from pickle in {out_dir}')
     wn = load_pickle(out_dir)
     print(f'loading from pickle in {out_dir}')
