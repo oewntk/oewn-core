@@ -6,4 +6,6 @@
 #
 
 # https://pypi.org/
-twine upload dist/*
+
+.venv/bin/python3 -m pip install --upgrade twine
+.venv/bin/python3 -m twine upload --repository testpypi dist/*
