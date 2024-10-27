@@ -4,18 +4,10 @@
 
 import unittest
 
-from oewn_xml.wordnet_xml import DashNameFactory, escape_sensekey, unescape_sensekey
+from oewn_xml.wordnet_xml import DashNameFactory
 from tests.utils import collect_entries_for_escapes, print_as_dictionary
 from tests.model import wn
-from typing import Tuple
-
-
-def process_sensekey(sk: str) -> Tuple[str, str, str]:
-    esc_sk = escape_sensekey(sk)
-    unesc_sk = unescape_sensekey(esc_sk)
-    if sk != unesc_sk:
-        raise ValueError(f'unescaped != original: {sk} != {unesc_sk}')
-    return sk, esc_sk, unesc_sk
+from tests.utils import process_sensekey
 
 
 class EscapablesTestCase(unittest.TestCase):

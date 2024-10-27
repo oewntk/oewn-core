@@ -4,8 +4,8 @@
 
 from oewn_xml import wordnet_xml as xml
 from oewn_core.wordnet import Synset, Sense
-from oewn_xml.wordnet_xml import dash_factory, is_valid_xml_id
-from typing import Any, Dict
+from oewn_xml.wordnet_xml import dash_factory, is_valid_xml_id, to_xml_sense_id, from_xml_sense_id
+from typing import Any, Dict, Tuple
 
 
 def collect_entries_for_escapes(entries, escape_map) -> Dict[Any, list]:
@@ -77,3 +77,11 @@ def is_parsable_xml_sensekey(sk) -> bool:
         raise ValueError(f'COLON: {sk.id}')
     except ValueError as ve:
         raise ValueError(f'PERCENT: {sk.id} {ve}')
+
+
+def process_sensekey(sk: str) -> Tuple[str, str, str]:
+    senseid = to_xml_sense_id(sk)
+    sk2 = from_xml_sense_id(senseid)
+    if sk != sk2:
+        raise ValueError(f'unescaped != original: {sk} != {sk2}')
+    return sk, senseid, sk2

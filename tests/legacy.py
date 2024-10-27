@@ -3,12 +3,12 @@
 #  GPL3 for rewrite
 from typing import Tuple
 
-from oewn_xml.wordnet_xml import legacy_factory
+from oewn_xml.wordnet_xml import legacy_factory, to_xml_sense_id, from_xml_sense_id
 
 
-def make_xml_sensekeys(sk) -> Tuple[str, str, str]:
-    esc_sk = legacy_factory.escape_sensekey(sk)
-    unesc_sk = legacy_factory.unescape_sensekey(esc_sk)
-    if sk != unesc_sk:
-        raise ValueError(f'unescaped != original: {sk} != {unesc_sk}')
-    return sk, esc_sk, unesc_sk
+def process_sensekey(sk) -> Tuple[str, str, str]:
+    senseid = to_xml_sense_id(sk, legacy_factory)
+    sk2 = from_xml_sense_id(senseid, legacy_factory)
+    if sk != sk2:
+        raise ValueError(f'unescaped != original: {sk} != {senseid}')
+    return sk, senseid, sk2
