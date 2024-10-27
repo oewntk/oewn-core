@@ -71,7 +71,7 @@ def is_valid_xml_id(s) -> bool:
 def split_at_last(s, c) -> Tuple[Any, Any]:
     cut = s.rfind(c)
     if cut > -1:
-        return s[:cut], s[cut + 1:]
+        return s[:cut], s[cut + len(c):]
     raise ValueError(f'"{s}" to be cut at last "{c}"')
 
 
@@ -186,7 +186,7 @@ class LegacyNameFactory(NameFactory):
 
         if self.xml_percent_sep in esc_sensekey:
             l, lex_sense = split_at_last(esc_sensekey, self.xml_percent_sep)
-            lemma = unescape_lemma_in_sensekey(l[key_prefix_len:])
+            lemma = unescape_lemma_in_sensekey(l)
             lex_sense_fields = lex_sense.split(self.xml_colon_sep)
             n = len(lex_sense_fields)
             assert n == 5, f'Parsing error: length {n} of lex_sense_fields in lex_sense {lex_sense} should be 5'
