@@ -9,6 +9,7 @@ __pycache__
 /upstream/
 /validate-xml
 /validate-xml/
+/oewn_core.egg-info/
+/.pytype/
 .venv/
 .idea/workspace.xml
-/.pytype/
