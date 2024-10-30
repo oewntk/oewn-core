@@ -31,7 +31,7 @@ class Entry:
         return str(self.key)
 
     @property
-    def key(self) -> Tuple[str, str, str]:
+    def key(self) -> Tuple[str, str, str | None]:
         return self.lemma, self.pos, self.discriminant
 
 
@@ -453,7 +453,7 @@ class WordnetModel:
         return f'{self} has {sum(1 for _ in self.sense_relations)} sense relations and {sum(1 for _ in self.synset_relations)} synset relations'
 
     @property
-    def entry_resolver(self) -> Dict[Tuple[str, str, str], Entry]:
+    def entry_resolver(self) -> Dict[Tuple[str, str, str | None], Entry]:
         return {e.key: e for e in self.entries}
 
     @property
