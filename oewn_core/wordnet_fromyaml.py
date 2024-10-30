@@ -1,23 +1,25 @@
+#!/usr/bin/python3
+
 """
 WordNet from-YAML utilities
 
 Author: John McCrae <john@mccr.ae> for original code
 Author: Bernard Bou <1313ou@gmail.com> for rewrite and revamp
 """
-import sys
-import time
 #  Copyright (c) 2024.
 #  Creative Commons 4 for original code
 #  GPL3 for rewrite
 
+import argparse
+import sys
+import time
 from glob import glob
 from pathlib import Path
-from typing import Any
+from typing import Any, Tuple, List, Dict
 
-import argparse
 import yaml
 
-from wordnet import *
+from oewn_core.wordnet import Entry, Example, PartOfSpeech, Pronunciation, Sense, Synset, VerbFrame, WordnetModel
 
 
 def load_verbframes(home: str) -> List[VerbFrame]:
@@ -97,8 +99,8 @@ def load_sense(y: Dict[str, Any], entry: Entry) -> Sense:
     if 'subcat' in y:
         s.verbframeids = y['subcat']
     # relations
-    sense_rel_types = [t.value for t in Sense.Relation.Type]
-    other_rel_types = [t.value for t in Sense.Relation.OtherType]
+    sense_rel_types: List[str] = [str(t) for t in Sense.Relation.Type]
+    other_rel_types: List[str] = [str(t) for t in Sense.Relation.OtherType]
     for rel, targets in y.items():
         if rel in sense_rel_types:
             for target in targets:
@@ -132,7 +134,7 @@ def load_synset(y: Dict[str, Any], synsetid: str, lex_name: str) -> Synset:
     ss.wikidata = y.get('wikidata')
     ss.ili = y.get('ili', 'in')
     # relations
-    synset_rel_types = [t.value for t in Synset.Relation.Type]
+    synset_rel_types: List[str] = [str(t) for t in Synset.Relation.Type]
     for rel, targets in y.items():
         if rel in synset_rel_types:
             for target in targets:
@@ -140,7 +142,7 @@ def load_synset(y: Dict[str, Any], synsetid: str, lex_name: str) -> Synset:
     return ss
 
 
-def load(home: str):
+def load_core(home: str) -> WordnetModel:
     """
     Load synset from YAML
     :param home: home dir for YAML *.yaml file
@@ -151,39 +153,50 @@ def load(home: str):
                       'https://creativecommons.org/licenses/by/4.0',
                       '2024',
                       'https://github.com/globalwordnet/english-wordnet')
-    # frames
-    wn.verbframes = load_verbframes(home)
-
     # lex entries
     wn.entries, wn.sense_resolver, wn.member_resolver = load_entries(home)
 
     # synsets
     wn.synsets, wn.synset_resolver = load_synsets(home)
+
+    # frames
+    wn.verbframes = load_verbframes(home)
+
     return wn
 
 
-def main():
+def load(home: str, extend: bool=True, resolve: bool=False, verbose: bool = False) -> WordnetModel:
+    if verbose:
+        print(f'loading from YAML in {home}')
+    wn = load_core(home)
+    if verbose:
+        print(f'loaded {wn} from YAML in {home}')
+    if extend:
+        if verbose:
+            print(f'extending relations')
+            print(f'before extension: {wn.info_relations()}')
+        wn.extend()
+        if verbose:
+            print(f'after extension:  {wn.info_relations()}')
+            print(f'extended relations')
+    if resolve:
+        if verbose:
+            print(f'resolving cross-references')
+        wn.resolve()
+        if verbose:
+            print(f'resolved cross-references')
+    if verbose:
+        print(wn)
+        print(wn.info())
+        print(wn.info_relations())
+    return wn
+
+
+def main() -> WordnetModel:
     arg_parser = argparse.ArgumentParser(description="load from yaml")
     arg_parser.add_argument('in_dir', type=str, help='from-dir')
     args = arg_parser.parse_args()
-
-    print(f'loading from YAML in {args.in_dir}')
-    wn = load(args.in_dir)
-    print(f'loaded {wn} from YAML in {args.in_dir}')
-
-    print(f'resolving cross-references')
-    wn.resolve()
-    print(f'resolved cross-references')
-    print(f'extending relations')
-    print(wn.info_relations())
-    wn.extend()
-    print(wn.info_relations())
-    print(f'extended relations')
-
-    print(wn)
-    print(wn.info())
-    print(wn.info_relations())
-    return wn
+    return load(args.in_dir)
 
 
 if __name__ == '__main__':

@@ -1,9 +1,15 @@
 __pycache__
 /data*
 /data*/
+/build
+/build/
+/dist
+/dist/
 /upstream
 /upstream/
 /validate-xml
 /validate-xml/
+/oewn_core.egg-info/
+/.pytype/
 .venv/
 .idea/workspace.xml

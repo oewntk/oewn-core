@@ -16,11 +16,11 @@ import argparse
 import sys
 import time
 
-import wordnet_fromyaml as loader
-import wordnet_toyaml as saver
+import oewn_core.wordnet_fromyaml as loader
+import oewn_core.wordnet_toyaml as saver
 
 
-def main():
+def main() -> None:
     """
     WordNet load-save
     Will have a normalizing effect, after which it's not modified
@@ -30,24 +30,8 @@ def main():
     arg_parser.add_argument('out_dir', type=str, help='to-dir')
     args = arg_parser.parse_args()
 
-    print(f'loading from YAML in {args.in_dir}')
     wn = loader.load(args.in_dir)
-    print(f'loaded {wn} from YAML in {args.in_dir}')
-
-    print(f'resolving cross-references')
-    wn.resolve()
-    print(f'resolved cross-references')
-    print(f'extending relations')
-    wn.extend()
-    print(f'extended relations')
-
-    print(wn)
-    print(wn.info())
-    print(wn.info_relations())
-
-    print(f'saving to YAML {args.out_dir}')
     saver.save(wn, args.out_dir)
-    print(f'saved to YAML {args.out_dir}')
 
 
 if __name__ == '__main__':

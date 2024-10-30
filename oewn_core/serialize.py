@@ -1,4 +1,5 @@
 #!/usr/bin/python3
+
 """
 WordNet serialize
 
@@ -15,28 +16,24 @@ import pickle
 import sys
 import time
 
-import wordnet_fromyaml as loader
-from wordnet import WordnetModel
+import oewn_core.wordnet_fromyaml as loader
+from oewn_core.wordnet import WordnetModel
 
 
-def load_pickle(path: str, file='wn.pickle'):
-    """
-    Load model from pickle file in path
-    """
-    with open(f"{path}/{file}", "rb") as out:
-        return pickle.load(out)
-
-
-def save_pickle(wn: WordnetModel, path: str, file: str = 'wn.pickle'):
+def save_pickle(wn: WordnetModel, path: str, file: str = 'wn.pickle', verbose: bool = False) -> None:
     """
     Save model to pickle file in path
     Cross-references don't have to be staled.
     """
+    if verbose:
+        print(f'saving to pickle in {path}/{file}')
     with open(f'{path}/{file}', 'wb') as out:
         pickle.dump(wn, out)
+    if verbose:
+        print(f'saved to pickle in {path}/{file}')
 
 
-def main():
+def main() -> WordnetModel:
     """
     WordNet load-save
     Will have a normalizing effect, after which it's not modified
@@ -47,32 +44,21 @@ def main():
     arg_parser.add_argument('pickle', type=str, nargs='?', default='oewn.pickle', help='to-pickle')
     args = arg_parser.parse_args()
 
-    print(f'loading from YAML in {args.in_dir}')
     wn = loader.load(args.in_dir)
-    print(f'loaded {wn} from YAML in {args.in_dir}')
-
-    print(f'resolving cross-references')
-    wn.resolve()
-    print(f'resolved cross-references')
-
-    print(wn)
-    print(wn.info())
-    print(wn.info_relations())
-
-    print(f'saving to pickle in {args.out_dir}/wn.pickle')
     save_pickle(wn, args.out_dir)
-    print(f'saved to pickle in {args.out_dir}/wn.pickle')
     return wn
 
 
-def test(out_dir):
-    print(f'loading from pickle in {out_dir}')
+def test(out_dir, verbose: bool = False) -> None:
+    from oewn_core.deserialize import load_pickle
+    if verbose:
+        print(f'loading from pickle in {out_dir}')
     wn = load_pickle(out_dir)
-    print(f'loading from pickle in {out_dir}')
-
-    print(wn)
-    print(wn.info())
-    print(wn.info_relations())
+    if verbose:
+        print(f'loading from pickle in {out_dir}')
+        print(wn)
+        print(wn.info())
+        print(wn.info_relations())
 
 
 if __name__ == '__main__':

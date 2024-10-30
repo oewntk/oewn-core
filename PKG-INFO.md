@@ -1,7 +1,3 @@
-<p align="center">
-<img width="256" src="images/oewntk.png" alt="OEWNTK">
-</p>
-
 # Open English Wordnet core Python toolkit
 
 This project's purpose is to provide basic load/save utilities in Python for Open English Wordnet models.
@@ -11,8 +7,6 @@ These have been reworked.
 
 ## Dataflows
 
-![Dataflow](images/dataflow.png  "Dataflow")
-* 
 * YAML -> model
 * model -> YAML
 * pickle -> model
@@ -80,34 +74,34 @@ needed.
 
 Code comes in 3 packages:
 
-* [oewn_core](oewn_core) which contains model and YAML I/O and knows nothing of oewn_xml
-* [oewn_xml](oewn_xml) optional package which contains XML I/O and depends on oewn_core
-* [oewn_validate](oewn_validate) optional package which contains model validation and depends on oewn_core, but not on oewn_wml
+* [oewn_core](https://github.com/oewntk/oewn-core/oewn_core) which contains model and YAML I/O and knows nothing of oewn_xml
+* [oewn_xml](https://github.com/oewntk/oewn-core/oewn_xml) optional package which contains XML I/O and depends on oewn_core
+* [oewn_validate](https://github.com/oewntk/oewn-core/oewn_validate) optional package which contains model validation and depends on oewn_core, but not on oewn_wml
   since it does not validate XML but only the model's semantics.
 
 ## Modules ##
 
 **Model**
 
-- [model](oewn_core/wordnet.py) : Model
+- [model](https://github.com/oewntk/oewn-core/oewn_core/wordnet.py) : Model
 
 **Suppliers**:  YAML/XML/pickle
 
-- [fromyaml](oewn_core/wordnet_fromyaml.py) : Supply model from YAML
-- [fromxml](oewn_xml/wordnet_fromxml.py) : Supply model from (one-file) XML
+- [fromyaml](https://github.com/oewntk/oewn-core/oewn_core/wordnet_fromyaml.py) : Supply model from YAML
+- [fromxml](https://github.com/oewntk/oewn-core/oewn_xml/wordnet_fromxml.py) : Supply model from (one-file) XML
 
 **Consumers**: YAML/XML/pickle
 
-- [toyaml](oewn_core/wordnet_toyaml.py) : Consume model to YAML
-- [toxml](oewn_xml/wordnet_toxml.py) : Consume model to (one-file) XML
+- [toyaml](https://github.com/oewntk/oewn-core/oewn_core/wordnet_toyaml.py) : Consume model to YAML
+- [toxml](https://github.com/oewntk/oewn-core/oewn_xml/wordnet_toxml.py) : Consume model to (one-file) XML
 
 **Supplier-consumer chains**: YAML2YAML, YAML2XML, XML2YAML
 
-- [yaml_to_yaml](oewn_core/yaml_to_yaml.py) : Chain from YAML supplier to YAML consumer (side effect is normalization)
-- [yaml_to_xml](oewn_xml/yaml_to_xml.py)  : Chain from YAML supplier to XML consumer (conversion from XML)
-- [xml_to_yaml](oewn_xml/xml_to_yaml.py)  : Chain from XML supplier to YAML consumer (conversion to YAML)
+- [yaml_to_yaml](https://github.com/oewntk/oewn-core/oewn_core/yaml_to_yaml.py) : Chain from YAML supplier to YAML consumer (side effect is normalization)
+- [yaml_to_xml](https://github.com/oewntk/oewn-core/oewn_xml/yaml_to_xml.py)  : Chain from YAML supplier to XML consumer (conversion from XML)
+- [xml_to_yaml](https://github.com/oewntk/oewn-core/oewn_xml/xml_to_yaml.py)  : Chain from XML supplier to YAML consumer (conversion to YAML)
 
-## XML extensions ##
+## XML extensions ##****
 
 While still conforming to [WN-LMF-1.1.dtd](https://github.com/globalwordnet/schemas/blob/master/WN-LMF-1.1.dtd),
 

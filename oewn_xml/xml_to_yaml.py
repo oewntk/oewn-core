@@ -16,25 +16,16 @@ import argparse
 import sys
 import time
 
-import wordnet_fromxml as loader
-import wordnet_toyaml as saver
+from oewn_xml import wordnet_fromxml as loader
+from oewn_core import wordnet_toyaml as saver
 
 
-def xml1_to_yaml(in_file, out_dir):
-    print(f'loading from XML {in_file}')
+def xml1_to_yaml(in_file, out_dir) -> None:
     wn = loader.load(in_file)
-    print(f'loaded {wn} from XML {in_file}')
-
-    print(wn)
-    print(wn.info())
-    print(wn.info_relations())
-
-    print(f'saving to YAML in {out_dir}')
     saver.save(wn, out_dir)
-    print(f'saved to YAML in {out_dir}')
 
 
-def main():
+def main() -> None:
     arg_parser = argparse.ArgumentParser(description="load from xml and save to yaml")
     arg_parser.add_argument('in_file', type=str, help='from-file')
     arg_parser.add_argument('out_dir', type=str, help='to-dir')

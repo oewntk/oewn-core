@@ -9,14 +9,14 @@ Author: Bernard Bou <1313ou@gmail.com> for rewrite and revamp
 #  Creative Commons 4 for original code
 #  GPL3 for rewrite
 
-from enum import Enum
-from typing import List, Dict, Set, Tuple, Optional
+from enum import StrEnum, Enum
+from typing import Any, Optional, Tuple, List, Dict, Set, Generator
 
 
 class Entry:
     """The lexical entry consists of a single word"""
 
-    def __init__(self, lemma, pos, discriminant):
+    def __init__(self, lemma, pos, discriminant) -> None:
         self.lemma: str = lemma
         self.pos: str = pos
         self.discriminant: str | None = discriminant
@@ -24,18 +24,21 @@ class Entry:
         self.pronunciations: List[Pronunciation] = []
         self.senses: List[Sense] = []
 
-    def __repr__(self):
-        return f'{self.lemma} {self.pos}'
+    def __str__(self) -> str:
+        return f'{self.lemma},{self.pos}'
+
+    def __repr__(self) -> str:
+        return str(self.key)
 
     @property
-    def key(self) -> Tuple[str, str, str]:
+    def key(self) -> Tuple[str, str, str | None]:
         return self.lemma, self.pos, self.discriminant
 
 
 class Sense:
     """ The sense links an entry to a synset """
 
-    def __init__(self, senseid, entry, synsetid, adjposition=None):
+    def __init__(self, senseid, entry, synsetid, adjposition=None) -> None:
         self.id: str = senseid
         self.entry: Entry = entry
         self.synsetid: str = synsetid
@@ -45,36 +48,39 @@ class Sense:
         self.verbframeids: Optional[List[str]] = None
         self.relations: List[Sense.Relation] = []
 
-    def __repr__(self):
-        return f'{self.entry.lemma}-{self.synsetid}'
+    def __str__(self) -> str:
+        return f'{self.id}'
 
-    def __getstate__(self):
+    def __repr__(self) -> str:
+        return f'{self.id} @{self.synsetid}'
+
+    def __getstate__(self) -> Dict[str, Any]:
         state = self.__dict__.copy()
         if 'resolved_synset' in state:
             del state['resolved_synset']  # exclude from being pickled
         return state
 
-    def __setstate__(self, state):
+    def __setstate__(self, state) -> None:
         self.__dict__.update(state)
         self.resolved_synset = None  # restore o a default or None value
 
     class Relation:
         """ Lexical relation (sense to sense)"""
 
-        class Type(Enum):
-            ANTONYM = 'antonym'
-            ALSO = 'also'
-            PARTICIPLE = 'participle'
-            PERTAINYM = 'pertainym'
-            DERIVATION = 'derivation'
-            DOMAIN_TOPIC = 'domain_topic'
-            HAS_DOMAIN_TOPIC = 'has_domain_topic'
-            DOMAIN_REGION = 'domain_region'
-            HAS_DOMAIN_REGION = 'has_domain_region'
-            EXEMPLIFIES = 'exemplifies'
-            IS_EXEMPLIFIED_BY = 'is_exemplified_by'
-            SIMILAR = 'similar'
-            OTHER = 'other'
+        class Type(StrEnum):
+            ANTONYM: str = 'antonym'
+            ALSO: str = 'also'
+            PARTICIPLE: str = 'participle'
+            PERTAINYM: str = 'pertainym'
+            DERIVATION: str = 'derivation'
+            DOMAIN_TOPIC: str = 'domain_topic'
+            HAS_DOMAIN_TOPIC: str = 'has_domain_topic'
+            DOMAIN_REGION: str = 'domain_region'
+            HAS_DOMAIN_REGION: str = 'has_domain_region'
+            EXEMPLIFIES: str = 'exemplifies'
+            IS_EXEMPLIFIED_BY: str = 'is_exemplified_by'
+            SIMILAR: str = 'similar'
+            OTHER: str = 'other'
 
         inverses: Dict[Type, Type] = {
             Type.DOMAIN_REGION: Type.HAS_DOMAIN_REGION,
@@ -89,38 +95,41 @@ class Sense:
             Type.DERIVATION: Type.DERIVATION,
         }
 
-        class OtherType(Enum):
-            AGENT = 'agent'
-            MATERIAL = 'material'
-            EVENT = 'event'
-            INSTRUMENT = 'instrument'
-            LOCATION = 'location'
-            BY_MEANS_OF = 'by_means_of'
-            UNDERGOER = 'undergoer'
-            PROPERTY = 'property'
-            RESULT = 'result'
-            STATE = 'state'
-            USES = 'uses'
-            DESTINATION = 'destination'
-            BODY_PART = 'body_part'
-            VEHICLE = 'vehicle'
+        class OtherType(StrEnum):
+            AGENT: str = 'agent'
+            MATERIAL: str = 'material'
+            EVENT: str = 'event'
+            INSTRUMENT: str = 'instrument'
+            LOCATION: str = 'location'
+            BY_MEANS_OF: str = 'by_means_of'
+            UNDERGOER: str = 'undergoer'
+            PROPERTY: str = 'property'
+            RESULT: str = 'result'
+            STATE: str = 'state'
+            USES: str = 'uses'
+            DESTINATION: str = 'destination'
+            BODY_PART: str = 'body_part'
+            VEHICLE: str = 'vehicle'
 
-        def __init__(self, target, relation_type, other_type=False):
+        def __init__(self, target, relation_type, other_type=False) -> None:
             self.target: str = target
             self.resolved_target: Optional[Sense] = None
             self.relation_type: str = relation_type
             self.other_type: bool = other_type
 
-        def __repr__(self):
+        def __str__(self) -> str:
             return f'-{self.relation_type}-> {self.target}'
 
-        def __getstate__(self):
+        def __repr__(self) -> str:
+            return f'{self.relation_type}: {self.target}'
+
+        def __getstate__(self) -> dict[str, Any]:
             state = self.__dict__.copy()
             if 'resolved_target' in state:
                 del state['resolved_target']  # exclude from being pickled
             return state
 
-        def __setstate__(self, state):
+        def __setstate__(self, state) -> None:
             self.__dict__.update(state)
             self.resolved_target = None  # restore o a default or None value
 
@@ -128,11 +137,11 @@ class Sense:
 class Synset:
     """ Synset, a collection of members that share a common meaning """
 
-    def __init__(self, synsetid, pos, members, lex_name):
+    def __init__(self, synsetid, pos, members, lex_name) -> None:
         self.id: str = synsetid
         self.pos: str = PartOfSpeech(pos).value
         self.members: List[str] = members
-        self.resolved_members: Optional[List, Entry] = None
+        self.resolved_members: Optional[List[Entry]] = None
         self.lex_name: str = lex_name
         self.definitions: List[str] = []
         self.examples: List[str | Example] = []
@@ -143,94 +152,97 @@ class Synset:
         self.ili: Optional[str] = None
         self.relations: List[Synset.Relation] = []
 
-    def __repr__(self):
+    def __str__(self) -> str:
+        return f'{self.id}'
+
+    def __repr__(self) -> str:
         return f'{self.id} [{' '.join(self.members)}]'
 
-    def __getstate__(self):
+    def __getstate__(self) -> Dict[str, Any]:
         state = self.__dict__.copy()
         if 'resolved_members' in state:
             del state['resolved_members']  # exclude from being pickled
         return state
 
-    def __setstate__(self, state):
+    def __setstate__(self, state) -> None:
         self.__dict__.update(state)
         self.resolved_members = None  # restore o a default or None value
 
     class Relation:
         """ Semantic relation (synset to synset)"""
 
-        class Type(Enum):
-            AGENT = 'agent'
-            ALSO = 'also'
-            ATTRIBUTE = 'attribute'
-            BE_IN_STATE = 'be_in_state'
-            CAUSES = 'causes'
-            CLASSIFIED_BY = 'classified_by'
-            CLASSIFIES = 'classifies'
-            CO_AGENT_INSTRUMENT = 'co_agent_instrument'
-            CO_AGENT_PATIENT = 'co_agent_patient'
-            CO_AGENT_RESULT = 'co_agent_result'
-            CO_INSTRUMENT_AGENT = 'co_instrument_agent'
-            CO_INSTRUMENT_PATIENT = 'co_instrument_patient'
-            CO_INSTRUMENT_RESULT = 'co_instrument_result'
-            CO_PATIENT_AGENT = 'co_patient_agent'
-            CO_PATIENT_INSTRUMENT = 'co_patient_instrument'
-            CO_RESULT_AGENT = 'co_result_agent'
-            CO_RESULT_INSTRUMENT = 'co_result_instrument'
-            CO_ROLE = 'co_role'
-            DIRECTION = 'direction'
-            DOMAIN_REGION = 'domain_region'
-            DOMAIN_TOPIC = 'domain_topic'
-            EXEMPLIFIES = 'exemplifies'
-            ENTAILS = 'entails'
-            EQ_SYNONYM = 'eq_synonym'
-            HAS_DOMAIN_REGION = 'has_domain_region'
-            HAS_DOMAIN_TOPIC = 'has_domain_topic'
-            IS_EXEMPLIFIED_BY = 'is_exemplified_by'
-            HOLO_LOCATION = 'holo_location'
-            HOLO_MEMBER = 'holo_member'
-            HOLO_PART = 'holo_part'
-            HOLO_PORTION = 'holo_portion'
-            HOLO_SUBSTANCE = 'holo_substance'
-            HOLONYM = 'holonym'
-            HYPERNYM = 'hypernym'
-            HYPONYM = 'hyponym'
-            IN_MANNER = 'in_manner'
-            INSTANCE_HYPERNYM = 'instance_hypernym'
-            INSTANCE_HYPONYM = 'instance_hyponym'
-            INSTRUMENT = 'instrument'
-            INVOLVED = 'involved'
-            INVOLVED_AGENT = 'involved_agent'
-            INVOLVED_DIRECTION = 'involved_direction'
-            INVOLVED_INSTRUMENT = 'involved_instrument'
-            INVOLVED_LOCATION = 'involved_location'
-            INVOLVED_PATIENT = 'involved_patient'
-            INVOLVED_RESULT = 'involved_result'
-            INVOLVED_SOURCE_DIRECTION = 'involved_source_direction'
-            INVOLVED_TARGET_DIRECTION = 'involved_target_direction'
-            IS_CAUSED_BY = 'is_caused_by'
-            IS_ENTAILED_BY = 'is_entailed_by'
-            LOCATION = 'location'
-            MANNER_OF = 'manner_of'
-            MERO_LOCATION = 'mero_location'
-            MERO_MEMBER = 'mero_member'
-            MERO_PART = 'mero_part'
-            MERO_PORTION = 'mero_portion'
-            MERO_SUBSTANCE = 'mero_substance'
-            MERONYM = 'meronym'
-            SIMILAR = 'similar'
-            OTHER = 'other'
-            PATIENT = 'patient'
-            RESTRICTED_BY = 'restricted_by'
-            RESTRICTS = 'restricts'
-            RESULT = 'result'
-            ROLE = 'role'
-            SOURCE_DIRECTION = 'source_direction'
-            STATE_OF = 'state_of'
-            TARGET_DIRECTION = 'target_direction'
-            SUBEVENT = 'subevent'
-            IS_SUBEVENT_OF = 'is_subevent_of'
-            ANTONYM = 'antonym'
+        class Type(StrEnum):
+            AGENT: str = 'agent'
+            ALSO: str = 'also'
+            ATTRIBUTE: str = 'attribute'
+            BE_IN_STATE: str = 'be_in_state'
+            CAUSES: str = 'causes'
+            CLASSIFIED_BY: str = 'classified_by'
+            CLASSIFIES: str = 'classifies'
+            CO_AGENT_INSTRUMENT: str = 'co_agent_instrument'
+            CO_AGENT_PATIENT: str = 'co_agent_patient'
+            CO_AGENT_RESULT: str = 'co_agent_result'
+            CO_INSTRUMENT_AGENT: str = 'co_instrument_agent'
+            CO_INSTRUMENT_PATIENT: str = 'co_instrument_patient'
+            CO_INSTRUMENT_RESULT: str = 'co_instrument_result'
+            CO_PATIENT_AGENT: str = 'co_patient_agent'
+            CO_PATIENT_INSTRUMENT: str = 'co_patient_instrument'
+            CO_RESULT_AGENT: str = 'co_result_agent'
+            CO_RESULT_INSTRUMENT: str = 'co_result_instrument'
+            CO_ROLE: str = 'co_role'
+            DIRECTION: str = 'direction'
+            DOMAIN_REGION: str = 'domain_region'
+            DOMAIN_TOPIC: str = 'domain_topic'
+            EXEMPLIFIES: str = 'exemplifies'
+            ENTAILS: str = 'entails'
+            EQ_SYNONYM: str = 'eq_synonym'
+            HAS_DOMAIN_REGION: str = 'has_domain_region'
+            HAS_DOMAIN_TOPIC: str = 'has_domain_topic'
+            IS_EXEMPLIFIED_BY: str = 'is_exemplified_by'
+            HOLO_LOCATION: str = 'holo_location'
+            HOLO_MEMBER: str = 'holo_member'
+            HOLO_PART: str = 'holo_part'
+            HOLO_PORTION: str = 'holo_portion'
+            HOLO_SUBSTANCE: str = 'holo_substance'
+            HOLONYM: str = 'holonym'
+            HYPERNYM: str = 'hypernym'
+            HYPONYM: str = 'hyponym'
+            IN_MANNER: str = 'in_manner'
+            INSTANCE_HYPERNYM: str = 'instance_hypernym'
+            INSTANCE_HYPONYM: str = 'instance_hyponym'
+            INSTRUMENT: str = 'instrument'
+            INVOLVED: str = 'involved'
+            INVOLVED_AGENT: str = 'involved_agent'
+            INVOLVED_DIRECTION: str = 'involved_direction'
+            INVOLVED_INSTRUMENT: str = 'involved_instrument'
+            INVOLVED_LOCATION: str = 'involved_location'
+            INVOLVED_PATIENT: str = 'involved_patient'
+            INVOLVED_RESULT: str = 'involved_result'
+            INVOLVED_SOURCE_DIRECTION: str = 'involved_source_direction'
+            INVOLVED_TARGET_DIRECTION: str = 'involved_target_direction'
+            IS_CAUSED_BY: str = 'is_caused_by'
+            IS_ENTAILED_BY: str = 'is_entailed_by'
+            LOCATION: str = 'location'
+            MANNER_OF: str = 'manner_of'
+            MERO_LOCATION: str = 'mero_location'
+            MERO_MEMBER: str = 'mero_member'
+            MERO_PART: str = 'mero_part'
+            MERO_PORTION: str = 'mero_portion'
+            MERO_SUBSTANCE: str = 'mero_substance'
+            MERONYM: str = 'meronym'
+            SIMILAR: str = 'similar'
+            OTHER: str = 'other'
+            PATIENT: str = 'patient'
+            RESTRICTED_BY: str = 'restricted_by'
+            RESTRICTS: str = 'restricts'
+            RESULT: str = 'result'
+            ROLE: str = 'role'
+            SOURCE_DIRECTION: str = 'source_direction'
+            STATE_OF: str = 'state_of'
+            TARGET_DIRECTION: str = 'target_direction'
+            SUBEVENT: str = 'subevent'
+            IS_SUBEVENT_OF: str = 'is_subevent_of'
+            ANTONYM: str = 'antonym'
 
         inverses: Dict[Type, Type] = {
             Type.HYPERNYM: Type.HYPONYM,
@@ -305,21 +317,24 @@ class Synset:
             Type.CO_ROLE: Type.CO_ROLE
         }
 
-        def __init__(self, target, relation_type):
+        def __init__(self, target, relation_type) -> None:
             self.target: str = target
             self.resolved_target: Optional[Synset] = None
             self.relation_type: str = relation_type
 
-        def __repr__(self):
+        def __str__(self) -> str:
             return f'-{self.relation_type}-> {self.target}'
 
-        def __getstate__(self):
+        def __repr__(self) -> str:
+            return f'{self.relation_type}: {self.target}'
+
+        def __getstate__(self) -> dict[str, Any]:
             state = self.__dict__.copy()
             if 'resolved_target' in state:
                 del state['resolved_target']  # exclude from being pickled
             return state
 
-        def __setstate__(self, state):
+        def __setstate__(self, state) -> None:
             self.__dict__.update(state)
             self.resolved_target = None  # restore o a default or None value
 
@@ -369,7 +384,7 @@ ignored_symmetric_sense_relations: Set[Sense.Relation.Type] = {
 class Pronunciation:
     """ Pronunciation of a lemma"""
 
-    def __init__(self, value, variety=None):
+    def __init__(self, value, variety=None) -> None:
         self.value: str = value
         self.variety: Optional[str] = variety
 
@@ -377,7 +392,7 @@ class Pronunciation:
 class Example:
     """ Sourced example """
 
-    def __init__(self, text, source=None):
+    def __init__(self, text, source=None) -> None:
         self.text: str = text
         self.source: Optional[str] = source
 
@@ -385,7 +400,7 @@ class Example:
 class VerbFrame:
     """ Verb frame """
 
-    def __init__(self, fid, verbframe):
+    def __init__(self, fid, verbframe) -> None:
         self.id: str = fid
         self.verbframe: str = verbframe
 
@@ -393,11 +408,11 @@ class VerbFrame:
 class PartOfSpeech(Enum):
     """ Parts of speech """
 
-    NOUN = 'n'
-    VERB = 'v'
-    ADJECTIVE = 'a'
-    ADVERB = 'r'
-    ADJECTIVE_SATELLITE = 's'
+    NOUN: str = 'n'
+    VERB: str = 'v'
+    ADJECTIVE: str = 'a'
+    ADVERB: str = 'r'
+    ADJECTIVE_SATELLITE: str = 's'
 
 
 class WordnetModel:
@@ -405,7 +420,7 @@ class WordnetModel:
     The Model/Lexicon contains all the synsets and entries
     """
 
-    def __init__(self, lexicon_id, label, language, email, wnlicense, version, url):
+    def __init__(self, lexicon_id, label, language, email, wnlicense, version, url) -> None:
 
         # meta data
         self.id: str = lexicon_id
@@ -426,33 +441,37 @@ class WordnetModel:
         self.sense_resolver: Dict[str, Sense] = {}
         self.member_resolver: Dict[Tuple[str, str], Entry] = {}  # key is (lemma,synsetid)
 
-    def __str__(self):
+    def __str__(self) -> str:
         return f"Wordnet '{self.id}'"
 
-    def info(self):
+    def info(self) -> str:
         """ Counts """
         return f'{self} has {len(self.entries)} entries, {len(self.synsets)} synsets and {sum(1 for _ in self.senses)} senses'
 
-    def info_relations(self):
+    def info_relations(self) -> str:
         """ Counts of relations """
         return f'{self} has {sum(1 for _ in self.sense_relations)} sense relations and {sum(1 for _ in self.synset_relations)} synset relations'
 
     @property
-    def senses(self):
+    def entry_resolver(self) -> Dict[Tuple[str, str, str | None], Entry]:
+        return {e.key: e for e in self.entries}
+
+    @property
+    def senses(self) -> Generator[Sense, None, None]:
         """ Senses generator """
         for e in self.entries:
             for s in e.senses:
                 yield s
 
     @property
-    def sense_relations(self):
+    def sense_relations(self) -> Generator[Sense.Relation, None, None]:
         """ Sense relations generator """
         for s in self.senses:
             for r in s.relations:
                 yield r
 
     @property
-    def synset_relations(self):
+    def synset_relations(self) -> Generator[Synset.Relation, None, None]:
         """ Synset relations generator """
         for ss in self.synsets:
             for r in ss.relations:
@@ -463,7 +482,7 @@ class WordnetModel:
         """ Verb frame resolver factory from id """
         return {f.id: f.verbframe for f in self.verbframes}
 
-    def extend(self):
+    def extend(self) -> None:
         """
         Extend to include inverse relations can be added here
         """
@@ -472,7 +491,7 @@ class WordnetModel:
         for s in self.senses:
             self.extend_sense_relations(s)
 
-    def extend_sense_relations(self, sense: Sense):
+    def extend_sense_relations(self, sense: Sense) -> None:
         """
         Add inverse sense relations as needed
         :param sense: sense to extend
@@ -489,7 +508,7 @@ class WordnetModel:
                         if not any(r2 for r2 in target_sense.relations if r2.target == sense.id and Sense.Relation.Type(r2.relation_type) == inv_t):
                             target_sense.relations.append(Sense.Relation(sense.id, inv_t.value))
 
-    def extend_synset_relations(self, synset: Synset):
+    def extend_synset_relations(self, synset: Synset) -> None:
         """
         Add inverse synset relations as needed
         :param synset: synset to extend
@@ -505,7 +524,7 @@ class WordnetModel:
                     if not any(r2 for r2 in target_synset.relations if r2.target == synset.id and Synset.Relation.Type(r2.relation_type) == inv_t):
                         target_synset.relations.append(Synset.Relation(synset.id, inv_t.value))
 
-    def resolve(self):
+    def resolve(self) -> None:
         """
         Resolve model internal cross-references.
         Side effect is computation of resolved_* fields.
@@ -536,7 +555,7 @@ class WordnetModel:
                 # resolve relation target reference in synset relation
                 r.resolved_target = self.synset_resolver[r.target]
 
-    def stale(self):
+    def stale(self) -> None:
         """
         Stale all model internal cross-references.
         """

@@ -1,3 +1,5 @@
+#!/usr/bin/python3
+
 """
 WordNet from-XML utilities
 Uses a SAX parser
@@ -15,26 +17,28 @@ import codecs
 import re
 import sys
 import time
-from xml.sax import ContentHandler, parse
+from xml.sax import parse
+from xml.sax.handler import ContentHandler
 
-from wordnet import *
-import wordnet_xml as xml
-
-
-def make_synset_id(xml_synsetid):
-    return xml.from_xml_synset_id(xml_synsetid)
+from oewn_core.wordnet import *
+from oewn_xml.wordnet_xml import from_xml_synset_id, from_xml_sense_id
+from typing import Optional, List, Dict, Tuple
 
 
-def make_sense_id(xml_senseid):
-    return xml.from_xml_sense_id(xml_senseid)
+def make_synset_id(xml_synsetid: str) -> str:
+    return from_xml_synset_id(xml_synsetid)
 
 
-def make_member(xml_member, entry_resolver):
+def make_sense_id(xml_senseid: str) -> str:
+    return from_xml_sense_id(xml_senseid)
+
+
+def make_member(xml_member: str, entry_resolver) -> str:
     e = entry_resolver[xml_member]
     return e.lemma
 
 
-def make_members(xml_members, entry_resolver):
+def make_members(xml_members: str, entry_resolver) -> List[str]:
     return [make_member(m, entry_resolver) for m in xml_members.split(' ')]
 
 
@@ -43,7 +47,7 @@ class SAXParser(ContentHandler):
     SAX parser
     """
 
-    def __init__(self):
+    def __init__(self) -> None:
         ContentHandler.__init__(self)
 
         # local data
@@ -71,7 +75,7 @@ class SAXParser(ContentHandler):
 
     discriminant_pattern = r'\-\d+$'
 
-    def startElement(self, name, attrs):
+    def startElement(self, name, attrs) -> None:
         if name == 'LexicalEntry':
             entryid = attrs.get('id')
             match = re.search(self.discriminant_pattern, entryid)
@@ -81,7 +85,7 @@ class SAXParser(ContentHandler):
                 raise ValueError(f'Duplicate entry ID while parsing: {entryid}')
             self.entry_resolver[entryid] = self.entry
         elif name == 'Sense':
-            senseid = xml.from_xml_sense_id(attrs['id'])
+            senseid = from_xml_sense_id(attrs['id'])
             synsetid = make_synset_id(attrs['synset'])
             verbframes = attrs['subcat'].split(' ') if 'subcat' in attrs else None
             self.sense = Sense(senseid, self.entry, synsetid, attrs.get('adjposition'))
@@ -137,11 +141,12 @@ class SAXParser(ContentHandler):
         else:
             raise ValueError(f'Unexpected Tag: {name}')
 
-    def endElement(self, name):
+    def endElement(self, name) -> None:
         if name == 'LexicalEntry':
             self.entries.append(self.entry)
             self.entry = None
         elif name == 'Sense':
+            assert self.entry
             self.entry.senses.append(self.sense)
             if self.sense.id in self.sense_resolver:
                 raise ValueError(f'Duplicate sense ID while parsing: {self.sense.id}')
@@ -158,10 +163,12 @@ class SAXParser(ContentHandler):
             self.synset_resolver[self.synset.id] = self.synset
             self.synset = None
         elif name == 'Definition':
+            assert self.synset
             self.synset.definitions.append(self.defn)
             self.defn = None
         elif name == 'ILIDefinition':
-            self.synset.ili_definitions(self.ili_defn)
+            assert self.synset
+            self.synset.ili_definition = self.ili_defn
             self.ili_defn = None
         elif name == 'Example':
             if self.synset:
@@ -171,13 +178,15 @@ class SAXParser(ContentHandler):
                 self.sense.examples.append(self.example)
             self.example = None
         elif name == 'Usage':
+            assert self.synset
             self.synset.usages.append(self.usage)
             self.usage = None
         elif name == 'Pronunciation':
+            assert self.entry
             self.entry.pronunciations.append(Pronunciation(self.pronunciation, self.pronunciation_variety))
             self.pronunciation = None
 
-    def characters(self, content):
+    def characters(self, content) -> None:
         if self.defn is not None:
             self.defn += content
         elif self.ili_defn is not None:
@@ -193,7 +202,8 @@ class SAXParser(ContentHandler):
         else:
             raise ValueError(f'Text content not expected: "{content}"')
 
-    def get_parsed(self):
+    def get_parsed(self) -> WordnetModel:
+        assert self.lexicon
         wn = self.lexicon
         wn.entries = self.entries
         wn.synsets = self.synsets
@@ -204,21 +214,45 @@ class SAXParser(ContentHandler):
         return wn
 
 
-def load(wordnet_file):
+def load_core(wordnet_file) -> WordnetModel:
     with codecs.open(wordnet_file, encoding='utf-8') as source:
         sax_parser = SAXParser()
         parse(source, sax_parser)
         return sax_parser.get_parsed()
 
 
-def main():
-    arg_parser = argparse.ArgumentParser(description='load from xml')
-    arg_parser.add_argument('in_file', type=str, help='from-file')
-    args = arg_parser.parse_args()
-    wn = load(args.in_file)
-    wn.resolve()
-    print(wn)
+def load(home: str, extend: bool = True, resolve: bool = False, verbose: bool = False) -> WordnetModel:
+    if verbose:
+        print(f'loading from XML in {home}')
+    wn: WordnetModel = load_core(home)
+    if verbose:
+        print(f'loaded {wn} from XML in {home}')
+    if extend:
+        if verbose:
+            print(f'extending relations')
+            print(f'before extension: {wn.info_relations()}')
+        wn.extend()
+        if verbose:
+            print(f'after extension:  {wn.info_relations()}')
+            print(f'extended relations')
+    if resolve:
+        if verbose:
+            print(f'resolving cross-references')
+        wn.resolve()
+        if verbose:
+            print(f'resolved cross-references')
+    if verbose:
+        print(wn)
+        print(wn.info())
+        print(wn.info_relations())
     return wn
+
+
+def main() -> WordnetModel:
+    arg_parser = argparse.ArgumentParser(description="load from yaml")
+    arg_parser.add_argument('in_dir', type=str, help='from-dir')
+    args = arg_parser.parse_args()
+    return load(args.in_dir)
 
 
 if __name__ == '__main__':

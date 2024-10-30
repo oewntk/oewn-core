@@ -1,4 +1,5 @@
 #!/usr/bin/python3
+
 """
 WordNet persistence
 
@@ -18,15 +19,19 @@ import time
 import yaml
 
 
-def normalize(home: str):
+def normalize(home: str, verbose: bool = False) -> None:
     """ Normalize (home dir)"""
+    if verbose:
+        print(f'normalizing YAML in {home}')
     for f in glob.glob(f"{home}/*.yaml"):
         data = yaml.load(open(f), Loader=yaml.CLoader)
         with open(f, "w", encoding='utf-8') as out:
             out.write(yaml.dump(data, allow_unicode=True))
+    if verbose:
+        print(f'normalized YAML in {home}')
 
 
-def main():
+def main() -> None:
     """
     WordNet normalize
     Will test YAML well-formedness
@@ -37,11 +42,7 @@ def main():
     arg_parser = argparse.ArgumentParser(description="load from yaml and save")
     arg_parser.add_argument('in_dir', type=str, help='from-dir')
     args = arg_parser.parse_args()
-
-    print(f'normalizing YAML in {args.in_dir}')
     normalize(args.in_dir)
-    print(f'normalized YAML in {args.in_dir}')
-
 
 if __name__ == '__main__':
     start_time = time.time()

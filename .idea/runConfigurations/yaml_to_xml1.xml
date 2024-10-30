@@ -13,7 +13,7 @@
     <option name="IS_MODULE_SDK" value="false" />
     <option name="ADD_CONTENT_ROOTS" value="true" />
     <option name="ADD_SOURCE_ROOTS" value="true" />
-    <option name="SCRIPT_NAME" value="$ProjectFileDir$/yaml_to_xml.py" />
+    <option name="SCRIPT_NAME" value="$ProjectFileDir$/oewn_xml/yaml_to_xml.py" />
     <option name="PARAMETERS" value="data-in data1-xml-out/oewn.xml" />
     <option name="SHOW_COMMAND_LINE" value="false" />
     <option name="EMULATE_TERMINAL" value="false" />
