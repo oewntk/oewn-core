@@ -20,7 +20,7 @@ def browse(wn: WordnetModel) -> None:
 
 
 def main() -> None:
-    def get_model(args) -> WordnetModel:
+    def get_model() -> WordnetModel:
         if args.pickle:
             from oewn_core.deserialize import load
             return load(args.in_dir, resolve=True)
@@ -34,7 +34,7 @@ def main() -> None:
     arg_parser.add_argument('pickle', type=str, nargs='?', default='oewn.pickle', help='from-pickle')
     args = arg_parser.parse_args()
 
-    wn = get_model(args)
+    wn = get_model()
     browse(wn)
 
 

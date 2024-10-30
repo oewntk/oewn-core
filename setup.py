@@ -10,7 +10,7 @@ setup(
     author='Bernard Bou, John McCrae',
     author_email='oewntk@gmail.com',
     description='Core library for oewn',
-    long_description=open('README.md').read(),
+    long_description=open('PKG-INFO.md').read(),
     long_description_content_type='text/markdown',
     url='https://github.com/oewntk/oewn-core',
     packages=find_packages(),
