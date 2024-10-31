@@ -11,10 +11,9 @@ import random
 import unittest
 from typing import Tuple, Generator
 
-from oewn_xml.wordnet_xml import dash_factory
+from oewn_xml.wordnet_xml import dash_factory, is_valid_xml_id
 from tests.model import wn
 from tests.utils import collect_entries_for_escapes, is_valid_xsd_id, generate_legacy_senseid_from_sensekey, generate_senseid_from_sensekey
-from wordnet_xml import is_valid_xml_id
 
 
 def generate_senseids(some_entries, limit=3) -> Generator[Tuple[str, str, str], None, None]:
