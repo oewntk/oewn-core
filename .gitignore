@@ -7,8 +7,6 @@ __pycache__
 /dist/
 /upstream
 /upstream/
-/validate-xml
-/validate-xml/
 /oewn_core.egg-info/
 /.pytype/
 .venv/

@@ -6,7 +6,7 @@ from setuptools import setup, find_packages
 
 setup(
     name='oewn-core',
-    version='1.2',
+    version='1.2.beta1',
     author='Bernard Bou, John McCrae',
     author_email='oewntk@gmail.com',
     description='Core library for oewn',
