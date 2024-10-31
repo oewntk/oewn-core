@@ -1,9 +1,15 @@
+"""
+WordNet model browse sample
+Author: John McCrae <john@mccr.ae> for original code
+Author: Bernard Bou <1313ou@gmail.com> for rewrite and revamp
+"""
 #  Copyright (c) 2024.
 #  Creative Commons 4 for original code
 #  GPL3 for rewrite
+
 import argparse
 
-from wordnet import WordnetModel
+from oewn_core.wordnet import WordnetModel
 
 
 def browse(wn: WordnetModel) -> None:
@@ -30,7 +36,7 @@ def main() -> None:
 
     arg_parser = argparse.ArgumentParser(description="browse")
     arg_parser.add_argument('--serialized', action='store_true', default='True', help='model to use')
-    arg_parser.add_argument('in_dir', type=str, help='from-dir for pickle')
+    arg_parser.add_argument('in_dir', type=str, help='from-dir for yaml/pickle')
     arg_parser.add_argument('pickle', type=str, nargs='?', default='oewn.pickle', help='from-pickle')
     args = arg_parser.parse_args()
 
