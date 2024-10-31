@@ -38,7 +38,8 @@ One-field classes have been replaced with this field.
 
 No processing nor editing of model is performed: it's up to other tools to do it.
 
-No validation of model is performed: it's up to other tools to do it.
+No validation of model is performed within core: it's up to other tools to do it. 
+There is however and independent _validation_ module (see below) that can be run.
 
 If anything goes wrong, the language and libraries will raise their own exceptions.
 However, some exceptions are raised when a requested operation can't carry on.
@@ -49,7 +50,7 @@ reader and writer.
 
 ## Modular
 
-Design is modular: modules do not depend on each other except model. Chains however
+Design is modular: modules do not depend on each other except on _model_. So modules are encapsulated. Chains however
 use a supplier and a consumer.
 
 ## Typed
@@ -116,6 +117,48 @@ While still conforming to [WN-LMF-1.1.dtd](https://github.com/globalwordnet/sche
 * **dc:date** in \<Lexicon> receives the date of XML generation
 * **dc:identifier** in \<Lexicon> receives a UID (and is thus unique)
 
+## Sample code ##
+
+**How to load a model:**
+```
+def main() -> None:
+    def get_model() -> WordnetModel:
+        if args.pickle:
+            from oewn_core.deserialize import load
+            return load(args.in_dir, resolve=True)
+        else:
+            from oewn_core.wordnet_fromyaml import load
+            return load(args.in_dir, resolve=True)
+
+    arg_parser = argparse.ArgumentParser(description="browse")
+    arg_parser.add_argument('--serialized', action='store_true', default='True', help='model to use')
+    arg_parser.add_argument('in_dir', type=str, help='from-dir for yaml/pickle')
+    arg_parser.add_argument('pickle', type=str, nargs='?', default='oewn.pickle', help='from-pickle')
+    args = arg_parser.parse_args()
+
+    wn = get_model()
+    browse(wn)
+```
+Note that loading uses the _resolve=True_ parameter so that reference resolution is done once and for all, 
+at an early stage, and _resolved_*_ fields can be used, saving you the trouble of having to look up for ID reference.
+
+**How to browse**:
+```
+def browse(wn: WordnetModel) -> None:
+    entity_resolver = wn.entry_resolver
+    e = entity_resolver[('force', 'n', None)]
+    print(f'{e}')
+    for s in e.senses:
+        ss = s.resolved_synset
+        print(f'\t{s} -> {ss.members} {ss.definitions}')
+        for ssr in ss.relations:
+            print(f'\t\t{ssr} {ssr.resolved_target.members} {ssr.resolved_target.definitions}')
+        for sr in s.relations:
+            print(f'\t\t{sr} {sr.resolved_target}')
+```
+Note that entry_resolver creates an entry resolver that does not come with the model. 
+It is advisable to save it in a variable for later use to avoid recreating this dictionary every time a lookup is initiated.
+
 ## Testing ##
 
 * yaml → model → yaml
@@ -125,6 +168,8 @@ While still conforming to [WN-LMF-1.1.dtd](https://github.com/globalwordnet/sche
 must produce identical input and output at the ends of the chains
 
 XML single output file must validate against [WN-LMF-1.1.dtd](https://github.com/globalwordnet/schemas/blob/master/WN-LMF-1.3.dtd)
+
+The _validate_ package tests the model's coherence (but does not test XML well-formedness).
 
 ## Authorship ##
 
