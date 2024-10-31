@@ -1,3 +1,8 @@
+"""
+WordNet XML ID well-formedness abstract tests
+Author: John McCrae <john@mccr.ae> for original code
+Author: Bernard Bou <1313ou@gmail.com> for rewrite and revamp
+"""
 #  Copyright (c) 2024.
 #  Creative Commons 4 for original code
 #  GPL3 for rewrite
@@ -6,8 +11,7 @@ import sys
 import unittest
 from typing import Tuple
 
-from oewn_xml import wordnet_xml
-from oewn_xml.wordnet_xml import is_valid_xml_id, is_valid_xml_id_char, dash_factory
+from oewn_xml.wordnet_xml import dash_factory, is_valid_xml_id, is_valid_xml_id_char, escape_lemma, unescape_lemma, escape_sensekey, unescape_sensekey
 
 
 class WordnetXMLTestCase(unittest.TestCase):
@@ -70,8 +74,8 @@ class WordnetXMLTestCase(unittest.TestCase):
 
 def lemma_escape_unescape(l: str) -> Tuple[str, str] | None:
     try:
-        l1 = wordnet_xml.escape_lemma(l)
-        l2 = wordnet_xml.unescape_lemma(l1)
+        l1 = escape_lemma(l)
+        l2 = unescape_lemma(l1)
         return l1, l2
     except ValueError as er:
         print(f'{l} -> LEMMA ERROR {er}', file=sys.stderr)
@@ -79,8 +83,8 @@ def lemma_escape_unescape(l: str) -> Tuple[str, str] | None:
 
 def sensekey_escape_unescape(sk: str) -> Tuple[str, str] | None:
     try:
-        sk1 = wordnet_xml.escape_sensekey(sk)
-        sk2 = wordnet_xml.unescape_sensekey(sk1)
+        sk1 = escape_sensekey(sk)
+        sk2 = unescape_sensekey(sk1)
         return sk1, sk2
     except Exception as er:
         print(f'{sk} -> SENSEKEY ERROR {er}', file=sys.stderr)
