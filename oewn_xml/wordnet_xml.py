@@ -58,6 +58,8 @@ xml_id = fr'^{xml_id_start_char}{xml_id_char}*$'
 xml_id_re: re.Pattern = re.compile(xml_id)
 
 
+# V A L I D I T Y
+
 def is_valid_xml_id_char(c) -> bool:
     return bool(xml_id_char1_re.match(c))
 

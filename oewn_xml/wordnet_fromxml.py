@@ -17,12 +17,12 @@ import codecs
 import re
 import sys
 import time
+from typing import Optional, List, Dict, Tuple
 from xml.sax import parse
 from xml.sax.handler import ContentHandler
 
-from oewn_core.wordnet import *
+from oewn_core.wordnet import WordnetModel, Entry, Sense, Synset, PartOfSpeech, Pronunciation, Example, VerbFrame
 from oewn_xml.wordnet_xml import from_xml_synset_id, from_xml_sense_id
-from typing import Optional, List, Dict, Tuple
 
 
 def make_synset_id(xml_synsetid: str) -> str:

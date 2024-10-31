@@ -15,13 +15,13 @@ import argparse
 import sys
 import time
 
-from oewn_core import wordnet_fromyaml as loader
-from oewn_xml import wordnet_toxml as saver
+from oewn_core.wordnet_fromyaml import load
+from oewn_xml.wordnet_toxml import save
 
 
 def yaml_to_xml1(in_dir, out_file) -> None:
-    wn = loader.load(in_dir)
-    saver.save(wn, out_file)
+    wn = load(in_dir)
+    save(wn, out_file)
 
 
 def main() -> None:
