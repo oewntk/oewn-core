@@ -11,12 +11,12 @@ import os
 import sys
 from typing import List
 
-from oewn_core import deserialize
+from oewn_core.deserialize import load
 from oewn_core.wordnet import WordnetModel, Sense, Entry
 
 data_home = os.environ['OEWN_HOME']
 print(f'data={data_home}', file=sys.stderr)
-wn: WordnetModel = deserialize.load(data_home, extend=False)
+wn: WordnetModel = load(data_home, extend=False)
 
 sorted_entries: List[Entry] = sorted(list(wn.entries), key=lambda e: e.lemma)
 sorted_senses: List[Sense] = sorted(list(wn.senses), key=lambda s: s.id)

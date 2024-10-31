@@ -9,9 +9,10 @@ Author: Bernard Bou <1313ou@gmail.com> for rewrite and revamp
 
 import unittest
 
-from oewn_xml.wordnet_xml import escape_lemma, unescape_lemma, from_xml_entry_id, to_xml_entry_id
-from oewn_xml.wordnet_xml import escape_sensekey, unescape_sensekey, to_xml_sense_id, from_xml_sense_id
-from oewn_xml.wordnet_xml import legacy_factory, DashNameFactory, is_valid_xml_id, is_valid_xml_oewn_id
+from oewn_xml.wordnet_xml import (
+    escape_lemma, unescape_lemma, from_xml_entry_id, to_xml_entry_id,
+    escape_sensekey, unescape_sensekey, to_xml_sense_id, from_xml_sense_id,
+    legacy_factory, DashNameFactory, is_valid_xml_id, is_valid_xml_oewn_id)
 from tests.utils import is_valid_xsd_id, make_dummy_sk
 
 

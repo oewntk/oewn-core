@@ -10,8 +10,7 @@ Author: Bernard Bou <1313ou@gmail.com> for rewrite and revamp
 import sys
 import unittest
 
-from oewn_xml.wordnet_xml import is_valid_xml_id, to_xml_sense_id, from_xml_sense_id
-from oewn_xml.wordnet_xml import key_prefix_len
+from oewn_xml.wordnet_xml import is_valid_xml_id, to_xml_sense_id, from_xml_sense_id, key_prefix_len
 from tests.model import sorted_senses
 from tests.utils import is_parsable_sensekey, is_parsable_xml_sensekey, is_valid_xsd_id
 
