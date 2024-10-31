@@ -8,4 +8,4 @@
 # https://pypi.org/
 
 .venv/bin/python3 -m pip install --upgrade twine
-.venv/bin/python3 -m twine upload --repository testpypi dist/*
+.venv/bin/python3 -m twine upload --repository pypi dist/*
