@@ -16,8 +16,8 @@ import argparse
 import sys
 import time
 
-import oewn_core.wordnet_fromyaml as loader
-import oewn_core.wordnet_toyaml as saver
+from oewn_core.wordnet_fromyaml import load
+from oewn_core.wordnet_toyaml import save
 
 
 def main() -> None:
@@ -30,8 +30,8 @@ def main() -> None:
     arg_parser.add_argument('out_dir', type=str, help='to-dir')
     args = arg_parser.parse_args()
 
-    wn = loader.load(args.in_dir)
-    saver.save(wn, args.out_dir)
+    wn = load(args.in_dir)
+    save(wn, args.out_dir)
 
 
 if __name__ == '__main__':

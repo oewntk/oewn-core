@@ -6,17 +6,17 @@ This validation does not validate XML form (use an XML validator)
 Author: John McCrae <john@mccr.ae> for original code
 Author: Bernard Bou <1313ou@gmail.com> for rewrite and revamp
 """
-import argparse
 #  Copyright (c) 2024.
 #  Creative Commons 4 for original code
 #  GPL3 for rewrite
 
+import argparse
 import re
 import sys
 from collections import Counter
 from typing import Dict, Pattern, Tuple
 
-from oewn_core.wordnet import (Entry, Synset, Sense, PartOfSpeech, WordnetModel)
+from oewn_core.wordnet import Entry, Synset, Sense, PartOfSpeech, WordnetModel
 
 
 class ValidationError(Exception):

@@ -16,8 +16,8 @@ import pickle
 import sys
 import time
 
-import oewn_core.wordnet_fromyaml as loader
 from oewn_core.wordnet import WordnetModel
+from oewn_core.wordnet_fromyaml import load
 
 
 def save_pickle(wn: WordnetModel, path: str, file: str = 'wn.pickle', verbose: bool = False) -> None:
@@ -44,7 +44,7 @@ def main() -> WordnetModel:
     arg_parser.add_argument('pickle', type=str, nargs='?', default='oewn.pickle', help='to-pickle')
     args = arg_parser.parse_args()
 
-    wn = loader.load(args.in_dir)
+    wn = load(args.in_dir)
     save_pickle(wn, args.out_dir)
     return wn
 

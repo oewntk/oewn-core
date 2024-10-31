@@ -19,7 +19,7 @@ from typing import Any, Tuple, List, Dict
 
 import yaml
 
-from oewn_core.wordnet import Entry, Example, PartOfSpeech, Pronunciation, Sense, Synset, VerbFrame, WordnetModel
+from oewn_core.wordnet import WordnetModel, Entry, Sense, Synset, PartOfSpeech, Example, Pronunciation, VerbFrame
 
 
 def load_verbframes(home: str) -> List[VerbFrame]:

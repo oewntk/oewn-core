@@ -10,10 +10,11 @@ Author: Bernard Bou <1313ou@gmail.com> for rewrite and revamp
 #  GPL3 for rewrite
 
 import codecs
+from typing import Dict, List, Any
+
 import yaml
 
-from oewn_core.wordnet import *
-from typing import Dict, List, Any
+from oewn_core.wordnet import WordnetModel, Sense, Synset, Example, ignored_symmetric_sense_relations, ignored_symmetric_synset_relations
 
 az = 'abcdefghijklmnopqrstuvwxyz'
 
