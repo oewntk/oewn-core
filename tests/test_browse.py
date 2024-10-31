@@ -18,10 +18,13 @@ def browse(wn: WordnetModel) -> None:
     print(f'{e}')
     for s in e.senses:
         ss = s.resolved_synset
+        assert ss is not None
         print(f'\t{s} -> {ss.members} {ss.definitions}')
         for ssr in ss.relations:
+            assert ssr.resolved_target
             print(f'\t\t{ssr} {ssr.resolved_target.members} {ssr.resolved_target.definitions}')
         for sr in s.relations:
+            assert sr.resolved_target
             print(f'\t\t{sr} {sr.resolved_target}')
 
 
