@@ -1,14 +1,19 @@
+"""
+WordNet utilities for tests
+Author: John McCrae <john@mccr.ae> for original code
+Author: Bernard Bou <1313ou@gmail.com> for rewrite and revamp
+"""
 #  Copyright (c) 2024.
 #  Creative Commons 4 for original code
 #  GPL3 for rewrite
 
-from oewn_xml import wordnet_xml as xml
+from typing import Any, List, Dict, Tuple
+
 from oewn_core.wordnet import Synset, Sense
-from oewn_xml.wordnet_xml import dash_factory, is_valid_xml_id, to_xml_sense_id, from_xml_sense_id
-from typing import Any, Dict, Tuple
+from oewn_xml.wordnet_xml import dash_factory, legacy_factory, to_xml_sense_id, from_xml_sense_id, is_valid_xml_id, split_at_last
 
 
-def collect_entries_for_escapes(entries, escape_map) -> Dict[Any, list]:
+def collect_entries_for_escapes(entries, escape_map) -> Dict[Any, List]:
     r = {}
     for k in escape_map:
         if k == ' ':
@@ -59,7 +64,7 @@ def is_valid_xsd_id(s) -> bool:
 
 def is_parsable_sensekey(sk) -> bool:
     try:
-        l, s = xml.split_at_last(sk, '%')
+        l, s = split_at_last(sk, '%')
         f = s.split(':')
         if len(f) == 5:
             return True
@@ -70,7 +75,7 @@ def is_parsable_sensekey(sk) -> bool:
 
 def is_parsable_xml_sensekey(sk) -> bool:
     try:
-        l, s = xml.split_at_last(sk, dash_factory.xml_percent_sep)
+        l, s = split_at_last(sk, dash_factory.xml_percent_sep)
         f = s.split(dash_factory.xml_colon_sep)
         if len(f) == 5:
             return True
@@ -79,9 +84,17 @@ def is_parsable_xml_sensekey(sk) -> bool:
         raise ValueError(f'PERCENT: {sk.id} {ve}')
 
 
-def process_sensekey(sk: str) -> Tuple[str, str, str]:
+def generate_senseid_from_sensekey(sk: str) -> Tuple[str, str, str]:
     senseid = to_xml_sense_id(sk)
     sk2 = from_xml_sense_id(senseid)
     if sk != sk2:
         raise ValueError(f'unescaped != original: {sk} != {sk2}')
+    return sk, senseid, sk2
+
+
+def generate_legacy_senseid_from_sensekey(sk) -> Tuple[str, str, str]:
+    senseid = to_xml_sense_id(sk, legacy_factory)
+    sk2 = from_xml_sense_id(senseid, legacy_factory)
+    if sk != sk2:
+        raise ValueError(f'unescaped != original: {sk} != {senseid}')
     return sk, senseid, sk2
