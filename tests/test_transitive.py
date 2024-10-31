@@ -1,5 +1,6 @@
 """
 WordNet model transitive validation tests
+When a--hypernym-->b--hypernym-->c, there shouldn't be a--hypernym-->c
 Author: John McCrae <john@mccr.ae> for original code
 Author: Bernard Bou <1313ou@gmail.com> for rewrite and revamp
 """
@@ -10,9 +11,9 @@ Author: Bernard Bou <1313ou@gmail.com> for rewrite and revamp
 import unittest
 
 from oewn_core.wordnet import Synset
+from oewn_validate.validate import check_transitive_synset, ValidationError
 from tests.model import wn
 from tests.utils import dump
-from oewn_validate.validate import check_transitive_synset, ValidationError
 
 
 class TransitiveTestCase(unittest.TestCase):
