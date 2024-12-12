@@ -80,6 +80,7 @@ class Sense:
             EXEMPLIFIES: str = 'exemplifies'
             IS_EXEMPLIFIED_BY: str = 'is_exemplified_by'
             SIMILAR: str = 'similar'
+            COLLOCATION: str = 'collocation'
             OTHER: str = 'other'
 
         inverses: Dict[Type, Type] = {
@@ -91,6 +92,7 @@ class Sense:
             Type.IS_EXEMPLIFIED_BY: Type.EXEMPLIFIES,
             Type.ANTONYM: Type.ANTONYM,
             Type.SIMILAR: Type.SIMILAR,
+            Type.COLLOCATION: Type.COLLOCATION,
             Type.ALSO: Type.ALSO,
             Type.DERIVATION: Type.DERIVATION,
         }
@@ -505,7 +507,8 @@ class WordnetModel:
                         target_sense = self.sense_resolver[r.target]
                         if not target_sense:
                             raise ValueError(f'Unresolved target {r.target} in relation of type {t} in sense {sense.id}')
-                        if not any(r2 for r2 in target_sense.relations if r2.target == sense.id and not r2.other_type and Sense.Relation.Type(r2.relation_type) == inv_t):
+                        if not any(r2 for r2 in target_sense.relations if
+                                   r2.target == sense.id and not r2.other_type and Sense.Relation.Type(r2.relation_type) == inv_t):
                             target_sense.relations.append(Sense.Relation(sense.id, inv_t.value))
 
     def extend_synset_relations(self, synset: Synset) -> None:
