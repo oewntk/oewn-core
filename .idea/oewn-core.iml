@@ -6,6 +6,7 @@
       <sourceFolder url="file://$MODULE_DIR$/oewn_core" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/oewn_xml" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/oewn_validate" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/oewn_syntagnet" isTestSource="false" />
       <excludeFolder url="file://$MODULE_DIR$/.venv" />
       <excludeFolder url="file://$MODULE_DIR$/data-in" />
       <excludeFolder url="file://$MODULE_DIR$/data-out" />
