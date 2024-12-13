@@ -11,3 +11,4 @@ __pycache__
 /.pytype/
 .venv/
 .idea/workspace.xml
+/tests/_test*.py
