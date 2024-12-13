@@ -1,9 +1,27 @@
 #!/usr/bin/python3
 
 """
-Export SyntagNet in OEWN YAML format
+Export SyntagNet collocation in OEWN YAML format
+lex:
+  pos-discriminant:
+    sense:
+      - collocation:
+        - sensekey2a
+        - sensekey2b
+        ...
+        id: sensekey1
 
-Author: John McCrae <john@mccr.ae> for original code
+abandon:
+  v:
+    sense:
+    - collocation:
+      - 'baby%1:18:00::'
+      - 'car%1:06:00::'
+      - 'favor%1:07:00::'
+      - 'project%1:09:00::'
+      - 'vehicle%1:06:00::'
+      id: 'abandon%2:40:00::'
+
 Author: Bernard Bou <1313ou@gmail.com> for rewrite and revamp
 """
 
@@ -86,8 +104,8 @@ def save_entries(wn: WordnetModel, home: str) -> None:
             y[entry.lemma][key] = ye
 
     # save
-    with codecs.open(f'{home}/syntagnet.yaml', 'w', 'utf-8') as outp:
-        outp.write(yaml.dump(y, allow_unicode=True))
+    with codecs.open(f'{home}/oewn-syntagnet.yaml', 'w', 'utf-8') as out:
+        yaml.dump(y, out, allow_unicode=True)
 
 
 def save(wn: WordnetModel, home: str) -> None:
@@ -110,7 +128,7 @@ def main() -> None:
     arg_parser.add_argument('in_dir', type=str, help='from-dir')
     arg_parser.add_argument('out_dir', type=str, help='to-dir')
     arg_parser.add_argument('syntagnet', type=str, help='collocations')
-    arg_parser.add_argument('pickle', type=str, nargs='?', default=None, help='from-pickle')
+    arg_parser.add_argument('pickled', type=str, nargs='?', default=None, help='from-pickle')
     args = arg_parser.parse_args()
 
     wn: WordnetModel = load_and_inject(args.in_dir, args.syntagnet, args.pickled if args.pickle else None)
