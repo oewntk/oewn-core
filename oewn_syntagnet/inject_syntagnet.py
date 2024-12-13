@@ -1,8 +1,7 @@
 #!/usr/bin/python3
 
 """
-WordNet inject SyntagNet (YAML) into the model
-Will have a normalizing effect, after which it's not modified
+Inject SyntagNet (YAML) into the model
 
 Author: Bernard Bou <1313ou@gmail.com> for rewrite and revamp
 """
@@ -71,7 +70,6 @@ def inject_syntagnet_to_model(wn: WordnetModel, syntagnet: str, two_ways: bool =
                             # print(f"add {sk2}-{t}->{sk1}")
                             sense2.relations.append(Sense.Relation(sk1, t))
                             count += 1
-
                 else:
                     print(f'{sk2} target not resolvable in collocation {sk1}-{sk2}', file=sys.stderr)
                     fails += 1
@@ -79,6 +77,10 @@ def inject_syntagnet_to_model(wn: WordnetModel, syntagnet: str, two_ways: bool =
             else:
                 print(f'{sk2} source not resolvable in collocation {sk1}-{sk2}', file=sys.stderr)
                 fails += 1
+            sense1.relations = list(sorted(set(sense1.relations), key=lambda r: (r.relation_type, r.target)))
+            if two_ways:
+                sense2.relations = list(sorted(set(sense2.relations), key=lambda r: (r.relation_type, r.target)))
+
     return count, fails
 
 
