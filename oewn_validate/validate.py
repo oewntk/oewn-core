@@ -529,16 +529,16 @@ def main(wn: WordnetModel) -> None:
 
 if __name__ == "__main__":
     arg_parser = argparse.ArgumentParser(description="load from yaml and save")
-    arg_parser.add_argument('--pickle', action=argparse.BooleanOptionalAction, help='use pickle')
+    arg_parser.add_argument('--pickle', action='store_true', default=False, help='use pickle')
     arg_parser.add_argument('in_dir', type=str, help='from-dir for yaml/pickle')
-    arg_parser.add_argument('file', type=str, nargs='?', default='oewn.pickle', help='from-pickle')
+    arg_parser.add_argument('pickled', type=str, nargs='?', default='oewn.pickle', help='from-pickle')
     args = arg_parser.parse_args()
 
 
     def get_wn() -> WordnetModel:
         if args.pickle:
             from oewn_core.deserialize import load as pickle_load
-            return pickle_load(args.in_dir, args.file) #, extend=True
+            return pickle_load(args.in_dir, args.pickled) #, extend=True
         from oewn_core.wordnet_fromyaml import load as yaml_load
         return yaml_load(args.in_dir) # , extend=True
 

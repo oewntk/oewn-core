@@ -1,8 +1,7 @@
 #!/usr/bin/python3
 
 """
-WordNet load-save
-Will have a normalizing effect, after which it's not modified
+Export SyntagNet in OEWN YAML format
 
 Author: John McCrae <john@mccr.ae> for original code
 Author: Bernard Bou <1313ou@gmail.com> for rewrite and revamp
@@ -26,10 +25,11 @@ from oewn_syntagnet.inject_syntagnet import load_and_inject
 
 def sense_relations_to_yaml(sense: Sense) -> List[str]:
     """
-    Build dictionary for sense relation YAML
+    Build YAML dictionary for sense relation
     :param sense: sense
-    :return: dictionary or None if sense has no collocation
+    :return: YAML dictionary or None if sense has no collocation
     """
+
     y: List[str] = []
     for r in sense.relations:
         if not r.other_type and Sense.Relation.Type(r.relation_type) == Sense.Relation.Type.COLLOCATION:
@@ -39,9 +39,9 @@ def sense_relations_to_yaml(sense: Sense) -> List[str]:
 
 def sense_to_yaml(sense) -> Optional[Dict[str, Any]]:
     """
-    Build dictionary for sense YAML
+    Build YAML dictionary for sense
     :param sense: sense
-    :return: dictionary or None if sense has no collocation
+    :return: YAML dictionary or None if sense has no collocation
     """
 
     yr: List[str] = sense_relations_to_yaml(sense)
@@ -53,9 +53,9 @@ def sense_to_yaml(sense) -> Optional[Dict[str, Any]]:
 
 def entry_to_yaml(entry) -> Optional[Dict[str, Any]]:
     """
-    Build dictionary for lexical entry YAML
+    Build YAML dictionary for lexical entry
     :param entry: lexical entry
-    :return: dictionary
+    :return: YAML dictionary
     """
     yss = [ys for s in entry.senses if (ys := sense_to_yaml(s)) is not None]
     if yss:
@@ -103,15 +103,17 @@ def save(wn: WordnetModel, home: str) -> None:
 
 def main() -> None:
     """
-    Save SyntagNet as YAML
+    Export SyntagNet as YAML
     """
     arg_parser = argparse.ArgumentParser(description="load wn and syntagnet from yaml, merge and save")
+    arg_parser.add_argument('--pickle', action='store_true', default=False, help='use pickle')
     arg_parser.add_argument('in_dir', type=str, help='from-dir')
     arg_parser.add_argument('out_dir', type=str, help='to-dir')
     arg_parser.add_argument('syntagnet', type=str, help='collocations')
+    arg_parser.add_argument('pickle', type=str, nargs='?', default=None, help='from-pickle')
     args = arg_parser.parse_args()
 
-    wn: WordnetModel = load_and_inject(args.in_dir, args.syntagnet)
+    wn: WordnetModel = load_and_inject(args.in_dir, args.syntagnet, args.pickled if args.pickle else None)
     save(wn, args.out_dir)
 
 
@@ -120,4 +122,4 @@ if __name__ == '__main__':
     main()
     end_time = time.time()
     duration = end_time - start_time
-    print(f"Importing took {duration:.6f} seconds", file=sys.stderr)
+    print(f"Exporting took {duration:.6f} seconds", file=sys.stderr)

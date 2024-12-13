@@ -125,15 +125,15 @@ def main() -> None:
     def get_model() -> WordnetModel:
         if args.pickle:
             from oewn_core.deserialize import load
-            return load(args.in_dir, resolve=True)
+            return load(args.in_dir, file=args.pickled, resolve=True)
         else:
             from oewn_core.wordnet_fromyaml import load
             return load(args.in_dir, resolve=True)
 
     arg_parser = argparse.ArgumentParser(description="browse")
-    arg_parser.add_argument('--serialized', action='store_true', default='True', help='model to use')
+    arg_parser.add_argument('--pickle', action='store_true', default='True', help='model to use')
     arg_parser.add_argument('in_dir', type=str, help='from-dir for yaml/pickle')
-    arg_parser.add_argument('pickle', type=str, nargs='?', default='oewn.pickle', help='from-pickle')
+    arg_parser.add_argument('pickled', type=str, nargs='?', default='oewn.pickle', help='from-pickle')
     args = arg_parser.parse_args()
 
     wn = get_model()

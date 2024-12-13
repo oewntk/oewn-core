@@ -66,9 +66,9 @@ def main() -> WordnetModel:
     """
     arg_parser = argparse.ArgumentParser(description="load from yaml and save")
     arg_parser.add_argument('in_dir', type=str, help='from-dir for pickle')
-    arg_parser.add_argument('pickle', type=str, nargs='?', default='oewn.pickle', help='from-pickle')
+    arg_parser.add_argument('pickled', type=str, nargs='?', default='oewn.pickle', help='from-pickle')
     args = arg_parser.parse_args()
-    return load(args.in_dir, args.pickle)
+    return load(args.in_dir, args.pickled)
 
 
 if __name__ == '__main__':

@@ -1,7 +1,7 @@
 #!/usr/bin/python3
 
 """
-WordNet load SyntagNet YAML
+WordNet inject SyntagNet (YAML) into the model
 Will have a normalizing effect, after which it's not modified
 
 Author: Bernard Bou <1313ou@gmail.com> for rewrite and revamp
@@ -15,26 +15,30 @@ import argparse
 import sys
 import time
 from typing import Dict, Any, Set, Tuple
-from xmlrpc.client import Boolean
 
 import yaml
 
 from oewn_core.wordnet import WordnetModel, Sense
-from oewn_core.wordnet_fromyaml import load
-from oewn_core.deserialize import load_pickle
-from oewn_core.wordnet_toyaml import save
 
 
 def make_sensekeys(wn: WordnetModel) -> Set[str]:
+    """
+    :param wn: model
+    :return: set of sensekeys in the model
+    """
     sensekeys: Set = set()
     for s in wn.senses:
         sensekeys.add(s.id)
     return sensekeys
 
 
-def inject_syntagnet_to_model(wn: WordnetModel, syntagnet: str, two_ways: Boolean = True) -> Tuple[int, int]:
+def inject_syntagnet_to_model(wn: WordnetModel, syntagnet: str, two_ways: bool = True) -> Tuple[int, int]:
     """
     WordNet inject SyntagNet as relations
+    :param wn: model
+    :param syntagnet: path to SyntagNet YAML data
+    :param two_ways: whether to add inverse relations also
+    :return: count of additions and failures
     """
     count = 0
     with open(syntagnet, encoding='utf-8') as inp:
@@ -52,7 +56,6 @@ def inject_syntagnet_to_model(wn: WordnetModel, syntagnet: str, two_ways: Boolea
 
                         # type
                         t = Sense.Relation.Type.COLLOCATION
-                        # t = Sense.Relation.Type.COLLOCATION if direction == TARGET else Sense.Relation.Type.COLLOCATION_INV
 
                         # add to sense 1
                         if sense1.relations is None:
@@ -79,8 +82,24 @@ def inject_syntagnet_to_model(wn: WordnetModel, syntagnet: str, two_ways: Boolea
     return count, fails
 
 
-def load_and_inject(in_dir: str, syntagnet: str, pickle: Boolean = False) -> WordnetModel:
-    wn = load_pickle(in_dir) if pickle else load(in_dir)
+def load_and_inject(in_dir: str, syntagnet: str, pickle: str = None) -> WordnetModel:
+    """
+    Load Wordnet and SyntagNet from YAML, inject sn into wn
+    :param in_dir: home dir for YAML or pickled model file(s)
+    :param syntagnet: path to SyntagNet YAML data
+    :param pickle: whether to use pickled model
+    :return: Syntagnet-augmented model
+    """
+
+    def get_model() -> WordnetModel:
+        if pickle:
+            from oewn_core.deserialize import load
+            return load(in_dir, file=pickle)
+        else:
+            from oewn_core.wordnet_fromyaml import load
+            return load(in_dir, resolve=True)
+
+    wn = get_model()
     count, fails = inject_syntagnet_to_model(wn, syntagnet)
     print(f'{count} collocations {fails} fails', file=sys.stderr)
     return wn
@@ -88,16 +107,18 @@ def load_and_inject(in_dir: str, syntagnet: str, pickle: Boolean = False) -> Wor
 
 def main() -> None:
     """
-    WordNet load-save
-    Will have a normalizing effect, after which it's not modified
+    WordNet + SyntagNet load-save
+    :command-line: oewn_home output_home syntagnet_file
     """
-    arg_parser = argparse.ArgumentParser(description="load wn and SyntagNet from yaml, merge and save")
+    from oewn_core.wordnet_toyaml import save
+    arg_parser = argparse.ArgumentParser(description="load wn and SyntagNet from yaml, inject and save")
+    arg_parser.add_argument('--pickle', action='store_true', default=False, help='use pickle')
     arg_parser.add_argument('in_dir', type=str, help='from-dir')
     arg_parser.add_argument('out_dir', type=str, help='to-dir')
     arg_parser.add_argument('syntagnet', type=str, help='collocations')
+    arg_parser.add_argument('pickled', type=str, nargs='?', default=None, help='from-pickle')
     args = arg_parser.parse_args()
-    pickle = True
-    wn = load_and_inject(args.in_dir, args.syntagnet, pickle)
+    wn = load_and_inject(args.in_dir, args.syntagnet, args.pickled if args.pickle else None)
     save(wn, args.out_dir)
 
 
@@ -106,4 +127,4 @@ if __name__ == '__main__':
     main()
     end_time = time.time()
     duration = end_time - start_time
-    print(f"Importing took {duration:.6f} seconds", file=sys.stderr)
+    print(f"Injecting took {duration:.6f} seconds", file=sys.stderr)
