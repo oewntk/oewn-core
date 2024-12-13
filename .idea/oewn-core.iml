@@ -22,6 +22,7 @@
       <excludeFolder url="file://$MODULE_DIR$/build" />
       <excludeFolder url="file://$MODULE_DIR$/dist" />
       <excludeFolder url="file://$MODULE_DIR$/oewn_core.egg-info" />
+      <excludeFolder url="file://$MODULE_DIR$/data-x" />
     </content>
     <orderEntry type="jdk" jdkName="Python 3.12 (oewn-core)" jdkType="Python SDK" />
     <orderEntry type="sourceFolder" forTests="false" />
