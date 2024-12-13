@@ -172,10 +172,10 @@ def save_entries(wn: WordnetModel, home: str) -> None:
 
     # save
     for c in az:
-        with codecs.open(f'{home}/entries-%s.yaml' % c, 'w', 'utf-8') as outp:
-            outp.write(yaml.dump(entry_yaml[c], allow_unicode=True))
-    with codecs.open(f'{home}/entries-0.yaml', 'w', 'utf-8') as outp:
-        outp.write(yaml.dump(entry_yaml['0'], allow_unicode=True))
+        with codecs.open(f'{home}/entries-%s.yaml' % c, 'w', 'utf-8') as out:
+            yaml.dump(entry_yaml[c], out, allow_unicode=True)
+    with codecs.open(f'{home}/entries-0.yaml', 'w', 'utf-8') as out:
+        yaml.dump(entry_yaml['0'], out, allow_unicode=True)
 
 
 def save_synsets(wn: WordnetModel, home: str) -> None:
@@ -201,7 +201,7 @@ def save_synsets(wn: WordnetModel, home: str) -> None:
     # save
     for key, synsets in synset_yaml.items():
         with codecs.open(f'{home}/%s.yaml' % key, 'w', 'utf-8') as out:
-            out.write(yaml.dump(synsets, allow_unicode=True))
+            yaml.dump(synsets, out, allow_unicode=True)
 
 
 def save_verbframes(wn: WordnetModel, home: str) -> None:
@@ -212,7 +212,7 @@ def save_verbframes(wn: WordnetModel, home: str) -> None:
      """
     frame_yaml = {b.id: b.verbframe for b in wn.verbframes}
     with open(f'{home}/frames.yaml', 'w', encoding='utf-8') as out:
-        out.write(yaml.dump(frame_yaml, allow_unicode=True))
+        yaml.dump(frame_yaml, out, allow_unicode=True)
 
 
 def save(wn: WordnetModel, home: str) -> None:

@@ -26,7 +26,7 @@ def normalize(home: str, verbose: bool = False) -> None:
     for f in glob.glob(f"{home}/*.yaml"):
         data = yaml.load(open(f), Loader=yaml.CLoader)
         with open(f, "w", encoding='utf-8') as out:
-            out.write(yaml.dump(data, allow_unicode=True))
+            yaml.dump(data, out, allow_unicode=True)
     if verbose:
         print(f'normalized YAML in {home}')
 
