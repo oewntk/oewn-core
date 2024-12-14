@@ -13,7 +13,7 @@ Author: Bernard Bou <1313ou@gmail.com> for rewrite and revamp
 import argparse
 import sys
 import time
-from typing import Dict, Any, Set, Tuple
+from typing import Dict, Any, Set, Tuple, Optional
 
 import yaml
 
@@ -75,7 +75,7 @@ def inject_syntagnet_to_model(wn: WordnetModel, syntagnet: str, two_ways: bool =
                     fails += 1
 
             else:
-                print(f'{sk2} source not resolvable in collocation {sk1}-{sk2}', file=sys.stderr)
+                print(f'{sk1} source not resolvable in collocation for {sk1}', file=sys.stderr)
                 fails += 1
             sense1.relations = list(sorted(set(sense1.relations), key=lambda r: (r.relation_type, r.target)))
             if two_ways:
@@ -84,19 +84,19 @@ def inject_syntagnet_to_model(wn: WordnetModel, syntagnet: str, two_ways: bool =
     return count, fails
 
 
-def load_and_inject(in_dir: str, syntagnet: str, pickle: str = None) -> WordnetModel:
+def load_and_inject(in_dir: str, syntagnet: str, pickled: Optional[str] = None) -> WordnetModel:
     """
     Load Wordnet and SyntagNet from YAML, inject sn into wn
     :param in_dir: home dir for YAML or pickled model file(s)
     :param syntagnet: path to SyntagNet YAML data
-    :param pickle: whether to use pickled model
+    :param pickled: whether to use pickled model
     :return: Syntagnet-augmented model
     """
 
     def get_model() -> WordnetModel:
-        if pickle:
+        if pickled:
             from oewn_core.deserialize import load
-            return load(in_dir, file=pickle)
+            return load(in_dir, file=pickled)
         else:
             from oewn_core.wordnet_fromyaml import load
             return load(in_dir, resolve=True)

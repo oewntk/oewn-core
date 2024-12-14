@@ -60,8 +60,8 @@ def main() -> None:
         print(f'{os.path.basename(args.syntagnet)}', file=sys.stderr)
         incoming = yaml.safe_load(f)
         if isinstance(incoming, dict):
-            merge_files = sorted(glob(f'{args.in_dir}/entries-*.yaml'))
-            augment_yaml_files(f'{args.out_dir}', incoming, merge_files)
+            augmentable_files = sorted(glob(f'{args.in_dir}/entries-*.yaml'))
+            augment_yaml_files(f'{args.out_dir}', incoming, augmentable_files)
         else:
             print("Cannot augment with non dictionaries {}", file=sys.stderr)
 
