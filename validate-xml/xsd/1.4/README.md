@@ -1,7 +1,7 @@
-#WordNet-LMF 1.3
+#WordNet-LMF 1.4
 #===
 
-This migrates [WN-LMF 1.3 (DTD)](https://github.com/globalwordnet/schemas/blob/release-1.3/WN-LMF-1.3.dtd) to XSD form:
+This migrates [WN-LMF 1.4 (DTD)](https://github.com/globalwordnet/schemas/blob/release-1.4/WN-LMF-1.4.dtd) to XSD form:
 
 
 This is to equip WordNet with state-of-the-art validation schemas the way FrameNet did.
@@ -26,27 +26,27 @@ The design is modular:
 ***pwn.xsd*** for PWN types.
 ***ili.xsd*** for ili types.
 ***meta.xsd*** for meta types.
-***core-1.3.xsd*** for elements and the core structure.
+***core-1.4.xsd*** for elements and the core structure.
 
 This allows for different levels of validation to be performed.
 
 This makes it possible to bring stricter constraints to bear on the same data.
 But it does not mean the previous level is incompatible with the next.
-For example the data that satisfies WN-LMF-1.3-strict.xsd is a subset of data validated by WN-LMF-1.3.xsd
-(or WN-LMF-1.3 is a superset of WN-LMF-1.3).
+For example the data that satisfies WN-LMF-1.4-strict.xsd is a subset of data validated by WN-LMF-1.4.xsd
+(or WN-LMF-1.4 is a superset of WN-LMF-1.4).
 
 #### variants
 
-WN-LMF-1.3.xsd
-WN-LMF-1.3-strict.xsd which imposes constraints on word characters (it collects the characters that are known to be used,
+WN-LMF-1.4.xsd
+WN-LMF-1.4-strict.xsd which imposes constraints on word characters (it collects the characters that are known to be used,
 any new one will raise a validation error)
 
-### OEWN compatibility with 1.3 schema
+### OEWN compatibility with 1.4 schema
 
 The current merged file satisfies both:
 
-- WN-LMF-1.3.xsd
-- WN-LMF-1.3-strict.xsd
+- WN-LMF-1.4.xsd
+- WN-LMF-1.4-strict.xsd
 
 ### Validation tool
 

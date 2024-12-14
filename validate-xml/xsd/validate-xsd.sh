@@ -19,7 +19,7 @@ Z='\u001b[0m'
 DATA="$1"
 shift # consume
 
-XSD="1.3/WN-LMF-1.3.xsd"
+XSD="1.4/WN-LMF-1.4.xsd"
 echo -e "${M}XSD: $XSD${Z}" 1>&2;
 DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 XSD="${DIR}/${XSD}"
