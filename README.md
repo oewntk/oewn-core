@@ -85,6 +85,8 @@ Code comes in 3 packages:
 * [oewn_xml](oewn_xml) optional package which contains XML I/O and depends on oewn_core
 * [oewn_validate](oewn_validate) optional package which contains model validation and depends on oewn_core, but not on oewn_wml
   since it does not validate XML but only the model's semantics.
+* [oewn_syntagnet](https://github.com/oewntk/oewn-core/tree/main/oewn_syntagnet) optional package which augments/injects model 
+  with collocations provided by [SyntagNet](https://github.com/x-englishwordnet/syntagnet)
 
 ## Modules ##
 
