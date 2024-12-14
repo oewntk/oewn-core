@@ -1,5 +1,5 @@
 <component name="ProjectRunConfigurationManager">
-  <configuration default="false" name="test_browse" type="PythonConfigurationType" factoryName="Python" folderName="browse" nameIsGenerated="true">
+  <configuration default="false" name="export_syntagnet (from pickle)" type="PythonConfigurationType" factoryName="Python" folderName="syntagnet">
     <module name="oewn-core" />
     <option name="ENV_FILES" value="" />
     <option name="INTERPRETER_OPTIONS" value="" />
@@ -12,8 +12,8 @@
     <option name="IS_MODULE_SDK" value="true" />
     <option name="ADD_CONTENT_ROOTS" value="true" />
     <option name="ADD_SOURCE_ROOTS" value="true" />
-    <option name="SCRIPT_NAME" value="$PROJECT_DIR$/tests/test_browse.py" />
-    <option name="PARAMETERS" value="--pickle data-pickle" />
+    <option name="SCRIPT_NAME" value="$PROJECT_DIR$/oewn_syntagnet/export_syntagnet_to_yaml.py" />
+    <option name="PARAMETERS" value="--pickle data-pickle data-x/syntagnet data-x/syntagnet/collocations.yaml oewn.pickle" />
     <option name="SHOW_COMMAND_LINE" value="false" />
     <option name="EMULATE_TERMINAL" value="false" />
     <option name="MODULE_MODE" value="false" />

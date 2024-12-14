@@ -1,5 +1,5 @@
 <component name="ProjectRunConfigurationManager">
-  <configuration default="false" name="inject_syntagnet_to_yaml" type="PythonConfigurationType" factoryName="Python" folderName="extend" nameIsGenerated="true">
+  <configuration default="false" name="inject_syntagnet" type="PythonConfigurationType" factoryName="Python" folderName="syntagnet">
     <module name="oewn-core" />
     <option name="ENV_FILES" value="" />
     <option name="INTERPRETER_OPTIONS" value="" />

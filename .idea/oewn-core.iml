@@ -26,6 +26,7 @@
       <excludeFolder url="file://$MODULE_DIR$/data-in-test" />
       <excludeFolder url="file://$MODULE_DIR$/data-out-augmented" />
       <excludeFolder url="file://$MODULE_DIR$/data-out-test" />
+      <excludeFolder url="file://$MODULE_DIR$/data-out-augmented2" />
     </content>
     <orderEntry type="jdk" jdkName="Python 3.12 (oewn-core)" jdkType="Python SDK" />
     <orderEntry type="sourceFolder" forTests="false" />

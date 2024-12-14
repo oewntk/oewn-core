@@ -1,5 +1,5 @@
 <component name="ProjectRunConfigurationManager">
-  <configuration default="false" name="export_syntagnet" type="PythonConfigurationType" factoryName="Python">
+  <configuration default="false" name="export_syntagnet" type="PythonConfigurationType" factoryName="Python" folderName="syntagnet">
     <module name="oewn-core" />
     <option name="ENV_FILES" value="" />
     <option name="INTERPRETER_OPTIONS" value="" />
