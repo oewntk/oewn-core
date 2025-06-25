@@ -9,6 +9,15 @@ This project's purpose is to provide basic load/save utilities in Python for Ope
 The starting point is a number of Python scripts written by JohnMcCrae that used to come with OEWN source.
 These have been reworked.
 
+## Available from Python Package Index (PyPi)
+
+The library is available from [PyPI](https://pypi.org/project/oewn-core/).
+
+Within your python environment, run:
+
+`pip install oewn-core
+`
+
 ## Dataflows
 
 ![Dataflow](images/dataflow.png  "Dataflow")
