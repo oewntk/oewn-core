@@ -23,7 +23,7 @@ from oewn_core.wordnet import Entry, Synset, WordnetModel
 
 
 def strip_orphaned_member(synset: Synset, member_resolver: Dict[Tuple[str, str], Entry]):
-    for m in synset.members[:]: # shallow copy
+    for m in synset.members[:]:  # shallow copy
         if m not in member_resolver:
             synset.members.remove(m)
             print(f"removed member {m} in {synset.id}", file=sys.stderr)
@@ -33,6 +33,10 @@ def strip_orphaned_members(wn: WordnetModel):
     for s in wn.synsets:
         strip_orphaned_member(s, wn.member_resolver)
     return wn
+
+
+def _default_processing(wn: WordnetModel) -> WordnetModel:
+    pass
 
 
 def get_processing(name: str) -> Callable[[WordnetModel], WordnetModel]:

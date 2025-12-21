@@ -23,10 +23,6 @@ from oewn_core.wordnet_toyaml import save
 from oewn_core.wordnet import WordnetModel
 
 
-def _default_processing(wn: WordnetModel) -> WordnetModel:
-    pass
-
-
 def main(in_dir: str, out_dir: str, processf: Callable[[WordnetModel], WordnetModel] = None) -> None:
     """
     WordNet load-save
