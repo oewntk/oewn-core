@@ -24,7 +24,7 @@ from oewn_core.wordnet import Entry, Synset, WordnetModel
 
 def strip_orphaned_member(synset: Synset, member_resolver: Dict[Tuple[str, str], Entry]):
     for m in synset.members[:]:  # shallow copy
-        if m not in member_resolver:
+        if (m, synset.id) not in member_resolver:
             synset.members.remove(m)
             print(f"removed member {m} in {synset.id}", file=sys.stderr)
 
