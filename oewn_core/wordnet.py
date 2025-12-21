@@ -4,7 +4,7 @@ WordNet model
 Author: John McCrae <john@mccr.ae> for original code
 Author: Bernard Bou <1313ou@gmail.com> for rewrite and revamp
 """
-
+import sys
 #  Copyright (c) 2024.
 #  Creative Commons 4 for original code
 #  GPL3 for rewrite
@@ -517,6 +517,9 @@ class WordnetModel:
         :param synset: synset to extend
         """
         for r in synset.relations:
+            if r.target[0] == 'Q':
+                print(f"dropped Q-reference {r.target} as {r.relation_type} target", file=sys.stderr)
+                continue
             t = Synset.Relation.Type(r.relation_type)
             if t in Synset.Relation.inverses:
                 inv_t = Synset.Relation.inverses[t]

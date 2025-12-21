@@ -10,6 +10,7 @@ Author: Bernard Bou <1313ou@gmail.com> for rewrite and revamp
 #  GPL3 for rewrite
 
 import codecs
+import sys
 from typing import Dict, List, Any
 
 import yaml
@@ -72,8 +73,11 @@ def synset_to_yaml(synset, synset_resolver=None, member_resolver=None) -> Dict[s
     :return: dictionary
     """
     if member_resolver and not all((m, synset.id) in member_resolver for m in synset.members):
-        raise ValueError(f'Unresolved member in {synset.members}')
-
+        # raise ValueError(f'Unresolved member in {synset.members}')
+        print(f"{synset.id} members={synset.members}", file=sys.stderr)
+        for m in synset.members:
+            if (m, synset.id) not in member_resolver:
+                print(f"\t{m} unresolved", file=sys.stderr)
     y = {
         'members': synset.members,
         'partOfSpeech': synset.pos,
@@ -116,6 +120,9 @@ def synset_relations_to_yaml(synset: Synset, synset_resolver=None) -> Dict[str, 
     y: Dict[str, List[str]] = {}
     for r in synset.relations:
         t = Synset.Relation.Type(r.relation_type)
+        if r.target[0] == 'Q':
+            print(f"dropped Q-reference {r.target} as {r.relation_type} target", file=sys.stderr)
+            continue
         if t not in ignored_symmetric_synset_relations:
             if synset_resolver and r.target not in synset_resolver:
                 raise ValueError(f'Unresolved synset relation target {r.target} of type {t.value} in {synset.id}')
