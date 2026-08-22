@@ -16,7 +16,7 @@ import sys
 from collections import Counter
 from typing import Dict, Pattern, Tuple
 
-from oewn_core.wordnet import Entry, Synset, Sense, PartOfSpeech, WordnetModel
+from oewn_core.wordnet import Entry, Synset, Sense, PartOfSpeech, WordnetModel, is_synset_id
 
 
 class ValidationError(Exception):
@@ -222,9 +222,19 @@ def check_symmetry_synset(wn: WordnetModel, synset: Synset) -> None:
         t = Synset.Relation.Type(r.relation_type)
         if t in Synset.Relation.inverses:
             t2 = Synset.Relation.inverses[t]
-            synset2 = wn.synset_resolver[r.target]
-            if not any(r for r in synset2.relations if r.target == synset.id and Synset.Relation.Type(r.relation_type) == t2):
-                warn(f'No symmetric relation for {synset.id} ={r.relation_type}=> {synset2.id}')
+            if is_synset_id(r.target):
+                synset2 = wn.synset_resolver[r.target]
+                if not any(r for r in synset2.relations if
+                           r.target == synset.id and
+                           Synset.Relation.Type(r.relation_type) == t2):
+                    warn(f'No symmetric relation for {synset.id} ={r.relation_type}=> {synset2.id}')
+            else:
+                sense2 = wn.sense_resolver[r.target]
+                if not any(r for r in sense2.relations if
+                           r.target == synset.id and
+                           not r.other_type and
+                           Synset.Relation.Type(r.relation_type) == t2):
+                    warn(f'No symmetric relation for {synset.id} ={r.relation_type}=> {sense2.id}')
 
 
 def check_symmetry_sense(wn: WordnetModel, sense: Sense) -> None:
@@ -233,12 +243,19 @@ def check_symmetry_sense(wn: WordnetModel, sense: Sense) -> None:
             t = Sense.Relation.Type(r.relation_type)
             if t in Sense.Relation.inverses:
                 t2 = Sense.Relation.inverses[t]
-                sense2 = wn.sense_resolver[r.target]
-                if not any(r for r in sense2.relations if
-                           r.target == sense.id and
-                           not r.other_type and
-                           Sense.Relation.Type(r.relation_type) == t2):
-                    warn(f'No symmetric relation for {sense.id} ={r.relation_type}=> {sense2.id}')
+                if is_synset_id(r.target):
+                    synset2 = wn.synset_resolver[r.target]
+                    if not any(r for r in synset2.relations if
+                               r.target == sense.id and
+                               Sense.Relation.Type(r.relation_type) == t2):
+                        warn(f'No symmetric relation for {sense.id} ={r.relation_type}=> {synset2.id}')
+                else:
+                    sense2 = wn.sense_resolver[r.target]
+                    if not any(r for r in sense2.relations if
+                               r.target == sense.id and
+                               not r.other_type and
+                               Sense.Relation.Type(r.relation_type) == t2):
+                        warn(f'No symmetric relation for {sense.id} ={r.relation_type}=> {sense2.id}')
 
 
 def check_symmetry(wn: WordnetModel) -> None:
@@ -413,16 +430,22 @@ def check_synset_relations(wn: WordnetModel, synset: Synset) -> None:
     for r in synset.relations:
         t = Synset.Relation.Type(r.relation_type)
         # resolve target
-        try:
-            target = wn.synset_resolver[r.target]
-            # cross-pos hypernym
-            if t == Synset.Relation.Type.HYPERNYM and not equal_pos(pos, PartOfSpeech(target.pos)):
-                warn(f'Cross-part-of-speech hypernym {synset.id} => {r.target}')
-            # no synset antonym
-            if t == Synset.Relation.Type.ANTONYM:
-                warn(f'Antonymy should be at the sense level {synset.id} => {r.target}')
-        except KeyError as _:
-            warn(f'{synset.id} refers to nonexistent synset {r.target}')
+        if is_synset_id(r.target):
+            try:
+                target = wn.synset_resolver[r.target]
+                # cross-pos hypernym
+                if t == Synset.Relation.Type.HYPERNYM and not equal_pos(pos, PartOfSpeech(target.pos)):
+                    warn(f'Cross-part-of-speech hypernym {synset.id} => {r.target}')
+                # no synset antonym
+                if t == Synset.Relation.Type.ANTONYM:
+                    warn(f'Antonymy should be at the sense level {synset.id} => {r.target}')
+            except KeyError as _:
+                warn(f'{synset.id} refers to nonexistent synset {r.target}')
+        else:
+            try:
+                target = wn.sense_resolver[r.target]
+            except KeyError as _:
+                warn(f'{synset.id} refers to nonexistent sense {r.target}')
 
     # Duplicates
     sorted_relations = sorted(synset.relations, key=lambda _: (_.target, _.relation_type))
@@ -538,9 +561,9 @@ if __name__ == "__main__":
     def get_wn() -> WordnetModel:
         if args.pickle:
             from oewn_core.deserialize import load as pickle_load
-            return pickle_load(args.in_dir, args.pickled) #, extend=True
+            return pickle_load(args.in_dir, args.pickled)  # , extend=True
         from oewn_core.wordnet_fromyaml import load as yaml_load
-        return yaml_load(args.in_dir) # , extend=True
+        return yaml_load(args.in_dir)  # , extend=True
 
 
     _wn: WordnetModel = get_wn()
