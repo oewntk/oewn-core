@@ -151,7 +151,7 @@ def load_core(home: str) -> WordnetModel:
     wn = WordnetModel('oewn', 'Open English Wordnet', 'en',
                       'english-wordnet@googlegroups.com',
                       'https://creativecommons.org/licenses/by/4.0',
-                      '2024',
+                      '2026',
                       'https://github.com/globalwordnet/english-wordnet')
     # lex entries
     wn.entries, wn.sense_resolver, wn.member_resolver = load_entries(home)
