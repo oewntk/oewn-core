@@ -1,8 +1,13 @@
+"""
+Generate Open English Wordnet+ the version of Open English Wordnet extended
+with additional words and synsets from Open English Namenet.
+
+Author: Bernard Bou <1313ou@gmail.com>
+"""
+
 #  Copyright (c) 2026.
 #  Creative Commons 4 for original code
 #  GPL3 for rewrite
-# Generate Open English Wordnet+ the version of Open English Wordnet extended
-# with additional words and synsets from Open English Namenet.
 
 import argparse
 import os
