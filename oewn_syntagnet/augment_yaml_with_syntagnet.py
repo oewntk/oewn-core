@@ -7,7 +7,7 @@ Merges exported OEWN-SyntagNet into OEWN YAML files
 Author: Bernard Bou <1313ou@gmail.com> for rewrite and revamp
 """
 
-#  Copyright (c) 2024.
+#  Copyright (c) 2024-2026.
 #  Creative Commons 4 for original code
 #  GPL3 for rewrite
 
