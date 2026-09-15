@@ -6,7 +6,7 @@ from setuptools import setup, find_packages
 
 setup(
     name='oewn-core',
-    version='1.3.2',
+    version='1.4.1',
     author='Bernard Bou, John McCrae',
     author_email='oewntk@gmail.com',
     description='Core library for oewn',
@@ -19,7 +19,7 @@ setup(
         'Operating System :: OS Independent',
     ],
     license = 'GPL-3.0',
-    python_requires='>=3.9',
+    python_requires='>=3.12',
     install_requires=[
         'PyYAML',
     ],
