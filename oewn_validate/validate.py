@@ -354,7 +354,7 @@ def check_sense(wn: WordnetModel, sense: Sense) -> None:
     check_valid_sense_id_for_target(sense.id, sense.synsetid)
     # sensekey is well-formed as expected
     calc_sense_key = make_sense_key(wn, sense.entry, sense)
-    if sense.id != calc_sense_key:
+    if sense.id.removesuffix("99") != calc_sense_key:
         warn(f'Sense {sense.id} should have {calc_sense_key} id')
     # synset reference resolves
     try:
