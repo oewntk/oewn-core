@@ -134,11 +134,8 @@ def merge(wn: WordnetModel,
     merge_entries(wn, entries)
     merge_synsets(wn, synsets)
 
-    orphan_entries: List[Entry] = get_orphans(wn.synsets, wn.member_resolver | member_resolver)
-    for o in orphan_entries:
-        print("ORPHAN ", o, o.sensekeys, o.synsetids)
-
-    wn.entries += orphan_entries
+    #handle_orphans([wn.synset_resolver['08506402-n']], wn.entries, wn.member_resolver | member_resolver, wn.entry_resolver)
+    handle_orphans(wn.synsets, wn.entries, wn.member_resolver | member_resolver, wn.entry_resolver)
 
     # rebuild resolvers
     # wn.synset_resolver |= synset_resolver
@@ -216,9 +213,32 @@ def analyze_relations(entries: List[Entry],  #
     print(f"SENSE RELATIONS: {count} {relations}")
 
 
-def get_orphans(synsets: List[Synset],
-                member_resolver: Dict[Tuple[str, str], Entry]
-                ) -> List[Entry]:
+def handle_orphans(synsets: List[Synset],
+                   entries: List[Entry],
+                   member_resolver: Dict[Tuple[str, str], Entry],
+                   entry_resolver: Dict[Tuple[str, str, str | NoneType], Entry]
+                   ) -> NoneType:
+    for synset in synsets:
+        for member in synset.members:
+            if (member, synset.id) not in member_resolver:
+                pos = synset.nvar
+                key = (member, pos, None)
+                existing = entry_resolver.get(key)
+                entry = existing if existing is not None else Entry(member, pos, None)
+                sense_idx = 0 if entry.senses is None else len(entry.senses)
+                sk = make_sensekey(member, pos, synset.lex_name, sense_idx)
+                sense = Sense(sk, entry, synset.id)
+                entry.senses.append(sense)
+                if existing is None:
+                    entries.append(entry)
+
+                member_resolver[(member, synset.id)] = entry
+                entry_resolver[(member, pos, None)] = entry
+
+
+def get_orphans0(synsets: List[Synset],
+                 member_resolver: Dict[Tuple[str, str], Entry]
+                 ) -> List[Entry]:
     # orphan members
     orphan_members_by_key = dict()
     for synset in synsets:
@@ -265,30 +285,30 @@ def run(wn: WordnetModel, oenn_dir: str, out_dir: str) -> WordnetModel:
         analyze(wn, entries, sense_resolver, member_resolver, synsets, synset_resolver)
         merge(wn, entries, sense_resolver, member_resolver, synsets, synset_resolver)
 
-        m = wn.member_resolver[('C-horizon','08676407-n')]
-        e = wn.entry_resolver[('C-horizon', 'n', None)]
-        es1 = wn.entries_resolver_by_lemma['C-horizon']
-        es2 = wn.entries_resolver_by_lemma_pos[('C-horizon', 'n')]
-        print(m)
-        print(e)
-        print(es1)
-        print(es2)
-
-        s = wn.synset_resolver['08511469-n']
-        print(s.members)
-        m = member_resolver.get(('Antarctic', '08511469-n'))
-        print(m)
-        m = member_resolver.get(('Antarctic Zone','08511469-n'))
-        print(m)
-        m = member_resolver.get(('South Frigid Zone','08511469-n'))
-        print(m)
-
-        m = wn.member_resolver.get(('Antarctic', '08511469-n'))
-        print(m)
-        m = wn.member_resolver.get(('Antarctic Zone', '08511469-n'))
-        print(m)
-        m = wn.member_resolver.get(('South Frigid Zone', '08511469-n'))
-        print(m)
+        #m = wn.member_resolver[('C-horizon', '08676407-n')]
+        #e = wn.entry_resolver[('C-horizon', 'n', None)]
+        #es1 = wn.entries_resolver_by_lemma['C-horizon']
+        #es2 = wn.entries_resolver_by_lemma_pos[('C-horizon', 'n')]
+        #print(m)
+        #print(e)
+        #print(es1)
+        #print(es2)
+#
+        #s = wn.synset_resolver['08511469-n']
+        #print(s.members)
+        #m = member_resolver.get(('Antarctic', '08511469-n'))
+        #print(m)
+        #m = member_resolver.get(('Antarctic Zone', '08511469-n'))
+        #print(m)
+        #m = member_resolver.get(('South Frigid Zone', '08511469-n'))
+        #print(m)
+#
+        #m = wn.member_resolver.get(('Antarctic', '08511469-n'))
+        #print(m)
+        #m = wn.member_resolver.get(('Antarctic Zone', '08511469-n'))
+        #print(m)
+        #m = wn.member_resolver.get(('South Frigid Zone', '08511469-n'))
+        #print(m)
 
         save(wn, out_dir)
     return wn
