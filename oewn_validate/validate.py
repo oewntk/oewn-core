@@ -20,6 +20,8 @@ from oewn_core.wordnet import Entry, Synset, Sense, PartOfSpeech, WordnetModel
 
 do_not_break_on_error = False
 
+skip_symmetry = False
+
 
 class ValidationError(Exception):
     def __init__(self, message) -> None:
@@ -520,7 +522,8 @@ def main(wn: WordnetModel) -> None:
     check_senses(wn)
     check_synsets(wn)
 
-    check_symmetry(wn)
+    if not skip_symmetry:
+        check_symmetry(wn)
     check_transitive(wn)
     check_no_loops(wn)
     check_no_domain_loops(wn)
@@ -532,6 +535,7 @@ if __name__ == "__main__":
     arg_parser.add_argument('in_dir', type=str, help='from-dir for yaml/pickle')
     arg_parser.add_argument('pickled', type=str, nargs='?', default='oewn.pickle', help='from-pickle')
     arg_parser.add_argument('--do_not_break_on_error', action='store_true', default=False, help='do not break on error')
+    arg_parser.add_argument('--skip_symmetry', action='store_true', default=False, help='drop symmetry tests')
     args = arg_parser.parse_args()
     do_not_break_on_error = args.do_not_break_on_error
     skip_symmetry = args.skip_symmetry
