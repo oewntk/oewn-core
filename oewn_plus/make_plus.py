@@ -15,49 +15,99 @@ from oewn_core.wordnet import WordnetModel, Entry, Sense, Synset
 from oewn_core.wordnet_fromyaml import load_entries, load_synsets
 from wordnet_toyaml import save
 
+lex_file_nums: Dict[str, int] = {
+    "adj.all": 0,
+    "adj.pert": 1,
+    "adv.all": 2,
+    "noun.Tops": 3,
+    "noun.act": 4,
+    "noun.animal": 5,
+    "noun.artifact": 6,
+    "noun.attribute": 7,
+    "noun.body": 8,
+    "noun.cognition": 9,
+    "noun.communication": 10,
+    "noun.event": 11,
+    "noun.feeling": 12,
+    "noun.food": 13,
+    "noun.group": 14,
+    "noun.location": 15,
+    "noun.motive": 16,
+    "noun.object": 17,
+    "noun.person": 18,
+    "noun.phenomenon": 19,
+    "noun.plant": 20,
+    "noun.possession": 21,
+    "noun.process": 22,
+    "noun.quantity": 23,
+    "noun.relation": 24,
+    "noun.shape": 25,
+    "noun.state": 26,
+    "noun.substance": 27,
+    "noun.time": 28,
+    "verb.body": 29,
+    "verb.change": 30,
+    "verb.cognition": 31,
+    "verb.communication": 32,
+    "verb.competition": 33,
+    "verb.consumption": 34,
+    "verb.contact": 35,
+    "verb.creation": 36,
+    "verb.emotion": 37,
+    "verb.motion": 38,
+    "verb.perception": 39,
+    "verb.possession": 40,
+    "verb.social": 41,
+    "verb.stative": 42,
+    "verb.weather": 43,
+    "adj.ppl": 44}
 
-def pseudo_entries(self):
-    for (lemma, pos), synsets in self._pseudo_entries:
-        entry = Entry(lemma, pos, None)
-        for idx, synset in enumerate(synsets):
-            senseid = self.make_sensekey(lemma, pos, idx)
-            synsetid = synset.id
-            sense = Sense(senseid, entry, synsetid, adjposition=None)
-            entry.senses.append(sense)
-        yield entry
+
+def analyze_intersect(wn: WordnetModel,
+                      entries: List[Entry],  #
+                      synsets: List[Synset],  #
+                      ) -> NoneType:
+    intersection = set(wn.entries).intersection(set(entries))
+    print(f"intersection entries: {len(intersection)}", file=sys.stderr)
+
+    intersection = set(wn.synsets).intersection(set(synsets))
+    print(f"intersection synsets: {len(intersection)}", file=sys.stderr)
 
 
-def recursively_sort(data):
-    """Recursively sort the dictionary by keys."""
-    if isinstance(data, dict):
-        sorted_data = dict()
-        for key in sorted(data.keys()):
-            sorted_data[key] = recursively_sort(data[key])
-        return sorted_data
-    elif isinstance(data, list):
-        return [recursively_sort(item) for item in data]
-    else:
-        return data
+def analyze_relations(entries: List[Entry],  #
+                      synsets: List[Synset],  #
+                      ) -> NoneType:
+    # synset relations
+    count = 0
+    relations = set()
+    for synset in synsets:
+        for relation in synset.relations:
+            # if count < 5: print(f"-SYNSET RELATION: {relation}")
+            count += 1
+            relations.add(relation.relation_type)
+    print(f"synset relations: {count} {relations}", file=sys.stderr)
+
+    # sense relations
+    count = 0
+    relations = set()
+    for entry in entries:
+        for s in entry.senses:
+            for r in s.relations:
+                # if count < 5: print(f"-SENSE RELATION: {r}")
+                count += 1
+                relations.add(r.relation_type)
+    print(f"sense relations: {count} {relations}", file=sys.stderr)
 
 
-def make_sensekey(lemma, pos, lex_name, idx):
-    lemma = lemma.replace(' ', '_')
-
-    def to_num(type):
-        if type == 'n':
-            return 1
-        elif type == 'v':
-            return 2
-        elif type == 'a':
-            return 3
-        elif type == 'r':
-            return 4
-        elif type == 's':
-            return 5
-        else:
-            raise Exception(type)
-
-    return f"{lemma}%{to_num(pos)}:{lex_name}:{idx + 1}"
+def analyze(wn: WordnetModel,
+            entries: List[Entry],  #
+            sense_resolver: Dict[str, Sense],  #
+            member_resolver: Dict[Tuple[str, str], Entry],  #
+            synsets: List[Synset],  #
+            synset_resolver: Dict[str, Synset],  #
+            ) -> NoneType:
+    analyze_intersect(wn, entries, synsets)
+    analyze_relations(entries, synsets)
 
 
 def merge_entry(old_entry: Entry, new_entry: Entry):
@@ -101,116 +151,29 @@ def merge_synsets(wn: WordnetModel,
     return wn
 
 
-def build_member_resolver0(wn) -> Dict[Tuple[str, str], Entry]:
-    def find_first(entries2: List[Entry], synsetid: str) -> Entry | None:
-        try:
-            return next(e for e in entries2 if synsetid in e.synsetids)
-        except StopIteration:
-            print(f"NOT FOUND {synsetid} {entries2} {[e.synsetids for e in entries2]}")
+def make_sensekey(lemma: str, pos: str, lex_name: str, idx: int) -> str:
+    def type_to_num(t: str) -> int:
+        if t == 'n':
+            return 1
+        elif t == 'v':
+            return 2
+        elif t == 'a':
+            return 3
+        elif t == 'r':
+            return 4
+        elif t == 's':
+            return 5
+        else:
+            raise Exception(t)
 
-    entries_resolver = wn.entries_resolver_by_lemma_pos
-    return {
-        (lemma, synsetid): match
-        for (lemma, pos, synsetid) in wn.synset_members
-        if (match := find_first(entries_resolver.get((lemma, pos), []), synsetid)) is not None
-    }
+    def lex_name_to_num(n: str) -> int:
+        return lex_file_nums[n]
 
+    def pad2(n: int) -> str:
+        return f"{n:02d}"
 
-def build_member_resolver(wn) -> Dict[Tuple[str, str], Entry]:
-    r = dict()
-    for e in wn.entries:
-        for s in e.synsetids:
-            r[(e.lemma, s)] = e
-    return r
-
-
-def merge(wn: WordnetModel,
-          entries: List[Entry],  #
-          sense_resolver: Dict[str, Sense],  #
-          member_resolver: Dict[Tuple[str, str], Entry],  #
-          synsets: List[Synset],  #
-          synset_resolver: Dict[str, Synset],  #
-          ) -> WordnetModel:
-    merge_entries(wn, entries)
-    merge_synsets(wn, synsets)
-
-    #handle_orphans([wn.synset_resolver['08506402-n']], wn.entries, wn.member_resolver | member_resolver, wn.entry_resolver)
-    handle_orphans(wn.synsets, wn.entries, wn.member_resolver | member_resolver, wn.entry_resolver)
-
-    # rebuild resolvers
-    # wn.synset_resolver |= synset_resolver
-    # wn.sense_resolver |= sense_resolver
-    # wn.member_resolver |= member_resolver
-
-    wn.synset_resolver = {synset.id: synset for synset in wn.synsets}
-    wn.sense_resolver = {sense.id: sense for sense in wn.senses}
-    wn.member_resolver = build_member_resolver(wn)
-
-    s = sorted(wn.entries, key=lambda e: e.mkey)
-    dupes = {x for i, x in enumerate(s) if i and x == s[i - 1]}
-    print("DUPES ", dupes)
-
-    print("MERGED")
-    return wn
-
-
-def analyze_duplicates(wn: WordnetModel,
-                       entries: List[Entry],  #
-                       synsets: List[Synset],  #
-                       ) -> NoneType:
-    # synsets
-    count = 0
-    for synset in synsets:
-        if synset.id in wn.synset_resolver:
-            if count < 5: print(f"-DUPLICATED: {synset.id}")
-            count += 1
-    print(f"DUPLICATED SYNSETS: {count}")
-
-    # entries
-    count = 0
-    for entry in entries:
-        if entry.mkey in wn.member_resolver:
-            if count < 5: print(f"-DUPLICATED: {entry.mkey}")
-            count += 1
-    print(f"DUPLICATED ENTRIES BY NVAR: {count}")
-
-
-def analyze_duplicates2(wn: WordnetModel,
-                        entries: List[Entry],  #
-                        synsets: List[Synset],  #
-                        ) -> NoneType:
-    # synsets
-    intersection = set(wn.entries).intersection(set(entries))
-    print(f"INTERSECTION ENTRIES BY NVAR: {len(intersection)}")
-
-    # entries
-    intersection = set(wn.synsets).intersection(set(synsets))
-    print(f"INTERSECTION SYNSETS: {len(intersection)}")
-
-
-def analyze_relations(entries: List[Entry],  #
-                      synsets: List[Synset],  #
-                      ) -> NoneType:
-    # synset relations
-    count = 0
-    relations = set()
-    for synset in synsets:
-        for relation in synset.relations:
-            # if count < 5: print(f"-SYNSET RELATION: {relation}")
-            count += 1
-            relations.add(relation.relation_type)
-    print(f"SYNSET RELATIONS: {count} {relations}")
-
-    # sense relations
-    count = 0
-    relations = set()
-    for entry in entries:
-        for s in entry.senses:
-            for r in s.relations:
-                # if count < 5: print(f"-SENSE RELATION: {r}")
-                count += 1
-                relations.add(r.relation_type)
-    print(f"SENSE RELATIONS: {count} {relations}")
+    lemma = lemma.replace(' ', '_').lower()
+    return f"{lemma}%{type_to_num(pos)}:{pad2(lex_name_to_num(lex_name))}:{pad2(idx)}::99"
 
 
 def handle_orphans(synsets: List[Synset],
@@ -218,6 +181,8 @@ def handle_orphans(synsets: List[Synset],
                    member_resolver: Dict[Tuple[str, str], Entry],
                    entry_resolver: Dict[Tuple[str, str, str | NoneType], Entry]
                    ) -> NoneType:
+    count = 0
+    new_count = 0
     for synset in synsets:
         for member in synset.members:
             if (member, synset.id) not in member_resolver:
@@ -231,84 +196,74 @@ def handle_orphans(synsets: List[Synset],
                 entry.senses.append(sense)
                 if existing is None:
                     entries.append(entry)
-
+                    new_count += 1
                 member_resolver[(member, synset.id)] = entry
                 entry_resolver[(member, pos, None)] = entry
+                count += 1
+    print(f"handled {count} member orphans member creating {new_count} entries")
 
 
-def get_orphans0(synsets: List[Synset],
-                 member_resolver: Dict[Tuple[str, str], Entry]
-                 ) -> List[Entry]:
-    # orphan members
-    orphan_members_by_key = dict()
-    for synset in synsets:
-        for member in synset.members:
-            if (member, synset.id) not in member_resolver:
-                pos = synset.nvar
-                key = (member, pos, None)
-                entry = orphan_members_by_key.get(key)
-                if entry is None:
-                    entry = Entry(member, pos, None)
-                    orphan_members_by_key[key] = entry
+def merge(wn: WordnetModel,
+          entries: List[Entry],  #
+          sense_resolver: Dict[str, Sense],  #
+          member_resolver: Dict[Tuple[str, str], Entry],  #
+          synsets: List[Synset],  #
+          synset_resolver: Dict[str, Synset],  #
+          ) -> WordnetModel:
+    merge_entries(wn, entries)
+    merge_synsets(wn, synsets)
 
-                sense_idx = 0 if entry.senses is None else len(entry.senses)
-                sense = Sense(make_sensekey(member, pos, synset.lex_name, sense_idx), entry, synset.id)
-                entry.senses.append(sense)
-    orphan_members = (orphan_members_by_key.values())
-    return sorted(orphan_members, key=lambda e: e.mkey)
+    # handle_orphans([wn.synset_resolver['08506402-n']], wn.entries, wn.member_resolver | member_resolver, wn.entry_resolver)
+    handle_orphans(wn.synsets, wn.entries, wn.member_resolver | member_resolver, wn.entry_resolver)
 
+    # rebuild resolvers
+    wn.synset_resolver = {synset.id: synset for synset in wn.synsets}
+    wn.sense_resolver = {sense.id: sense for sense in wn.senses}
+    wn.member_resolver = {(e.lemma, s): e for e in wn.entries for s in e.synsetids}
 
-def analyze(wn: WordnetModel,
-            entries: List[Entry],  #
-            sense_resolver: Dict[str, Sense],  #
-            member_resolver: Dict[Tuple[str, str], Entry],  #
-            synsets: List[Synset],  #
-            synset_resolver: Dict[str, Synset],  #
-            ) -> NoneType:
-    analyze_duplicates(wn, entries, synsets)
-    analyze_duplicates2(wn, entries, synsets)
-    analyze_relations(entries, synsets)
+    print("merged")
+    return wn
 
 
 def run(wn: WordnetModel, oenn_dir: str, out_dir: str) -> WordnetModel:
     home = f"{oenn_dir}/data"
-    if not os.path.exists(f"{home}/addendum/sense_orders.yaml"):
-        raise ValueError(f"Addendum file not found: {home}/addendum/sense_orders.yaml")
+    if not os.path.exists(f"{home}/curated"):
+        raise ValueError(f"Curated dir not found in {home}")
 
     path = f"{home}/curated"
     if os.path.exists(path):
         entries, sense_resolver, member_resolver = load_entries(path)
         synsets, synset_resolver = load_synsets(path)
-        print(f"Loaded {len(entries)} curated entries", file=sys.stderr)
-        print(f"Loaded {len(synsets)} curated synsets", file=sys.stderr)
+        print(f"loaded {len(entries)} curated entries")
+        print(f"loaded {len(synsets)} curated synsets")
 
         analyze(wn, entries, sense_resolver, member_resolver, synsets, synset_resolver)
         merge(wn, entries, sense_resolver, member_resolver, synsets, synset_resolver)
 
-        #m = wn.member_resolver[('C-horizon', '08676407-n')]
-        #e = wn.entry_resolver[('C-horizon', 'n', None)]
-        #es1 = wn.entries_resolver_by_lemma['C-horizon']
-        #es2 = wn.entries_resolver_by_lemma_pos[('C-horizon', 'n')]
-        #print(m)
-        #print(e)
-        #print(es1)
-        #print(es2)
-#
-        #s = wn.synset_resolver['08511469-n']
-        #print(s.members)
-        #m = member_resolver.get(('Antarctic', '08511469-n'))
-        #print(m)
-        #m = member_resolver.get(('Antarctic Zone', '08511469-n'))
-        #print(m)
-        #m = member_resolver.get(('South Frigid Zone', '08511469-n'))
-        #print(m)
-#
-        #m = wn.member_resolver.get(('Antarctic', '08511469-n'))
-        #print(m)
-        #m = wn.member_resolver.get(('Antarctic Zone', '08511469-n'))
-        #print(m)
-        #m = wn.member_resolver.get(('South Frigid Zone', '08511469-n'))
-        #print(m)
+        # m = wn.member_resolver[('C-horizon', '08676407-n')]
+        # e = wn.entry_resolver[('C-horizon', 'n', None)]
+        # es1 = wn.entries_resolver_by_lemma['C-horizon']
+        # es2 = wn.entries_resolver_by_lemma_pos[('C-horizon', 'n')]
+        # print(m)
+        # print(e)
+        # print(es1)
+        # print(es2)
+        #
+        # s = wn.synset_resolver['08511469-n']
+        # print(s.members)
+        # m = member_resolver.get(('Antarctic', '08511469-n'))
+        # print(m)
+        # m = member_resolver.get(('Antarctic Zone', '08511469-n'))
+        # print(m)
+        # m = member_resolver.get(('South Frigid Zone', '08511469-n'))
+        # print(m)
+        #
+        # m = wn.member_resolver.get(('Antarctic', '08511469-n'))
+        # print(m)
+        # m = wn.member_resolver.get(('Antarctic Zone', '08511469-n'))
+        # print(m)
+        # m = wn.member_resolver.get(('South Frigid Zone', '08511469-n'))
+        # print(m)
 
         save(wn, out_dir)
     return wn
