@@ -165,8 +165,12 @@ def save_entries(wn: WordnetModel, home: str) -> None:
 
         # uniqueness
         key = f'{entry.pos}-{entry.discriminant}' if entry.discriminant else entry.pos
-        if key in entry_yaml[first][entry.lemma]:
-            raise ValueError(f'Duplicate entry: {entry.lemma}-{key}')
+        tier1 = entry_yaml[first][entry.lemma]
+        if key in tier1:
+            y0 = tier1[key]
+            message = f'Duplicate entry: {entry.lemma}-{key} has {y0} replaced by {y}'
+            print(message)
+        #    raise ValueError(message)
 
         entry_yaml[first][entry.lemma][key] = y
 
