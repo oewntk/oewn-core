@@ -18,18 +18,16 @@ from typing import Dict, Pattern, Tuple
 
 from oewn_core.wordnet import Entry, Synset, Sense, PartOfSpeech, WordnetModel
 
+do_not_break_on_error = False
+
 
 class ValidationError(Exception):
     def __init__(self, message) -> None:
         self.message = message
         super().__init__(self.message)
 
-
-break_on_error = True
-
-
 def warn(message: str) -> None:
-    if break_on_error:
+    if not do_not_break_on_error:
         raise ValidationError(message)
     else:
         print(message, file=sys.stderr)
@@ -533,7 +531,10 @@ if __name__ == "__main__":
     arg_parser.add_argument('--pickle', action='store_true', default=False, help='use pickle')
     arg_parser.add_argument('in_dir', type=str, help='from-dir for yaml/pickle')
     arg_parser.add_argument('pickled', type=str, nargs='?', default='oewn.pickle', help='from-pickle')
+    arg_parser.add_argument('--do_not_break_on_error', action='store_true', default=False, help='do not break on error')
     args = arg_parser.parse_args()
+    do_not_break_on_error = args.do_not_break_on_error
+    skip_symmetry = args.skip_symmetry
 
 
     def get_wn() -> WordnetModel:
