@@ -76,8 +76,9 @@ needed.
 Code comes in 3 packages:
 
 * [oewn_core](https://github.com/oewntk/oewn-core/tree/main/oewn_core) which contains model and YAML I/O and knows nothing of oewn_xml
+* [oewn_plus](https://github.com/oewntk/oewn-core/tree/main/oewn_plus) which contains YAML OENN I/O with handling of orphan synset members
 * [oewn_xml](https://github.com/oewntk/oewn-core/tree/main/oewn_xml) optional package which contains XML I/O and depends on oewn_core
-* [oewn_validate](https://github.com/oewntk/oewn-core/tree/main/oewn_validate) optional package which contains model validation and depends on oewn_core, but not on oewn_wml
+* [oewn_validate](https://github.com/oewntk/oewn-core/tree/main/oewn_validate) optional package which contains model validation and depends on oewn_core, but not on oewn_xml
   since it does not validate XML but only the model's semantics.
 * [oewn_syntagnet](https://github.com/oewntk/oewn-core/tree/main/oewn_syntagnet) optional package which augments/injects model 
   with collocations provided by [SyntagNet](https://github.com/x-englishwordnet/syntagnet)
@@ -91,6 +92,7 @@ Code comes in 3 packages:
 **Suppliers**:  YAML/XML/pickle
 
 - [fromyaml](https://github.com/oewntk/oewn-core/tree/main/oewn_core/wordnet_fromyaml.py) : Supply model from YAML
+- [make-plus](https://github.com/oewntk/oewn-core/tree/main/oewn_plus/make-plus.py) : Supply model from YAML OEWN+OENN
 - [fromxml](https://github.com/oewntk/oewn-core/tree/main/oewn_xml/wordnet_fromxml.py) : Supply model from (one-file) XML
 
 **Consumers**: YAML/XML/pickle
@@ -177,7 +179,7 @@ Bernard Bou revised, trimmed, revamped it <1313ou@gmail>.
 
 Licence is CC-4 for original code.
 
-License is GPL-3 for revisions.
+License is GPL-3 for revisions and new code.
 
 ## Related ##
 
