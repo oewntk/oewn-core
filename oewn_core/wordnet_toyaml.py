@@ -169,8 +169,8 @@ def save_entries(wn: WordnetModel, home: str) -> None:
         if key in tier1:
             y0 = tier1[key]
             message = f'Duplicate entry: {entry.lemma}-{key} has {y0} replaced by {y}'
-            print(message)
-        #    raise ValueError(message)
+            # print(message)
+            raise ValueError(message)
 
         entry_yaml[first][entry.lemma][key] = y
 
