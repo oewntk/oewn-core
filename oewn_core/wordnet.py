@@ -445,7 +445,7 @@ class WordnetModel:
 
     def __init__(self, lexicon_id, label, language, email, wnlicense, version, url) -> None:
 
-        # meta data
+        # metadata
         self.id: str = lexicon_id
         self.label: str = label
         self.language: str = language

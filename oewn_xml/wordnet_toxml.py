@@ -28,7 +28,7 @@ def lexicon_to_xml(wn: WordnetModel, out, comments=None) -> None:
     :return: None
     """
     out.write('<?xml version="1.0" encoding="UTF-8"?>\n')
-    out.write('<!DOCTYPE LexicalResource SYSTEM "http://globalwordnet.github.io/schemas/WN-LMF-1.1.dtd">\n')
+    out.write('<!DOCTYPE LexicalResource SYSTEM "https://globalwordnet.github.io/schemas/WN-LMF-1.1.dtd">\n')
     out.write('<LexicalResource xmlns:dc="https://globalwordnet.github.io/schemas/dc/">\n')
     out.write(f"""{I * 1}<Lexicon id="{wn.id}"
         label="{wn.label}"
@@ -132,9 +132,14 @@ def definition_to_xml(definition: str, out, is_ili=False) -> None:
 
 
 def example_to_xml(example: str | Example, indent: int, out):
-    is_example = isinstance(example, Example)
-    e = escape_xml_lit(example.text if is_example else example)
-    s = example.source if is_example and example.source else None
+    if isinstance(example, Example):
+        text = example.text
+        source = example.source
+    else:
+        text = example
+        source = None
+    e = escape_xml_lit(text)
+    s = source if source else None
     result = f'{I * indent}<Example dc:source="{escape_xml_lit(s)}">{e}</Example>\n' if s else f'{I * indent}<Example>{e}</Example>\n'
     out.write(result)
 

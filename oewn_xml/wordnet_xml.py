@@ -28,7 +28,7 @@ xml_id_az = r'A-Za-z'
 xml_id_num = r'0-9'
 xml_id_extend = (
     r'\xC0-\xD6'  # Latin letters with diacritics
-    r'\xD8-\xF6'  # Additional latin letters with diacritics
+    r'\xD8-\xF6'  # Additional Latin letters with diacritics
     r'\xF8-\u02FF'  # Extended Latin letters and characters from the Latin Extended-A, Greek, and other blocks
     r'\u0370-\u037D'  # Greek letters and many characters from scripts such as Coptic, Armenian, Hebrew, Arabic, and more
     r'\u037F-\u1FFF'  # Greek letters and many characters from scripts such as Coptic, Armenian, Hebrew, Arabic, and more

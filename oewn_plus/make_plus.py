@@ -101,10 +101,10 @@ def analyze_relations(entries: List[Entry],  #
 
 def analyze(wn: WordnetModel,
             entries: List[Entry],  #
-            sense_resolver: Dict[str, Sense],  #
-            member_resolver: Dict[Tuple[str, str], Entry],  #
+            #
+            #
             synsets: List[Synset],  #
-            synset_resolver: Dict[str, Synset],  #
+            #
             ) -> NoneType:
     analyze_intersect(wn, entries, synsets)
     analyze_relations(entries, synsets)
@@ -204,11 +204,9 @@ def handle_orphans(synsets: List[Synset],
 
 
 def merge(wn: WordnetModel,
-          entries: List[Entry],  #
-          sense_resolver: Dict[str, Sense],  #
+          entries: List[Entry],
           member_resolver: Dict[Tuple[str, str], Entry],  #
-          synsets: List[Synset],  #
-          synset_resolver: Dict[str, Synset],  #
+          synsets: List[Synset],
           ) -> WordnetModel:
     merge_entries(wn, entries)
     merge_synsets(wn, synsets)
@@ -237,8 +235,8 @@ def run(wn: WordnetModel, oenn_dir: str, out_dir: str) -> WordnetModel:
         print(f"loaded {len(entries)} curated entries")
         print(f"loaded {len(synsets)} curated synsets")
 
-        analyze(wn, entries, sense_resolver, member_resolver, synsets, synset_resolver)
-        merge(wn, entries, sense_resolver, member_resolver, synsets, synset_resolver)
+        analyze(wn, entries, synsets)
+        merge(wn, entries, member_resolver, synsets)
 
         # m = wn.member_resolver[('C-horizon', '08676407-n')]
         # e = wn.entry_resolver[('C-horizon', 'n', None)]

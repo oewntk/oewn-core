@@ -13,7 +13,6 @@ Author: Bernard Bou <1313ou@gmail.com> for rewrite and revamp
 #  GPL3 for rewrite
 
 import argparse
-import codecs
 import re
 import sys
 import time
@@ -78,12 +77,14 @@ class SAXParser(ContentHandler):
     def startElement(self, name, attrs) -> None:
         if name == 'LexicalEntry':
             entryid = attrs.get('id')
+            if entryid is None: raise ValueError("Null ID")
             match = re.search(self.discriminant_pattern, entryid)
             d = match.group()[1:] if match else None
-            self.entry = Entry(None, None, d)
             if entryid in self.entry_resolver:
                 raise ValueError(f'Duplicate entry ID while parsing: {entryid}')
-            self.entry_resolver[entryid] = self.entry
+            new_entry = Entry(None, None, d)
+            self.entry = new_entry
+            self.entry_resolver[entryid] = new_entry
         elif name == 'Sense':
             senseid = from_xml_sense_id(attrs['id'])
             synsetid = make_synset_id(attrs['synset'])
@@ -102,6 +103,7 @@ class SAXParser(ContentHandler):
             self.entry.lemma = attrs['writtenForm']
             self.entry.pos = attrs['partOfSpeech']
         elif name == 'Form':
+            assert self.entry
             self.entry.forms.append(attrs['writtenForm'])
         elif name == 'Definition':
             self.defn = ''
@@ -115,12 +117,14 @@ class SAXParser(ContentHandler):
         elif name == 'SynsetRelation':
             target = make_synset_id(attrs['target'])
             rtype = attrs['relType']
+            assert self.synset
             self.synset.relations.append(Synset.Relation(target, Synset.Relation.Type(rtype).value))
         elif name == 'SenseRelation':
             target = make_sense_id(attrs['target'])
             rtype = attrs['relType']
             is_other = rtype == Sense.Relation.Type.OTHER.value
             rtype2 = Sense.Relation.OtherType(attrs['dc:type']).value if is_other else Sense.Relation.Type(rtype).value
+            assert self.sense
             self.sense.relations.append(Sense.Relation(target, rtype2, is_other))
         elif name == 'SyntacticBehaviour':
             self.verbframes.append(VerbFrame(attrs['id'], attrs['subcategorizationFrame']))
@@ -143,10 +147,12 @@ class SAXParser(ContentHandler):
 
     def endElement(self, name) -> None:
         if name == 'LexicalEntry':
+            assert self.entry
             self.entries.append(self.entry)
             self.entry = None
         elif name == 'Sense':
             assert self.entry
+            assert self.sense
             self.entry.senses.append(self.sense)
             if self.sense.id in self.sense_resolver:
                 raise ValueError(f'Duplicate sense ID while parsing: {self.sense.id}')
@@ -157,6 +163,7 @@ class SAXParser(ContentHandler):
             self.member_resolver[mk] = self.entry
             self.sense = None
         elif name == 'Synset':
+            assert self.synset
             self.synsets.append(self.synset)
             if self.synset.id in self.member_resolver:
                 raise ValueError(f'Duplicate synset ID while parsing: {self.synset.id}')
@@ -164,6 +171,7 @@ class SAXParser(ContentHandler):
             self.synset = None
         elif name == 'Definition':
             assert self.synset
+            assert self.defn
             self.synset.definitions.append(self.defn)
             self.defn = None
         elif name == 'ILIDefinition':
@@ -173,12 +181,15 @@ class SAXParser(ContentHandler):
         elif name == 'Example':
             if self.synset:
                 e = Example(self.example, self.example_source) if self.example_source else self.example
+                assert e
                 self.synset.examples.append(e)
             elif self.sense:
+                assert self.example
                 self.sense.examples.append(self.example)
             self.example = None
         elif name == 'Usage':
             assert self.synset
+            assert self.usage
             self.synset.usages.append(self.usage)
             self.usage = None
         elif name == 'Pronunciation':
@@ -215,7 +226,7 @@ class SAXParser(ContentHandler):
 
 
 def load_core(wordnet_file) -> WordnetModel:
-    with codecs.open(wordnet_file, encoding='utf-8') as source:
+    with open(wordnet_file, encoding='utf-8') as source:
         sax_parser = SAXParser()
         parse(source, sax_parser)
         return sax_parser.get_parsed()

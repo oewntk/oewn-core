@@ -186,6 +186,7 @@ def get_head_word(wn: WordnetModel, sense: Sense) -> Tuple[str, str] | None:
         head_id = m.group(1)
         return head, head_id
     warn(f'Could not deduce target of satellite {sense.id}')
+    return None
 
 
 def make_sense_key(wn: WordnetModel, entry: Entry, sense: Sense) -> str:
@@ -380,7 +381,7 @@ def check_sense_relations(wn: WordnetModel, sense: Sense) -> None:
 
 
 def check_sense_verbframes(sense: Sense) -> None:
-    counter = Counter(sense.verbframeids)
+    counter = Counter(sense.verbframeids or [])
     for item, count in counter.items():
         if count > 1:
             warn(f'Duplicate verb frames in entry {sense.id}')

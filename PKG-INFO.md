@@ -157,9 +157,9 @@ It is advisable to save it in a variable for later use to avoid recreating this 
 
 ## Testing ##
 
-* yaml → model → yaml
-* yaml → model → xml → model → yaml
-* yaml → pickle → yaml
+* YAML → model → YAML
+* YAML → model → XML → model → YAML
+* YAML → pickle → YAML
 
 must produce identical input and output at the ends of the chains
 

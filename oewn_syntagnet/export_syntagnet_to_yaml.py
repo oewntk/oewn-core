@@ -30,14 +30,13 @@ Author: Bernard Bou <1313ou@gmail.com> for rewrite and revamp
 #  GPL3 for rewrite
 
 import argparse
-import codecs
 import sys
 import time
 from typing import Dict, List, Any, Optional
 
 import yaml
 
-from oewn_core.wordnet import WordnetModel, Sense
+from oewn_core.wordnet import WordnetModel, Sense, Entry
 from oewn_syntagnet.inject_syntagnet import load_and_inject
 
 
@@ -55,9 +54,9 @@ def sense_relations_to_yaml(sense: Sense) -> List[str]:
     return y
 
 
-def sense_to_yaml(sense) -> Optional[Dict[str, Any]]:
+def sense_to_yaml(sense: Sense) -> Optional[Dict[str, Any]]:
     """
-    Build YAML dictionary for sense
+    Build YAML dictionary for a sense
     :param sense: sense
     :return: YAML dictionary or None if sense has no collocation
     """
@@ -69,9 +68,9 @@ def sense_to_yaml(sense) -> Optional[Dict[str, Any]]:
     return None
 
 
-def entry_to_yaml(entry) -> Optional[Dict[str, Any]]:
+def entry_to_yaml(entry: Entry) -> Optional[Dict[str, Any]]:
     """
-    Build YAML dictionary for lexical entry
+    Build YAML dictionary for a lexical entry
     :param entry: lexical entry
     :return: YAML dictionary
     """
@@ -104,7 +103,7 @@ def save_entries(wn: WordnetModel, home: str) -> None:
             y[entry.lemma][key] = ye
 
     # save
-    with codecs.open(f'{home}/oewn-syntagnet.yaml', 'w', 'utf-8') as out:
+    with open(f'{home}/oewn-syntagnet.yaml', 'w', encoding='utf-8') as out:
         yaml.dump(y, out, allow_unicode=True)
 
 
