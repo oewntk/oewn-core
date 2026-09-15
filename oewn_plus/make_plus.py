@@ -134,10 +134,10 @@ def merge(wn: WordnetModel,
     merge_entries(wn, entries)
     merge_synsets(wn, synsets)
 
-
     orphan_entries: List[Entry] = get_orphans(wn.synsets, wn.member_resolver | member_resolver)
     for o in orphan_entries:
         print("ORPHAN ", o, o.sensekeys, o.synsetids)
+
     wn.entries += orphan_entries
 
     # rebuild resolvers
