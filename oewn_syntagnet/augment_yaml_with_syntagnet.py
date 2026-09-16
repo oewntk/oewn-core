@@ -15,9 +15,11 @@ import argparse
 import os
 import sys
 from glob import glob
-from typing import Dict, Any, List
+from typing import Dict, Any, List, TypeVar
 
 import yaml
+
+AnyStr = TypeVar('AnyStr', str, bytes)
 
 
 def augment_yaml_files(out_dir, incoming: Dict[str, Any], files: List[str]):

@@ -18,15 +18,16 @@ from typing import Dict, Pattern, Tuple
 
 from oewn_core.wordnet import Entry, Synset, Sense, PartOfSpeech, WordnetModel
 
-do_not_break_on_error = False
+do_not_break_on_error: bool = False
 
-skip_symmetry = False
+skip_symmetry: bool = False
 
 
 class ValidationError(Exception):
     def __init__(self, message) -> None:
         self.message = message
         super().__init__(self.message)
+
 
 def warn(message: str) -> None:
     if not do_not_break_on_error:
@@ -530,23 +531,23 @@ def main(wn: WordnetModel) -> None:
 
 
 if __name__ == "__main__":
-    arg_parser = argparse.ArgumentParser(description="load from yaml and save")
+    arg_parser: argparse.ArgumentParser = argparse.ArgumentParser(description="load from yaml and save")
     arg_parser.add_argument('--pickle', action='store_true', default=False, help='use pickle')
     arg_parser.add_argument('in_dir', type=str, help='from-dir for yaml/pickle')
     arg_parser.add_argument('pickled', type=str, nargs='?', default='oewn.pickle', help='from-pickle')
     arg_parser.add_argument('--do_not_break_on_error', action='store_true', default=False, help='do not break on error')
     arg_parser.add_argument('--skip_symmetry', action='store_true', default=False, help='drop symmetry tests')
-    args = arg_parser.parse_args()
-    do_not_break_on_error = args.do_not_break_on_error
-    skip_symmetry = args.skip_symmetry
+    args: argparse.NameSpace = arg_parser.parse_args()
+    do_not_break_on_error: bool = args.do_not_break_on_error
+    skip_symmetry: bool = args.skip_symmetry
 
 
     def get_wn() -> WordnetModel:
         if args.pickle:
             from oewn_core.deserialize import load as pickle_load
-            return pickle_load(args.in_dir, args.pickled) #, extend=True
+            return pickle_load(args.in_dir, args.pickled)  # , extend=True
         from oewn_core.wordnet_fromyaml import load as yaml_load
-        return yaml_load(args.in_dir) # , extend=True
+        return yaml_load(args.in_dir)  # , extend=True
 
 
     _wn: WordnetModel = get_wn()

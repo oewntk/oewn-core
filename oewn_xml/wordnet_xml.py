@@ -11,7 +11,9 @@ Author: Michael Wayne Goodman <goodman.m.w@gmail.com> for escaping
 
 import re
 from abc import abstractmethod, ABC
-from typing import Any, Dict, Tuple
+from typing import Any, Dict, Tuple, TypeVar, Callable
+
+_FuncT = TypeVar('_FuncT', bound=Callable)
 
 # Constrain input to avoid non letters or unescaped chars, or not
 unconstrained = False

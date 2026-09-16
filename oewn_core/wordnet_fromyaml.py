@@ -15,11 +15,13 @@ import sys
 import time
 from glob import glob
 from pathlib import Path
-from typing import Any, Tuple, List, Dict
+from typing import Any, Tuple, List, Dict, TypeVar
 
 import yaml
 
 from oewn_core.wordnet import WordnetModel, Entry, Sense, Synset, PartOfSpeech, Example, Pronunciation, VerbFrame
+
+AnyStr = TypeVar('AnyStr', str, bytes)
 
 
 def load_verbframes(home: str) -> List[VerbFrame]:
