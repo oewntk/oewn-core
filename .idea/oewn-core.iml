@@ -7,6 +7,7 @@
       <sourceFolder url="file://$MODULE_DIR$/oewn_xml" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/oewn_validate" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/oewn_syntagnet" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/oewn_plus" isTestSource="false" />
       <excludeFolder url="file://$MODULE_DIR$/.venv" />
       <excludeFolder url="file://$MODULE_DIR$/data-in" />
       <excludeFolder url="file://$MODULE_DIR$/data-out" />
@@ -27,6 +28,11 @@
       <excludeFolder url="file://$MODULE_DIR$/data-out-augmented" />
       <excludeFolder url="file://$MODULE_DIR$/data-out-test" />
       <excludeFolder url="file://$MODULE_DIR$/data-out-augmented2" />
+      <excludeFolder url="file://$MODULE_DIR$/data-in-oenn" />
+      <excludeFolder url="file://$MODULE_DIR$/data-in-plus" />
+      <excludeFolder url="file://$MODULE_DIR$/data-out-tweaked" />
+      <excludeFolder url="file://$MODULE_DIR$/data-out-plus" />
+      <excludeFolder url="file://$MODULE_DIR$/data-pr" />
     </content>
     <orderEntry type="jdk" jdkName="Python 3.12 (oewn-core)" jdkType="Python SDK" />
     <orderEntry type="sourceFolder" forTests="false" />

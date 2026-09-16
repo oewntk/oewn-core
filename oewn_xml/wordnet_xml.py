@@ -5,13 +5,15 @@ Author: John McCrae <john@mccr.ae> for original code
 Author: Bernard Bou <1313ou@gmail.com> for rewrite and revamp
 Author: Michael Wayne Goodman <goodman.m.w@gmail.com> for escaping
 """
-#  Copyright (c) 2024.
+#  Copyright (c) 2024-2026.
 #  Creative Commons 4 for original code
 #  GPL3 for rewrite
 
 import re
 from abc import abstractmethod, ABC
-from typing import Any, Dict, Tuple
+from typing import Any, Dict, Tuple, TypeVar, Callable
+
+_FuncT = TypeVar('_FuncT', bound=Callable)
 
 # Constrain input to avoid non letters or unescaped chars, or not
 unconstrained = False
@@ -28,7 +30,7 @@ xml_id_az = r'A-Za-z'
 xml_id_num = r'0-9'
 xml_id_extend = (
     r'\xC0-\xD6'  # Latin letters with diacritics
-    r'\xD8-\xF6'  # Additional latin letters with diacritics
+    r'\xD8-\xF6'  # Additional Latin letters with diacritics
     r'\xF8-\u02FF'  # Extended Latin letters and characters from the Latin Extended-A, Greek, and other blocks
     r'\u0370-\u037D'  # Greek letters and many characters from scripts such as Coptic, Armenian, Hebrew, Arabic, and more
     r'\u037F-\u1FFF'  # Greek letters and many characters from scripts such as Coptic, Armenian, Hebrew, Arabic, and more
@@ -254,10 +256,10 @@ class DashNameFactory(NameFactory):
     }
 
     char_escapes: Dict[str, str] = esc_char_escapes | base_char_escapes | extra_char_escapes
-    char_escapes_reverse: Dict[str, str] = {v: k for k, v in char_escapes.items()}
+    char_escapes_reverse: Dict[str, str] = dict(zip(char_escapes.values(), char_escapes.keys()))
 
     char_escapes_for_sk: Dict[str, str] = base_char_escapes | sk_char_escapes
-    char_escapes_for_sk_reverse: Dict[str, str] = {v: k for k, v in char_escapes_for_sk.items()}
+    char_escapes_for_sk_reverse: Dict[str, str] = dict(zip(char_escapes_for_sk.values(), char_escapes_for_sk.keys()))
 
     def __init__(self, main_separator, minor_separator) -> None:
         self.xml_percent_sep = main_separator

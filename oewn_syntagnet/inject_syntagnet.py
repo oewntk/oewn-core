@@ -6,7 +6,7 @@ Inject SyntagNet (YAML) into the model
 Author: Bernard Bou <1313ou@gmail.com> for rewrite and revamp
 """
 
-#  Copyright (c) 2024.
+#  Copyright (c) 2024-2026.
 #  Creative Commons 4 for original code
 #  GPL3 for rewrite
 
@@ -57,16 +57,18 @@ def inject_syntagnet_to_model(wn: WordnetModel, syntagnet: str, two_ways: bool =
                         t = Sense.Relation.Type.COLLOCATION
 
                         # add to sense 1
-                        if sense1.relations is None:
-                            sense1.relations = []
+                        # if sense1.relations is None:
+                        #    sense1.relations = []
+
                         # print(f"add {sk1}-{t}->{sk2}")
                         sense1.relations.append(Sense.Relation(sk2, t))
                         count += 1
 
                         if two_ways:
                             # add to sense 2
-                            if sense2.relations is None:
-                                sense2.relations = []
+                            #if sense2.relations is None:
+                            #    sense2.relations = []
+
                             # print(f"add {sk2}-{t}->{sk1}")
                             sense2.relations.append(Sense.Relation(sk1, t))
                             count += 1
