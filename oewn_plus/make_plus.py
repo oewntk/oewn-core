@@ -18,7 +18,7 @@ from typing import List, Dict, Tuple
 
 from oewn_core.wordnet import WordnetModel, Entry, Sense, Synset
 from oewn_core.wordnet_fromyaml import load_entries, load_synsets
-from wordnet_toyaml import save
+from oewn_core.wordnet_toyaml import save
 
 lex_file_nums: Dict[str, int] = {
     "adj.all": 0,
