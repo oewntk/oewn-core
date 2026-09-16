@@ -254,10 +254,10 @@ class DashNameFactory(NameFactory):
     }
 
     char_escapes: Dict[str, str] = esc_char_escapes | base_char_escapes | extra_char_escapes
-    char_escapes_reverse: Dict[str, str] = {v: k for k, v in char_escapes.items()}
+    char_escapes_reverse: Dict[str, str] = dict(zip(char_escapes.values(), char_escapes.keys()))
 
     char_escapes_for_sk: Dict[str, str] = base_char_escapes | sk_char_escapes
-    char_escapes_for_sk_reverse: Dict[str, str] = {v: k for k, v in char_escapes_for_sk.items()}
+    char_escapes_for_sk_reverse: Dict[str, str] = dict(zip(char_escapes_for_sk.values(), char_escapes_for_sk.keys()))
 
     def __init__(self, main_separator, minor_separator) -> None:
         self.xml_percent_sep = main_separator
