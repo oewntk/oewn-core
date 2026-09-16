@@ -537,7 +537,7 @@ if __name__ == "__main__":
     arg_parser.add_argument('pickled', type=str, nargs='?', default='oewn.pickle', help='from-pickle')
     arg_parser.add_argument('--do_not_break_on_error', action='store_true', default=False, help='do not break on error')
     arg_parser.add_argument('--skip_symmetry', action='store_true', default=False, help='drop symmetry tests')
-    args: argparse.NameSpace = arg_parser.parse_args()
+    args: argparse.Namespace = arg_parser.parse_args()
     do_not_break_on_error: bool = args.do_not_break_on_error
     skip_symmetry: bool = args.skip_symmetry
 
