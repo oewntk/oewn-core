@@ -6,4 +6,4 @@
 # GPL3 for rewrite
 #
 
-./.venv/bin/pytype --pythonpath=. -o .pytype_gen/ oewn_core oewn_plus oewn_xml oewn_syntagnet oewn_validate
+./.venv/bin/pytype --pythonpath=. -o .pytype/ oewn_core oewn_plus oewn_xml oewn_syntagnet oewn_validate tests
