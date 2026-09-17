@@ -574,6 +574,7 @@ if __name__ == "__main__":
 
 
     _wn: WordnetModel = get_wn()
+    _wn.extend()
     try:
         main(_wn)
         print("No validity issues")
