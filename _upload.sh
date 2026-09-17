@@ -1,6 +1,6 @@
 
 #
-# Copyright (c) 2024.
+# Copyright (c) 2024-2026.
 # Creative Commons 4 for original code
 # GPL3 for rewrite
 #
@@ -8,4 +8,4 @@
 # https://pypi.org/
 
 .venv/bin/python3 -m pip install --upgrade twine
-.venv/bin/python3 -m twine upload --repository pypi dist/*
+.venv/bin/python3 -m twine upload --verbose --repository pypi dist/*

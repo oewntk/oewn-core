@@ -8,7 +8,7 @@ __pycache__
 /upstream
 /upstream/
 /oewn_core.egg-info/
-/.pytype/
+/.pytype*/
 .venv/
 .idea/workspace.xml
 /tests/_test*.py

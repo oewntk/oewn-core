@@ -7,7 +7,7 @@ Merges exported OEWN-SyntagNet into OEWN YAML files
 Author: Bernard Bou <1313ou@gmail.com> for rewrite and revamp
 """
 
-#  Copyright (c) 2024.
+#  Copyright (c) 2024-2026.
 #  Creative Commons 4 for original code
 #  GPL3 for rewrite
 
@@ -15,9 +15,11 @@ import argparse
 import os
 import sys
 from glob import glob
-from typing import Dict, Any, List
+from typing import Dict, Any, List, TypeVar
 
 import yaml
+
+AnyStr = TypeVar('AnyStr', str, bytes)
 
 
 def augment_yaml_files(out_dir, incoming: Dict[str, Any], files: List[str]):

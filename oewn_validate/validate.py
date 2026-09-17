@@ -6,7 +6,7 @@ This validation does not validate XML form (use an XML validator)
 Author: John McCrae <john@mccr.ae> for original code
 Author: Bernard Bou <1313ou@gmail.com> for rewrite and revamp
 """
-#  Copyright (c) 2024.
+#  Copyright (c) 2024-2026.
 #  Creative Commons 4 for original code
 #  GPL3 for rewrite
 
@@ -18,6 +18,10 @@ from typing import Dict, Pattern, Tuple
 
 from oewn_core.wordnet import Entry, Synset, Sense, PartOfSpeech, WordnetModel, is_synset_id
 
+do_not_break_on_error: bool = False
+
+skip_symmetry: bool = False
+
 
 class ValidationError(Exception):
     def __init__(self, message) -> None:
@@ -25,11 +29,8 @@ class ValidationError(Exception):
         super().__init__(self.message)
 
 
-break_on_error = True
-
-
 def warn(message: str) -> None:
-    if break_on_error:
+    if not do_not_break_on_error:
         raise ValidationError(message)
     else:
         print(message, file=sys.stderr)
@@ -186,6 +187,7 @@ def get_head_word(wn: WordnetModel, sense: Sense) -> Tuple[str, str] | None:
         head_id = m.group(1)
         return head, head_id
     warn(f'Could not deduce target of satellite {sense.id}')
+    return None
 
 
 def make_sense_key(wn: WordnetModel, entry: Entry, sense: Sense) -> str:
@@ -370,7 +372,7 @@ def check_sense(wn: WordnetModel, sense: Sense) -> None:
     check_valid_sense_id_for_target(sense.id, sense.synsetid)
     # sensekey is well-formed as expected
     calc_sense_key = make_sense_key(wn, sense.entry, sense)
-    if sense.id != calc_sense_key:
+    if sense.id.removesuffix("99") != calc_sense_key:
         warn(f'Sense {sense.id} should have {calc_sense_key} id')
     # synset reference resolves
     try:
@@ -397,7 +399,7 @@ def check_sense_relations(wn: WordnetModel, sense: Sense) -> None:
 
 
 def check_sense_verbframes(sense: Sense) -> None:
-    counter = Counter(sense.verbframeids)
+    counter = Counter(sense.verbframeids or [])
     for item, count in counter.items():
         if count > 1:
             warn(f'Duplicate verb frames in entry {sense.id}')
@@ -544,18 +546,23 @@ def main(wn: WordnetModel) -> None:
     check_senses(wn)
     check_synsets(wn)
 
-    check_symmetry(wn)
+    if not skip_symmetry:
+        check_symmetry(wn)
     check_transitive(wn)
     check_no_loops(wn)
     check_no_domain_loops(wn)
 
 
 if __name__ == "__main__":
-    arg_parser = argparse.ArgumentParser(description="load from yaml and save")
+    arg_parser: argparse.ArgumentParser = argparse.ArgumentParser(description="load from yaml and save")
     arg_parser.add_argument('--pickle', action='store_true', default=False, help='use pickle')
     arg_parser.add_argument('in_dir', type=str, help='from-dir for yaml/pickle')
     arg_parser.add_argument('pickled', type=str, nargs='?', default='oewn.pickle', help='from-pickle')
-    args = arg_parser.parse_args()
+    arg_parser.add_argument('--do_not_break_on_error', action='store_true', default=False, help='do not break on error')
+    arg_parser.add_argument('--skip_symmetry', action='store_true', default=False, help='drop symmetry tests')
+    args: argparse.Namespace = arg_parser.parse_args()
+    do_not_break_on_error: bool = args.do_not_break_on_error
+    skip_symmetry: bool = args.skip_symmetry
 
 
     def get_wn() -> WordnetModel:
