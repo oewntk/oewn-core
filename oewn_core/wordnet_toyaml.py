@@ -5,11 +5,10 @@ Author: John McCrae <john@mccr.ae> for original code
 Author: Bernard Bou <1313ou@gmail.com> for rewrite and revamp
 """
 
-#  Copyright (c) 2024.
+#  Copyright (c) 2024-2026.
 #  Creative Commons 4 for original code
 #  GPL3 for rewrite
 
-import codecs
 import sys
 from typing import Dict, List, Any
 
@@ -172,16 +171,20 @@ def save_entries(wn: WordnetModel, home: str) -> None:
 
         # uniqueness
         key = f'{entry.pos}-{entry.discriminant}' if entry.discriminant else entry.pos
-        if key in entry_yaml[first][entry.lemma]:
-            raise ValueError(f'Duplicate entry: {entry.lemma}-{key}')
+        tier1 = entry_yaml[first][entry.lemma]
+        if key in tier1:
+            y0 = tier1[key]
+            message = f'Duplicate entry: {entry.lemma}-{key} has {y0} replaced by {y}'
+            # print(message)
+            raise ValueError(message)
 
         entry_yaml[first][entry.lemma][key] = y
 
     # save
     for c in az:
-        with codecs.open(f'{home}/entries-%s.yaml' % c, 'w', 'utf-8') as out:
+        with open(f'{home}/entries-%s.yaml' % c, 'w', encoding='utf-8') as out:
             yaml.dump(entry_yaml[c], out, allow_unicode=True)
-    with codecs.open(f'{home}/entries-0.yaml', 'w', 'utf-8') as out:
+    with open(f'{home}/entries-0.yaml', 'w', encoding='utf-8') as out:
         yaml.dump(entry_yaml['0'], out, allow_unicode=True)
 
 
@@ -207,7 +210,7 @@ def save_synsets(wn: WordnetModel, home: str) -> None:
 
     # save
     for key, synsets in synset_yaml.items():
-        with codecs.open(f'{home}/%s.yaml' % key, 'w', 'utf-8') as out:
+        with open(f'{home}/%s.yaml' % key, 'w', encoding='utf-8') as out:
             yaml.dump(synsets, out, allow_unicode=True)
 
 

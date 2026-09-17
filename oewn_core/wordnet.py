@@ -4,13 +4,15 @@ WordNet model
 Author: John McCrae <john@mccr.ae> for original code
 Author: Bernard Bou <1313ou@gmail.com> for rewrite and revamp
 """
-import sys
-#  Copyright (c) 2024.
+
+#  Copyright (c) 2024-2026.
 #  Creative Commons 4 for original code
 #  GPL3 for rewrite
 
+import sys
 from enum import StrEnum, Enum
 from typing import Any, Optional, Tuple, List, Dict, Set, Generator
+from collections import defaultdict
 
 
 class Entry:
@@ -33,6 +35,22 @@ class Entry:
     @property
     def key(self) -> Tuple[str, str, str | None]:
         return self.lemma, self.pos, self.discriminant
+
+    @property
+    def mkey(self) -> Tuple[str, str]:
+        return self.lemma, self.nvar
+
+    @property
+    def sensekeys(self) -> List[str]:
+        return [s.id for s in self.senses]
+
+    @property
+    def synsetids(self) -> List[str]:
+        return [s.synsetid for s in self.senses]
+
+    @property
+    def nvar(self) -> str:
+        return 'a' if self.pos == 's' else self.pos
 
 
 class Sense:
@@ -169,6 +187,10 @@ class Synset:
     def __setstate__(self, state) -> None:
         self.__dict__.update(state)
         self.resolved_members = None  # restore o a default or None value
+
+    @property
+    def nvar(self) -> str:
+        return 'a' if self.pos == 's' else self.pos
 
     class Relation:
         """ Semantic relation (synset to synset)"""
@@ -424,7 +446,7 @@ class WordnetModel:
 
     def __init__(self, lexicon_id, label, language, email, wnlicense, version, url) -> None:
 
-        # meta data
+        # metadata
         self.id: str = lexicon_id
         self.label: str = label
         self.language: str = language
@@ -459,6 +481,20 @@ class WordnetModel:
         return {e.key: e for e in self.entries}
 
     @property
+    def entries_resolver_by_lemma_pos(self) -> Dict[Tuple[str, str], List['Entry']]:
+        result = defaultdict(list)
+        for e in self.entries:
+            result[e.mkey].append(e)
+        return dict(result)  # optional: drop dict() to keep as defaultdict
+
+    @property
+    def entries_resolver_by_lemma(self) -> Dict[str, List['Entry']]:
+        result = defaultdict(list)
+        for e in self.entries:
+            result[e.lemma].append(e)
+        return dict(result)  # optional: drop dict() to keep as defaultdict
+
+    @property
     def senses(self) -> Generator[Sense, None, None]:
         """ Senses generator """
         for e in self.entries:
@@ -478,6 +514,13 @@ class WordnetModel:
         for ss in self.synsets:
             for r in ss.relations:
                 yield r
+
+    @property
+    def synset_members(self) -> Generator[Tuple[str, str, str], None, None]:
+        """ Synset members generator """
+        for s in self.synsets:
+            for m in s.members:
+                yield m, s.nvar, s.id
 
     @property
     def verbframe_resolver(self) -> Dict[str, str]:

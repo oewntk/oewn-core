@@ -6,7 +6,7 @@ WordNet from-YAML utilities
 Author: John McCrae <john@mccr.ae> for original code
 Author: Bernard Bou <1313ou@gmail.com> for rewrite and revamp
 """
-#  Copyright (c) 2024.
+#  Copyright (c) 2024-2026.
 #  Creative Commons 4 for original code
 #  GPL3 for rewrite
 
@@ -15,11 +15,13 @@ import sys
 import time
 from glob import glob
 from pathlib import Path
-from typing import Any, Tuple, List, Dict
+from typing import Any, Tuple, List, Dict, TypeVar
 
 import yaml
 
 from oewn_core.wordnet import WordnetModel, Entry, Sense, Synset, PartOfSpeech, Example, Pronunciation, VerbFrame
+
+AnyStr = TypeVar('AnyStr', str, bytes)
 
 
 def load_verbframes(home: str) -> List[VerbFrame]:
@@ -151,7 +153,7 @@ def load_core(home: str) -> WordnetModel:
     wn = WordnetModel('oewn', 'Open English Wordnet', 'en',
                       'english-wordnet@googlegroups.com',
                       'https://creativecommons.org/licenses/by/4.0',
-                      '2024',
+                      '2026',
                       'https://github.com/globalwordnet/english-wordnet')
     # lex entries
     wn.entries, wn.sense_resolver, wn.member_resolver = load_entries(home)

@@ -1,6 +1,6 @@
-<p align="center">
-<img width="256" src="images/oewntk.png" alt="OEWNTK">
-</p>
+<div style="text-align: center;">
+  <img src="images/oewntk.png" alt="OEWNTK" width="256">
+</div>
 
 # Open English Wordnet core Python toolkit
 
@@ -88,7 +88,7 @@ needed.
 
 ## Packages
 
-Code comes in 3 packages:
+Code comes in (1+4) packages:
 
 * [oewn_core](oewn_core) which contains model and YAML I/O and knows nothing of oewn_xml
 * [oewn_xml](oewn_xml) optional package which contains XML I/O and depends on oewn_core
@@ -96,6 +96,8 @@ Code comes in 3 packages:
   since it does not validate XML but only the model's semantics.
 * [oewn_syntagnet](https://github.com/oewntk/oewn-core/tree/main/oewn_syntagnet) optional package which augments/injects model 
   with collocations provided by [SyntagNet](https://github.com/x-englishwordnet/syntagnet)
+* [oewn_plus](https://github.com/oewntk/oewn-core/tree/main/oewn_plus) optional package which builds a model 
+  from both OEWN and OENN
 
 ## Modules ##
 
@@ -107,6 +109,7 @@ Code comes in 3 packages:
 
 - [fromyaml](oewn_core/wordnet_fromyaml.py) : Supply model from YAML
 - [fromxml](oewn_xml/wordnet_fromxml.py) : Supply model from (one-file) XML
+- [plus](oewn_plus/make_plus.py) : Supply model from YAML OEWN and YAML OENN, merging the data
 
 **Consumers**: YAML/XML/pickle
 
@@ -172,9 +175,9 @@ It is advisable to save it in a variable for later use to avoid recreating this 
 
 ## Testing ##
 
-* yaml → model → yaml
-* yaml → model → xml → model → yaml
-* yaml → pickle → yaml
+* YAML → model → YAML
+* YAML → model → XML → model → YAML
+* YAML → pickle → YAML
 
 must produce identical input and output at the ends of the chains
 
