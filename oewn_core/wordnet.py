@@ -9,6 +9,7 @@ Author: Bernard Bou <1313ou@gmail.com> for rewrite and revamp
 #  Creative Commons 4 for original code
 #  GPL3 for rewrite
 
+import re
 from enum import StrEnum, Enum
 from typing import Any, Optional, Tuple, List, Dict, Set, Generator
 from collections import defaultdict
@@ -557,6 +558,7 @@ class WordnetModel:
                     inv_t = Sense.Relation.inverses[t]
                     if inv_t != t and t not in ignored_symmetric_sense_relations:
                         if is_synset_id(r.target):
+                            # sense (relation) to synset
                             target_synset = self.synset_resolver[r.target]
                             if not target_synset:
                                 raise ValueError(f'Unresolved synset target {r.target} in relation of type {t} in sense {sense.id}')
@@ -564,6 +566,7 @@ class WordnetModel:
                                        r2.target == sense.id and Synset.Relation.Type(r2.relation_type) == inv_t):
                                 target_synset.relations.append(Synset.Relation(sense.id, inv_t.value))
                         else:
+                            # sense (relation) to sense
                             target_sense = self.sense_resolver[r.target]
                             if not target_sense:
                                 raise ValueError(f'Unresolved sense target {r.target} in relation of type {t} in sense {sense.id}')
@@ -581,11 +584,21 @@ class WordnetModel:
             if t in Synset.Relation.inverses:
                 inv_t = Synset.Relation.inverses[t]
                 if inv_t != t and t not in ignored_symmetric_synset_relations:
-                    target_synset = self.synset_resolver[r.target]
-                    if not target_synset:
-                        raise ValueError(f'Unresolved target {r.target} in relation of type {t} in synset {synset.id}')
-                    if not any(r2 for r2 in target_synset.relations if r2.target == synset.id and Synset.Relation.Type(r2.relation_type) == inv_t):
-                        target_synset.relations.append(Synset.Relation(synset.id, inv_t.value))
+                    if is_synset_id(r.target):
+                        # synset(relation) to synset
+                        target_synset = self.synset_resolver[r.target]
+                        if not target_synset:
+                            raise ValueError(f'Unresolved synset target {r.target} in relation of type {t} in synset {synset.id}')
+                        if not any(r2 for r2 in target_synset.relations if r2.target == synset.id and Synset.Relation.Type(r2.relation_type) == inv_t):
+                            target_synset.relations.append(Synset.Relation(synset.id, inv_t.value))
+                    else:
+                        # synset(relation) to sense
+                        target_sense = self.sense_resolver[r.target]
+                        if not target_sense:
+                            raise ValueError(f'Unresolved sense target {r.target} in relation of type {t} in synset {synset.id}')
+                        if not any(r2 for r2 in target_sense.relations if
+                                   r2.target == synset.id and not r2.other_type and Sense.Relation.Type(r2.relation_type) == inv_t):
+                            target_sense.relations.append(Sense.Relation(synset.id, inv_t.value))
 
     def resolve(self) -> None:
         """
