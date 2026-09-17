@@ -1,7 +1,7 @@
 #!/usr/bin/python3
 
 """
-WordNet load-save
+WordNet load-process-save
 Will have a normalizing effect, after which it's not modified
 
 Author: John McCrae <john@mccr.ae> for original code
@@ -16,6 +16,7 @@ import argparse
 import sys
 import time
 from collections.abc import Callable
+from types import NoneType
 
 from oewn_core.wordnet_fromyaml import load
 from oewn_core.wordnet_toyaml import save
@@ -23,9 +24,9 @@ from oewn_core.wordnet_toyaml import save
 from oewn_core.wordnet import WordnetModel
 
 
-def main(in_dir: str, out_dir: str, processf: Callable[[WordnetModel], WordnetModel] = None) -> None:
+def main(in_dir: str, out_dir: str, processf: Callable[[WordnetModel], WordnetModel]|NoneType = None) -> None:
     """
-    WordNet load-save
+    WordNet load-process-save
     Will have a normalizing effect, after which it's not modified
     """
     wn = load(in_dir)
@@ -45,4 +46,4 @@ if __name__ == '__main__':
     main(args.in_dir, args.out_dir)
     end_time = time.time()
     duration = end_time - start_time
-    print(f"Identity conversion took {duration:.6f} seconds", file=sys.stderr)
+    print(f"Conversion took {duration:.6f} seconds", file=sys.stderr)

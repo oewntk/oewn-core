@@ -72,11 +72,12 @@ def synset_to_yaml(synset, synset_resolver=None, member_resolver=None) -> Dict[s
     :return: dictionary
     """
     if member_resolver and not all((m, synset.id) in member_resolver for m in synset.members):
-        # raise ValueError(f'Unresolved member in {synset.members}')
         print(f"{synset.id} members={synset.members}", file=sys.stderr)
-        for m in synset.members:
-            if (m, synset.id) not in member_resolver:
-                print(f"\t{m} unresolved", file=sys.stderr)
+        m = next((m for m in synset.members if (m, synset.id) not in member_resolver), None)
+        message = f"{m} not resolved in members {synset.members} of {synset.id}"
+        # print(message, file=sys.stderr)
+        raise ValueError(message)
+
     y = {
         'members': synset.members,
         'partOfSpeech': synset.pos,
